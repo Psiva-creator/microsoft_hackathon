@@ -13,6 +13,13 @@ from app.logging import get_logger
 logger = get_logger(__name__)
 
 
+def compute_decay_weight(age_days: float, half_life_days: float = 90.0, min_weight: float = 0.3) -> float:
+    """Calculates exponential half-life decay weight for historical memories."""
+    if half_life_days <= 0 or age_days <= 0:
+        return 1.0
+    return max(min_weight, 0.5 ** (age_days / half_life_days))
+
+
 def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
     """Runs nightly sleep-replay consolidation: clusters incidents into patterns and decays old memory."""
     settings = get_settings()
@@ -114,7 +121,7 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
                     if started.tzinfo is None:
                         started = started.replace(tzinfo=timezone.utc)
                     age_days = (now - started).days
-                    weight = max(0.3, 0.5 ** (age_days / settings.DECAY_HALF_LIFE_DAYS))
+                    weight = compute_decay_weight(age_days, settings.DECAY_HALF_LIFE_DAYS)
 
                     if not dry_run:
                         cur.execute(
