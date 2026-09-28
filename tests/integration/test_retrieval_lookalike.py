@@ -20,7 +20,9 @@ def test_dns_lookalike_ranks_above_pool_exhaustion() -> None:
     if "INC-0007" in incident_ids:
         idx_dns = incident_ids.index("INC-0019")
         idx_pool = incident_ids.index("INC-0007")
-        assert idx_dns < idx_pool, f"INC-0019 (rank {idx_dns}) should rank above INC-0007 (rank {idx_pool})"
+        assert idx_dns < idx_pool, (
+            f"INC-0019 (rank {idx_dns}) should rank above INC-0007 (rank {idx_pool})"
+        )
 
     # Direct runbook retrieval should include RB-dns-resolution-failure
     runbook_ids = [rb.id for rb in result.runbooks]
@@ -32,13 +34,17 @@ def test_pool_exhaustion_ranks_above_dns() -> None:
     pool_cue = Cue(
         text="checkout-api p99 latency 8s and 503s after deploy v212",
         services=["checkout-api"],
-        error_messages=["HikariPool-1 - Connection is not available, request timed out after 30000ms"],
+        error_messages=[
+            "HikariPool-1 - Connection is not available, request timed out after 30000ms"
+        ],
         trigger_type="deploy",
     )
     result = recall(pool_cue, top_k=5)
     assert len(result.incidents) > 0
     top_inc = result.incidents[0]
-    assert top_inc.id in ("INC-0007", "INC-0061"), f"Expected INC-0007 or INC-0061 at rank 1, got {top_inc.id}"
+    assert top_inc.id in ("INC-0007", "INC-0061"), (
+        f"Expected INC-0007 or INC-0061 at rank 1, got {top_inc.id}"
+    )
 
     # Runbooks should include RB-db-pool-exhaustion
     runbook_ids = [rb.id for rb in result.runbooks]

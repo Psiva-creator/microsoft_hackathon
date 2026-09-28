@@ -64,16 +64,18 @@ def draft_postmortem(
     for idx, s in enumerate(steps, 1):
         md_lines.append(f"{idx}. {s}")
 
-    md_lines.extend([
-        "",
-        "## Runbooks Used",
-        ", ".join(runbook_ids) or "None",
-        "",
-        "## Outcome",
-        f"Resolution worked: {'Yes' if worked else 'No'}",
-        "",
-        "## Timeline",
-    ])
+    md_lines.extend(
+        [
+            "",
+            "## Runbooks Used",
+            ", ".join(runbook_ids) or "None",
+            "",
+            "## Outcome",
+            f"Resolution worked: {'Yes' if worked else 'No'}",
+            "",
+            "## Timeline",
+        ]
+    )
     for t in timeline_entries:
         md_lines.append(f"- **{t.timestamp}**: {t.description}")
 
@@ -163,7 +165,9 @@ def confirm_and_save_to_memory(live_id: str, approved_markdown: str) -> str:
                     worked = res.get("worked", True)
                     update_runbook_resolution_outcome(runbook_ids, worked)
 
-                cur.execute("UPDATE live_incidents SET status = 'confirmed' WHERE id = %s", (live_id,))
+                cur.execute(
+                    "UPDATE live_incidents SET status = 'confirmed' WHERE id = %s", (live_id,)
+                )
                 conn.commit()
     except Exception as e:
         logger.warning("confirm_memory_stats_failed", error=str(e))

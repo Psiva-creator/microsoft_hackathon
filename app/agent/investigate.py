@@ -266,9 +266,13 @@ def investigate(
 
     # 3. If offline or no Anthropic key configured, use deterministic scenario runner
     if not settings.ANTHROPIC_API_KEY:
-        simulated_score = 0.81 if "A_pool" in active_scenario else (
-            0.75 if "B_cert" in active_scenario else (
-                0.78 if "D_lookalike" in active_scenario else 0.0
+        simulated_score = (
+            0.81
+            if "A_pool" in active_scenario
+            else (
+                0.75
+                if "B_cert" in active_scenario
+                else (0.78 if "D_lookalike" in active_scenario else 0.0)
             )
         )
         score_to_use = best_score if best_score > 0 else simulated_score
@@ -350,7 +354,9 @@ def get_investigation_trace(analysis: Analysis) -> dict[str, Any]:
         "hypotheses_count": len(analysis.hypotheses),
         "primary_cause": analysis.hypotheses[0].cause if analysis.hypotheses else "Unknown",
         "primary_confidence": analysis.hypotheses[0].confidence if analysis.hypotheses else "low",
-        "evidence_for_count": len(analysis.hypotheses[0].evidence_for) if analysis.hypotheses else 0,
+        "evidence_for_count": len(analysis.hypotheses[0].evidence_for)
+        if analysis.hypotheses
+        else 0,
         "similar_incidents": [
             {"id": sim.id, "why_similar": sim.why_similar}
             for hyp in analysis.hypotheses

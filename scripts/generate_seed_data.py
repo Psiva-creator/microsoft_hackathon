@@ -38,7 +38,11 @@ SERVICES = [
 
 CATEGORY_DETAILS = {
     "connection_pool": {
-        "symptoms": ["HTTP 503 errors on checkout", "HikariPool saturation", "database query timeout"],
+        "symptoms": [
+            "HTTP 503 errors on checkout",
+            "HikariPool saturation",
+            "database query timeout",
+        ],
         "errors": [
             "HikariPool-1 - Connection is not available, request timed out after 30000ms",
             "org.postgresql.util.PSQLException: FATAL: remaining connection slots are reserved for non-replication superuser connections",
@@ -47,7 +51,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-db-pool-exhaustion"],
     },
     "bad_deploy": {
-        "symptoms": ["CrashLoopBackOff on service pods", "syntax error on startup", "readiness probe failure"],
+        "symptoms": [
+            "CrashLoopBackOff on service pods",
+            "syntax error on startup",
+            "readiness probe failure",
+        ],
         "errors": [
             "FATAL: invalid configuration parameter 'max_connections_limit' in config.yaml",
             "ModuleNotFoundError: No module named 'payments.v2.client'",
@@ -56,7 +64,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-bad-deploy-rollback"],
     },
     "certificate_expiry": {
-        "symptoms": ["TLS handshake failures", "external webhook delivery failure", "SSL validation errors"],
+        "symptoms": [
+            "TLS handshake failures",
+            "external webhook delivery failure",
+            "SSL validation errors",
+        ],
         "errors": [
             "x509: certificate has expired for domain api.payments.internal",
             "javax.net.ssl.SSLHandshakeException: PKIX path validation failed: certificate expired",
@@ -74,7 +86,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-disk-full"],
     },
     "network_dns": {
-        "symptoms": ["CoreDNS lookup failures", "service discovery timeouts", "internal connection drops"],
+        "symptoms": [
+            "CoreDNS lookup failures",
+            "service discovery timeouts",
+            "internal connection drops",
+        ],
         "errors": [
             "dial tcp: lookup postgres-primary on 10.96.0.10:53: no such host",
             "java.net.UnknownHostException: payments-gateway.internal: Name or service not known",
@@ -83,7 +99,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-dns-resolution-failure"],
     },
     "memory_leak": {
-        "symptoms": ["container OOMKilled", "JVM GC pause times > 10s", "memory usage gradual linear increase"],
+        "symptoms": [
+            "container OOMKilled",
+            "JVM GC pause times > 10s",
+            "memory usage gradual linear increase",
+        ],
         "errors": [
             "java.lang.OutOfMemoryError: Java heap space at com.acme.worker.TaskProcessor.run(TaskProcessor.java:184)",
             "MemoryError: unable to allocate 128MB array in worker.py:64",
@@ -92,7 +112,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-memory-leak-restart"],
     },
     "cache_issue": {
-        "symptoms": ["cache hit ratio dropped from 95% to 40%", "database CPU surge", "cache stampede"],
+        "symptoms": [
+            "cache hit ratio dropped from 95% to 40%",
+            "database CPU surge",
+            "cache stampede",
+        ],
         "errors": [
             "OOM command not allowed when used memory > 'maxmemory' in redis-cache",
             "redis.exceptions.ConnectionError: Error 111 connecting to 10.0.1.20:6379. Connection refused",
@@ -101,7 +125,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-cache-stampede"],
     },
     "queue_backlog": {
-        "symptoms": ["Kafka consumer lag exceeding 500k messages", "event ingestion delay", "consumer rebalance loop"],
+        "symptoms": [
+            "Kafka consumer lag exceeding 500k messages",
+            "event ingestion delay",
+            "consumer rebalance loop",
+        ],
         "errors": [
             "CommitFailedException: Commit cannot be completed since the group has already rebalanced",
             "kafka.errors.BufferError: Queue is full and cannot accept more messages",
@@ -110,7 +138,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-queue-backlog"],
     },
     "capacity_traffic": {
-        "symptoms": ["HTTP 502 Bad Gateway under surge", "rate limit exceeded", "ingress connection termination"],
+        "symptoms": [
+            "HTTP 502 Bad Gateway under surge",
+            "rate limit exceeded",
+            "ingress connection termination",
+        ],
         "errors": [
             "upstream connect error or disconnect/reset before headers. reset reason: connection termination",
             "RateLimitExceeded: Maximum concurrency limit 5000 requests/sec reached",
@@ -119,7 +151,11 @@ CATEGORY_DETAILS = {
         "runbooks": ["RB-bad-deploy-rollback"],
     },
     "dependency_failure": {
-        "symptoms": ["third-party vendor API timeouts", "upstream 500 responses", "circuit breaker open"],
+        "symptoms": [
+            "third-party vendor API timeouts",
+            "upstream 500 responses",
+            "circuit breaker open",
+        ],
         "errors": [
             "StripeConnectionError: Error communicating with Stripe api.stripe.com after 10000ms",
             "CircuitBreakerOpenException: Downstream service orders-service circuit breaker tripped",
@@ -308,8 +344,8 @@ for cat1, desc1, cat2, desc2, svcs in lookalike_templates:
 ## Summary
 Incident INC-{id1:04d} affecting {", ".join(svcs)}.
 ## Symptoms
-- {det1['symptoms'][0]}
-- {det1['symptoms'][1]}
+- {det1["symptoms"][0]}
+- {det1["symptoms"][1]}
 - Logs: {err1}
 ## Root Cause
 Root cause identified as {cat1}: {desc1}.
@@ -321,8 +357,8 @@ Root cause identified as {cat1}: {desc1}.
 ## Summary
 Incident INC-{id2:04d} affecting {", ".join(svcs)}.
 ## Symptoms
-- {det2['symptoms'][0]}
-- {det2['symptoms'][1]}
+- {det2["symptoms"][0]}
+- {det2["symptoms"][1]}
 - Logs: {err2}
 ## Root Cause
 Root cause identified as {cat2}: {desc2}.
@@ -352,11 +388,11 @@ while avail_ids:
 ## Summary
 Service outage affecting {", ".join(svcs)} for {random.randint(15, 60)} minutes.
 ## Symptoms
-- {det['symptoms'][0]}
-- {det['symptoms'][1]}
+- {det["symptoms"][0]}
+- {det["symptoms"][1]}
 - Error logs: {err}
 ## Root Cause
-Identified issue in {cat} affecting subsystem stability: {det['symptoms'][0]}.
+Identified issue in {cat} affecting subsystem stability: {det["symptoms"][0]}.
 ## Resolution Steps
 1. Followed runbook {rb}.
 2. Investigated logs from {svcs[0]} and applied fix.
@@ -371,14 +407,17 @@ Identified issue in {cat} affecting subsystem stability: {det['symptoms'][0]}.
             "status": "Resolved",
             "resolution": "Fixed",
             "comments": [
-                {"author": "devops1", "body": f"Restarted service pods for {svcs[0]} and applied {rb}."},
+                {
+                    "author": "devops1",
+                    "body": f"Restarted service pods for {svcs[0]} and applied {rb}.",
+                },
                 {"author": "sre_lead", "body": f"Confirmed {cat} resolved."},
             ],
         }
         content = json.dumps(data, indent=2)
     else:  # slack
         fname = f"inc_{inc_id_num:04d}_{cat}_slack.txt"
-        content = f"""[14:02:11] @channel Alert: {svcs[0]} {det['symptoms'][0]} INC-{inc_id_num:04d}
+        content = f"""[14:02:11] @channel Alert: {svcs[0]} {det["symptoms"][0]} INC-{inc_id_num:04d}
 [14:03:00] @alice: Seeing errors: {err}
 [14:05:30] @bob: Root cause is {cat}. Following runbook {rb}.
 [14:12:00] @bob: Applying mitigation steps for {cat}.

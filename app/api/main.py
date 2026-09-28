@@ -294,5 +294,6 @@ def pr_check(
     api_key: str = Depends(verify_api_key),
 ):
     from app.code_memory.pr_check import check_pr
+
     result = check_pr(files=req.files, diff=req.diff)
     return result

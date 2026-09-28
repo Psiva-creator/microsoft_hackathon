@@ -13,7 +13,9 @@ from app.logging import get_logger
 logger = get_logger(__name__)
 
 
-def compute_decay_weight(age_days: float, half_life_days: float = 90.0, min_weight: float = 0.3) -> float:
+def compute_decay_weight(
+    age_days: float, half_life_days: float = 90.0, min_weight: float = 0.3
+) -> float:
     """Calculates exponential half-life decay weight for historical memories."""
     if half_life_days <= 0 or age_days <= 0:
         return 1.0
@@ -48,7 +50,9 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
                 rows = cur.fetchall()
 
                 if len(rows) < settings.PATTERN_MIN_CLUSTER:
-                    report_lines.append(f"Insufficient incidents ({len(rows)}) to cluster into patterns.")
+                    report_lines.append(
+                        f"Insufficient incidents ({len(rows)}) to cluster into patterns."
+                    )
                 else:
                     emb_matrix = np.array([r["emb_full"] for r in rows])
 
@@ -76,15 +80,15 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
 
                         member_ids = [m["id"] for m in members]
                         common_cat = members[0]["root_cause_category"]
-                        pattern_title = f"Generalized Pattern: {common_cat.replace('_', ' ').title()} Failures"
+                        pattern_title = (
+                            f"Generalized Pattern: {common_cat.replace('_', ' ').title()} Failures"
+                        )
                         rule_text = (
                             f"When observing recurring {common_cat} symptoms across {', '.join(members[0]['services'])}, "
                             f"the root cause is typically related to unreleased resources or upstream saturation. "
                             f"Inspect service metrics and pool capacity first."
                         )
-                        exceptions_text = (
-                            "Rule does not hold if DNS resolution logs or network reachability issues are present."
-                        )
+                        exceptions_text = "Rule does not hold if DNS resolution logs or network reachability issues are present."
                         signals = [f"Spike in {common_cat} errors", "Client 503 latency"]
                         checks = ["Inspect active connections", "Verify recent deploys"]
 

@@ -18,10 +18,38 @@ from app.models import Cue, Pattern, RetrievalResult, Runbook, ScoredIncident
 logger = get_logger(__name__)
 
 STOP_WORDS = {
-    "the", "a", "an", "and", "or", "in", "on", "at", "to", "for", "of",
-    "with", "by", "from", "up", "about", "into", "over", "after", "is",
-    "are", "was", "were", "be", "been", "being", "have", "has", "had",
-    "do", "does", "did",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "up",
+    "about",
+    "into",
+    "over",
+    "after",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
 }
 
 
@@ -80,13 +108,15 @@ def _get_offline_runbooks() -> list[dict[str, Any]]:
                     svcs_raw = line.split(":", 1)[1].strip()
                     services = [s.strip("[] '\"") for s in svcs_raw.split(",") if s.strip("[] '\"")]
         embed_text = f"{title}\n{body}"
-        res.append({
-            "id": rb_id,
-            "title": title,
-            "body_md": body,
-            "services": services,
-            "embed_text": embed_text,
-        })
+        res.append(
+            {
+                "id": rb_id,
+                "title": title,
+                "body_md": body,
+                "services": services,
+                "embed_text": embed_text,
+            }
+        )
         texts_to_embed.append(embed_text)
 
     if texts_to_embed:
@@ -174,8 +204,21 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
         # Error fingerprints & errors
         fps = fingerprints(content)
         error_lines = [
-            line for line in lines
-            if any(k in line.lower() for k in ["error", "exception", "failed", "panic", "timeout", "hikaripool", "x509", "dial tcp"])
+            line
+            for line in lines
+            if any(
+                k in line.lower()
+                for k in [
+                    "error",
+                    "exception",
+                    "failed",
+                    "panic",
+                    "timeout",
+                    "hikaripool",
+                    "x509",
+                    "dial tcp",
+                ]
+            )
         ]
 
         # Symptoms & Root Cause
@@ -187,7 +230,9 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             if re.match(r"^\d+\.\s+", line):
                 res_steps.append(re.sub(r"^\d+\.\s+", "", line))
 
-        symptoms = [line[2:] for line in lines if line.startswith("- ") or line.startswith("* ")][:4]
+        symptoms = [line[2:] for line in lines if line.startswith("- ") or line.startswith("* ")][
+            :4
+        ]
         runbooks = re.findall(r"\b(RB-[a-zA-Z0-9_\-]+)\b", content)
 
         symptom_text = (
@@ -199,32 +244,40 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
         trigger = "unknown"
         if "deploy" in content.lower() or "version" in content.lower():
             trigger = "deploy"
-        elif "cron" in content.lower() or "scheduled" in content.lower() or "nightly" in content.lower():
+        elif (
+            "cron" in content.lower()
+            or "scheduled" in content.lower()
+            or "nightly" in content.lower()
+        ):
             trigger = "cron"
-        elif "traffic" in content.lower() or "load" in content.lower() or "surge" in content.lower():
+        elif (
+            "traffic" in content.lower() or "load" in content.lower() or "surge" in content.lower()
+        ):
             trigger = "traffic"
         elif "config" in content.lower():
             trigger = "config"
 
-        incidents.append({
-            "id": inc_id,
-            "title": title,
-            "category": meta.get("category", "unknown"),
-            "services": meta.get("services", []),
-            "lookalike_partner": meta.get("lookalike_partner"),
-            "symptoms": symptoms,
-            "error_fingerprints": fps,
-            "error_text": " ".join(error_lines).lower(),
-            "content": content.lower(),
-            "root_cause": root_cause,
-            "resolution_steps": res_steps or ["Restart service and apply runbook"],
-            "runbook_ids": list(set(runbooks)),
-            "fix_worked": meta.get("fix_worked", True),
-            "weight": float(meta.get("weight", 1.0)),
-            "architecture_epoch": int(meta.get("architecture_epoch", 1)),
-            "trigger_type": trigger,
-            "symptom_text": symptom_text,
-        })
+        incidents.append(
+            {
+                "id": inc_id,
+                "title": title,
+                "category": meta.get("category", "unknown"),
+                "services": meta.get("services", []),
+                "lookalike_partner": meta.get("lookalike_partner"),
+                "symptoms": symptoms,
+                "error_fingerprints": fps,
+                "error_text": " ".join(error_lines).lower(),
+                "content": content.lower(),
+                "root_cause": root_cause,
+                "resolution_steps": res_steps or ["Restart service and apply runbook"],
+                "runbook_ids": list(set(runbooks)),
+                "fix_worked": meta.get("fix_worked", True),
+                "weight": float(meta.get("weight", 1.0)),
+                "architecture_epoch": int(meta.get("architecture_epoch", 1)),
+                "trigger_type": trigger,
+                "symptom_text": symptom_text,
+            }
+        )
 
     if incidents:
         texts = [normalize_text(inc["symptom_text"]) for inc in incidents]
@@ -302,13 +355,7 @@ def _offline_recall(
         if w_code > 0 and cue.files:
             c = 1.0 if any(f.lower() in inc["content"] for f in cue.files) else 0.0
 
-        base = (
-            w_vec * v
-            + w_fts * f
-            + w_fp * fp
-            + w_svc * s
-            + w_code * c
-        )
+        base = w_vec * v + w_fts * f + w_fp * fp + w_svc * s + w_code * c
 
         rb_probs = [get_runbook_success_probability(rb_id) for rb_id in inc["runbook_ids"]]
         best_rb_p = max(rb_probs) if rb_probs else 0.5
@@ -496,7 +543,9 @@ def recall(
                         raw_fts = cur.fetchall()
                         max_rank = max([r["rank"] for r in raw_fts], default=0.0)
                         for r in raw_fts:
-                            fts_scores[r["id"]] = float(r["rank"]) / max_rank if max_rank > 0 else 0.0
+                            fts_scores[r["id"]] = (
+                                float(r["rank"]) / max_rank if max_rank > 0 else 0.0
+                            )
 
                 # 2c. Fingerprint Candidates
                 if w_fp > 0 and cue_fps:
@@ -594,13 +643,7 @@ def recall(
         s = svc_scores.get(inc_id, 0.0)
         c = code_scores.get(inc_id, 0.0)
 
-        base = (
-            w_vec * v
-            + w_fts * f
-            + w_fp * fp
-            + w_svc * s
-            + w_code * c
-        )
+        base = w_vec * v + w_fts * f + w_fp * fp + w_svc * s + w_code * c
 
         rb_probs = [get_runbook_success_probability(rb_id) for rb_id in rec["runbook_ids"]]
         best_rb_p = max(rb_probs) if rb_probs else 0.5

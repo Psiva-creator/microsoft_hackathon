@@ -116,7 +116,9 @@ def get_context(live_id: str) -> LiveContext:
         t = ev.text
         if len(t) > 1500:
             t = t[:1500] + "... [truncated]"
-        truncated_events.append(LiveEvent(ts=ev.ts, kind=ev.kind, source=ev.source, text=t, data=ev.data))
+        truncated_events.append(
+            LiveEvent(ts=ev.ts, kind=ev.kind, source=ev.source, text=t, data=ev.data)
+        )
 
     title = f"Live Incident {live_id}"
     services: list[str] = []
@@ -138,7 +140,13 @@ def get_context(live_id: str) -> LiveContext:
             if raw_hyp:
                 hyp_data = json.loads(raw_hyp)
                 hypotheses = [Hypothesis(**h) for h in hyp_data]
-            return LiveContext(id=live_id, title=title, services=services, events=truncated_events, hypotheses=hypotheses)
+            return LiveContext(
+                id=live_id,
+                title=title,
+                services=services,
+                events=truncated_events,
+                hypotheses=hypotheses,
+            )
         except Exception as e:
             logger.warning("redis_get_context_failed", error=str(e))
 
@@ -149,7 +157,9 @@ def get_context(live_id: str) -> LiveContext:
         if mem.get("hypotheses"):
             hypotheses = [Hypothesis(**h) for h in mem["hypotheses"]]
 
-    return LiveContext(id=live_id, title=title, services=services, events=truncated_events, hypotheses=hypotheses)
+    return LiveContext(
+        id=live_id, title=title, services=services, events=truncated_events, hypotheses=hypotheses
+    )
 
 
 def close(live_id: str) -> None:

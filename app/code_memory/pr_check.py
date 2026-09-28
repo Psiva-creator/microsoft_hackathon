@@ -57,12 +57,20 @@ def check_pr(files: list[str], diff: str | None = None) -> dict[str, Any]:
             }
         )
 
-    risk_level = "high" if any(m["role"] == "root_cause" for m in matches) else ("medium" if matches else "low")
+    risk_level = (
+        "high"
+        if any(m["role"] == "root_cause" for m in matches)
+        else ("medium" if matches else "low")
+    )
 
     recommendations = []
     if risk_level == "high":
-        recommendations.append("Ensure database/network connection handles are enclosed in try-finally or with blocks.")
-        recommendations.append("Verify retry wrappers cannot create connection leaks under error conditions.")
+        recommendations.append(
+            "Ensure database/network connection handles are enclosed in try-finally or with blocks."
+        )
+        recommendations.append(
+            "Verify retry wrappers cannot create connection leaks under error conditions."
+        )
         recommendations.append("Run load tests verifying pool utilization stays within bounds.")
 
     return {

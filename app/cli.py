@@ -87,7 +87,9 @@ def seed():
 @app.command()
 def ingest(
     path: str = typer.Argument(default="data/seed", help="Path to incident files directory"),
-    accept_low: bool = typer.Option(False, "--accept-low", help="Accept low confidence extractions"),
+    accept_low: bool = typer.Option(
+        False, "--accept-low", help="Accept low confidence extractions"
+    ),
 ):
     """Ingests documents into episodic memory."""
     console.print(f"[bold cyan]📥 Ingesting documents from {path}...[/bold cyan]")
@@ -167,9 +169,7 @@ def investigate(
     note: Optional[str] = typer.Option(None, "--note", help="Additional engineer observation note"),
 ):
     """Executes the full reasoning agent loop to investigate an incident."""
-    console.print(
-        f"[bold cyan]🔍 Starting Investigation for Scenario: {scenario}...[/bold cyan]"
-    )
+    console.print(f"[bold cyan]🔍 Starting Investigation for Scenario: {scenario}...[/bold cyan]")
 
     analysis = run_investigation(scenario_name=scenario, note=note)
 
@@ -308,9 +308,7 @@ def pr_check(
 @app.command()
 def consolidate():
     """Triggers sleep-replay consolidation to cluster incidents into patterns and decay stale weights."""
-    console.print(
-        "[bold cyan]🧠 Running Sleep-Replay Memory Consolidation...[/bold cyan]"
-    )
+    console.print("[bold cyan]🧠 Running Sleep-Replay Memory Consolidation...[/bold cyan]")
     result = run_consolidation()
     console.print(
         f"[bold green]✅ Consolidation complete. Patterns: {result['patterns_created']}, "
@@ -348,7 +346,9 @@ def stats():
 
 @app.command(name="eval")
 def evaluate(
-    cases: str = typer.Option("eval/cases.jsonl", "--cases", "-c", help="Path to evaluation cases JSONL"),
+    cases: str = typer.Option(
+        "eval/cases.jsonl", "--cases", "-c", help="Path to evaluation cases JSONL"
+    ),
     output: str = typer.Option("eval", "--output", "-o", help="Output directory for reports"),
 ):
     """Runs the quantitative evaluation harness and ablation suite across retrieval modes."""
@@ -368,7 +368,11 @@ def evaluate(
         status = (
             "[green]PASS[/green]"
             if data["recall_at_3"] >= 0.80
-            else ("[yellow]BASELINE[/yellow]" if key in ("keyword", "vector") else "[dim]ABLATION[/dim]")
+            else (
+                "[yellow]BASELINE[/yellow]"
+                if key in ("keyword", "vector")
+                else "[dim]ABLATION[/dim]"
+            )
         )
         table.add_row(
             data["label"],
@@ -381,7 +385,9 @@ def evaluate(
         )
 
     console.print(table)
-    console.print(f"[bold green]✅ Evaluation complete. Full report written to {output}/report.md[/bold green]")
+    console.print(
+        f"[bold green]✅ Evaluation complete. Full report written to {output}/report.md[/bold green]"
+    )
 
 
 @app.command()
@@ -393,7 +399,12 @@ def doctor():
     from app.config import get_settings
 
     settings = get_settings()
-    console.print(Panel.fit("[bold blue]🩺 Incident Response Agent: System Diagnostics[/bold blue]", border_style="blue"))
+    console.print(
+        Panel.fit(
+            "[bold blue]🩺 Incident Response Agent: System Diagnostics[/bold blue]",
+            border_style="blue",
+        )
+    )
 
     table = Table(title="Component Health Check", show_header=True, header_style="bold magenta")
     table.add_column("Component", style="cyan", width=28)
@@ -402,40 +413,72 @@ def doctor():
 
     # 1. Python runtime
     py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    table.add_row("Python Runtime", "[green]PASS[/green]", f"{py_ver} on {platform.system()} ({platform.machine()})")
+    table.add_row(
+        "Python Runtime",
+        "[green]PASS[/green]",
+        f"{py_ver} on {platform.system()} ({platform.machine()})",
+    )
 
     # 2. Read-only safety guardrail
     if not settings.ALLOW_ACTIONS:
-        table.add_row("Read-Only Safety Guard", "[bold green]ENFORCED[/bold green]", "ALLOW_ACTIONS=false (Zero mutating tools)")
+        table.add_row(
+            "Read-Only Safety Guard",
+            "[bold green]ENFORCED[/bold green]",
+            "ALLOW_ACTIONS=false (Zero mutating tools)",
+        )
     else:
-        table.add_row("Read-Only Safety Guard", "[bold red]MUTATING[/bold red]", "ALLOW_ACTIONS=true (Danger!)")
+        table.add_row(
+            "Read-Only Safety Guard",
+            "[bold red]MUTATING[/bold red]",
+            "ALLOW_ACTIONS=true (Danger!)",
+        )
 
     # 3. Embedding cache
     cache_path = Path(".cache/embeddings.sqlite")
     if cache_path.exists():
-        table.add_row("Embedding Cache", "[green]READY[/green]", f"{cache_path} ({cache_path.stat().st_size} bytes)")
+        table.add_row(
+            "Embedding Cache",
+            "[green]READY[/green]",
+            f"{cache_path} ({cache_path.stat().st_size} bytes)",
+        )
     else:
-        table.add_row("Embedding Cache", "[yellow]WARMUP[/yellow]", "No cache yet; local model will initialize on first query")
+        table.add_row(
+            "Embedding Cache",
+            "[yellow]WARMUP[/yellow]",
+            "No cache yet; local model will initialize on first query",
+        )
 
     # 4. Seed incident data
     seed_dir = Path("data/seed")
     seed_count = len(list(seed_dir.glob("inc_*.*"))) if seed_dir.exists() else 0
     if seed_count >= 50:
-        table.add_row("Seed Incident Data", "[green]READY[/green]", f"{seed_count} seed incident documents")
+        table.add_row(
+            "Seed Incident Data", "[green]READY[/green]", f"{seed_count} seed incident documents"
+        )
     else:
-        table.add_row("Seed Incident Data", "[yellow]PARTIAL[/yellow]", f"{seed_count} documents in data/seed")
+        table.add_row(
+            "Seed Incident Data", "[yellow]PARTIAL[/yellow]", f"{seed_count} documents in data/seed"
+        )
 
     # 5. Outage scenarios
     scenario_dir = Path("data/mock_env/scenarios")
-    scenarios = [d.name for d in scenario_dir.iterdir() if d.is_dir()] if scenario_dir.exists() else []
-    table.add_row("Outage Scenarios (A-D)", "[green]READY[/green]", f"{len(scenarios)} scenarios: {', '.join(scenarios)}")
+    scenarios = (
+        [d.name for d in scenario_dir.iterdir() if d.is_dir()] if scenario_dir.exists() else []
+    )
+    table.add_row(
+        "Outage Scenarios (A-D)",
+        "[green]READY[/green]",
+        f"{len(scenarios)} scenarios: {', '.join(scenarios)}",
+    )
 
     # 6. Procedural Runbooks
     runbooks = get_all_runbooks()
     table.add_row("Procedural Runbooks", "[green]READY[/green]", f"{len(runbooks)} runbooks loaded")
 
     console.print(table)
-    console.print("[bold green]✅ System diagnostics complete. All core systems operational.[/bold green]")
+    console.print(
+        "[bold green]✅ System diagnostics complete. All core systems operational.[/bold green]"
+    )
 
 
 if __name__ == "__main__":
