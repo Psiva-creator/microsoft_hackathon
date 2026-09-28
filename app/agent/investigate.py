@@ -1,7 +1,7 @@
 import json
-from pathlib import Path
 from typing import Any
 
+from app.adapters.mock import resolve_scenario_dir
 from app.agent.tools import TOOL_SCHEMAS, create_tool_dispatcher
 from app.config import get_settings
 from app.llm.client import get_llm_client
@@ -247,8 +247,11 @@ def investigate(
     active_scenario = scenario_name or settings.MOCK_SCENARIO
 
     # 1. Build or retrieve Cue
+    scenario_path = resolve_scenario_dir(active_scenario)
+    if scenario_path.exists():
+        active_scenario = scenario_path.name
+
     if cue is None:
-        scenario_path = Path("data/mock_env/scenarios") / active_scenario
         alert_file = scenario_path / "alert.json"
         if alert_file.exists():
             alert_data = json.loads(alert_file.read_text(encoding="utf-8"))

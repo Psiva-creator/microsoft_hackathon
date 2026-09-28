@@ -113,12 +113,26 @@ class MockCodeAdapter:
             return []
 
 
+def resolve_scenario_dir(scenario_name: str) -> Path:
+    base = Path("data/mock_env/scenarios")
+    direct = base / scenario_name
+    if direct.exists() and direct.is_dir():
+        return direct
+    if base.exists():
+        for p in base.iterdir():
+            if p.is_dir() and (
+                scenario_name.lower() in p.name.lower() or p.name.lower() in scenario_name.lower()
+            ):
+                return p
+    return direct
+
+
 def get_mock_adapters(
     scenario_name: str | None = None,
 ) -> tuple[MockLogAdapter, MockMetricsAdapter, MockDeployAdapter, MockCodeAdapter]:
     settings = get_settings()
     name = scenario_name or settings.MOCK_SCENARIO
-    scenario_dir = Path("data/mock_env/scenarios") / name
+    scenario_dir = resolve_scenario_dir(name)
 
     return (
         MockLogAdapter(scenario_dir),

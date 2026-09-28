@@ -4,7 +4,11 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from sklearn.cluster import AgglomerativeClustering
+
+try:
+    from sklearn.cluster import AgglomerativeClustering
+except Exception:
+    AgglomerativeClustering = None
 
 from app.config import get_settings
 from app.core.embeddings import get_embedder
@@ -168,13 +172,26 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
             continue
 
         embs = np.array([m["emb_full"] for m in members])
-        clustering = AgglomerativeClustering(
-            n_clusters=None,
-            metric="cosine",
-            linkage="average",
-            distance_threshold=settings.PATTERN_DISTANCE_THRESHOLD,
-        )
-        labels = clustering.fit_predict(embs)
+        if AgglomerativeClustering is not None:
+            clustering = AgglomerativeClustering(
+                n_clusters=None,
+                metric="cosine",
+                linkage="average",
+                distance_threshold=settings.PATTERN_DISTANCE_THRESHOLD,
+            )
+            labels = clustering.fit_predict(embs)
+        else:
+            import scipy.cluster.hierarchy as sch
+            import scipy.spatial.distance as ssd
+
+            if len(embs) <= 1:
+                labels = np.array([1])
+            else:
+                d = ssd.pdist(embs, metric="cosine")
+                Z = sch.linkage(d, method="average")
+                labels = sch.fcluster(
+                    Z, t=settings.PATTERN_DISTANCE_THRESHOLD, criterion="distance"
+                )
 
         sub_clusters: dict[int, list[dict[str, Any]]] = {}
         for idx, lab in enumerate(labels):

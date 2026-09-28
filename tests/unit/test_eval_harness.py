@@ -64,6 +64,6 @@ def test_run_evaluation_creates_reports():
         assert (Path(tmp_dir) / "report.md").exists()
         assert (Path(tmp_dir) / "report.json").exists()
 
-        content = (Path(tmp_dir) / "report.md").read_text()
+        content = (Path(tmp_dir) / "report.md").read_text(encoding="utf-8")
         assert "Comparative Retrieval Performance" in content
         assert "Hybrid (Full Brain Architecture)" in content
