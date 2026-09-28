@@ -98,3 +98,19 @@ def load_slack_export(path: str | Path) -> Generator[RawDoc, None, None]:
                     text="\n".join(thread_messages),
                     metadata={"channel": f.parent.name},
                 )
+
+
+def load_alert_payload(payload: dict[str, Any], source_id: str = "alert") -> RawDoc:
+    """Parses monitoring alert payloads (Prometheus, Datadog, CloudWatch, PagerDuty) into a RawDoc."""
+    title = payload.get("title") or payload.get("alertname") or payload.get("event_type") or "Alert"
+    service = payload.get("service") or payload.get("tags", {}).get("service") if isinstance(payload.get("tags"), dict) else payload.get("service", "")
+    description = payload.get("description") or payload.get("text") or payload.get("message") or ""
+    severity = payload.get("severity") or payload.get("priority") or "high"
+
+    text = f"Alert: {title}\nService: {service}\nSeverity: {severity}\nDescription:\n{description}"
+    return RawDoc(
+        source_type="alert",
+        source_id=source_id,
+        text=text,
+        metadata={"service": service, "severity": severity, "title": title},
+    )
