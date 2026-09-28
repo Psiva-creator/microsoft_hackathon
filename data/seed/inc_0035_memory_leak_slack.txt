@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: postgres-primary container OOMKilled INC-0035
+[14:03:00] @alice: Seeing errors: Kubelet: container exceeded memory limit of 2Gi and was killed (OOMKilled)
+[14:05:30] @bob: Root cause is memory_leak. Following runbook RB-memory-leak-restart.
+[14:12:00] @bob: Applying mitigation steps for memory_leak.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1049",
+  "summary": "Critical outage in payments-gateway caused by dependency_failure (INC-0049)",
+  "description": "Service payments-gateway incident INC-0049. Symptoms: third-party vendor API timeouts. Error: CircuitBreakerOpenException: Downstream service orders-service circuit breaker tripped. Root cause was dependency_failure. Followed runbook RB-bad-deploy-rollback.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for payments-gateway and applied RB-bad-deploy-rollback."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed dependency_failure resolved."
+    }
+  ]
+}

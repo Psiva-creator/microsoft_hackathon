@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1022",
+  "summary": "Critical outage in inventory-service caused by certificate_expiry (INC-0022)",
+  "description": "Service inventory-service incident INC-0022. Symptoms: TLS handshake failures. Error: javax.net.ssl.SSLHandshakeException: PKIX path validation failed: certificate expired. Root cause was certificate_expiry. Followed runbook RB-cert-expiry.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for inventory-service and applied RB-cert-expiry."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed certificate_expiry resolved."
+    }
+  ]
+}

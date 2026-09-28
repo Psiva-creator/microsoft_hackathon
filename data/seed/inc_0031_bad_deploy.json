@@ -1,13 +1,13 @@
 {
   "key": "OPS-1031",
-  "summary": "Critical outage in notification-worker caused by bad_deploy",
-  "description": "Service notification-worker stopped responding after connection error to 10.0.13.153:9092. Root cause was bad_deploy.",
+  "summary": "Critical outage in web-frontend caused by bad_deploy (INC-0031)",
+  "description": "Service web-frontend incident INC-0031. Symptoms: CrashLoopBackOff on service pods. Error: ModuleNotFoundError: No module named 'payments.v2.client'. Root cause was bad_deploy. Followed runbook RB-bad-deploy-rollback.",
   "status": "Resolved",
   "resolution": "Fixed",
   "comments": [
     {
       "author": "devops1",
-      "body": "Restarted service pods for notification-worker."
+      "body": "Restarted service pods for web-frontend and applied RB-bad-deploy-rollback."
     },
     {
       "author": "sre_lead",

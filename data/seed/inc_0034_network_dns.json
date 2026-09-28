@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1034",
+  "summary": "Critical outage in kafka-orders caused by network_dns (INC-0034)",
+  "description": "Service kafka-orders incident INC-0034. Symptoms: CoreDNS lookup failures. Error: java.net.UnknownHostException: payments-gateway.internal: Name or service not known. Root cause was network_dns. Followed runbook RB-dns-resolution-failure.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for kafka-orders and applied RB-dns-resolution-failure."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed network_dns resolved."
+    }
+  ]
+}

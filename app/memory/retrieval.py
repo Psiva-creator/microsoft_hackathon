@@ -195,7 +195,6 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             f"Errors: {' '.join(error_lines[:2])}. "
             f"Services: {' '.join(meta.get('services', []))}."
         )
-        emb = embedder.embed_query(normalize_text(symptom_text))
 
         trigger = "unknown"
         if "deploy" in content.lower() or "version" in content.lower():
@@ -224,8 +223,14 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             "weight": float(meta.get("weight", 1.0)),
             "architecture_epoch": int(meta.get("architecture_epoch", 1)),
             "trigger_type": trigger,
-            "emb": emb,
+            "symptom_text": symptom_text,
         })
+
+    if incidents:
+        texts = [normalize_text(inc["symptom_text"]) for inc in incidents]
+        embs = embedder.embed_documents(texts)
+        for inc, emb in zip(incidents, embs):
+            inc["emb"] = emb
 
     _OFFLINE_INCIDENTS_CACHE = incidents
     return incidents
@@ -247,7 +252,10 @@ def _offline_recall(
         return RetrievalResult(incidents=[], patterns=[], runbooks=[])
 
     exclude_ids = set(cue.exclude_ids or [])
-    norm_cue_text = normalize_text(cue.text)
+    full_cue_text = cue.text
+    if cue.error_messages:
+        full_cue_text = f"{cue.text} {' '.join(cue.error_messages)}"
+    norm_cue_text = normalize_text(full_cue_text)
     combined_errors = "\n".join(cue.error_messages + cue.stack_traces)
     cue_fps = set(fingerprints(combined_errors)) if combined_errors else set()
 
@@ -431,7 +439,10 @@ def recall(
         w_code = weights_override.get("W_CODE", w_code)
 
     # 1. Normalize cue text & generate fingerprints
-    norm_cue_text = normalize_text(cue.text)
+    full_cue_text = cue.text
+    if cue.error_messages:
+        full_cue_text = f"{cue.text} {' '.join(cue.error_messages)}"
+    norm_cue_text = normalize_text(full_cue_text)
     combined_errors = "\n".join(cue.error_messages + cue.stack_traces)
     cue_fps = fingerprints(combined_errors) if combined_errors else []
 

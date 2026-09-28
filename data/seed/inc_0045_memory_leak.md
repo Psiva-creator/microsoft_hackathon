@@ -1,6 +1,6 @@
-# Post-Mortem: Incident INC-0015
+# Post-Mortem: Incident INC-0045
 ## Summary
-Service outage affecting checkout-api for 58 minutes.
+Service outage affecting payments-gateway, orders-service for 50 minutes.
 ## Symptoms
 - container OOMKilled
 - JVM GC pause times > 10s
@@ -9,5 +9,5 @@ Service outage affecting checkout-api for 58 minutes.
 Identified issue in memory_leak affecting subsystem stability: container OOMKilled.
 ## Resolution Steps
 1. Followed runbook RB-memory-leak-restart.
-2. Investigated logs from checkout-api and applied fix.
+2. Investigated logs from payments-gateway and applied fix.
 3. Validated health check.

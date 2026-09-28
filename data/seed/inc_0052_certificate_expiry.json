@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1052",
+  "summary": "Critical outage in auth-service caused by certificate_expiry (INC-0052)",
+  "description": "Service auth-service incident INC-0052. Symptoms: TLS handshake failures. Error: javax.net.ssl.SSLHandshakeException: PKIX path validation failed: certificate expired. Root cause was certificate_expiry. Followed runbook RB-cert-expiry.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for auth-service and applied RB-cert-expiry."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed certificate_expiry resolved."
+    }
+  ]
+}

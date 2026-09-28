@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: checkout-api database write rejections INC-0053
+[14:03:00] @alice: Seeing errors: OSError: [Errno 28] No space left on device while writing transaction log
+[14:05:30] @bob: Root cause is disk_full. Following runbook RB-disk-full.
+[14:12:00] @bob: Applying mitigation steps for disk_full.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

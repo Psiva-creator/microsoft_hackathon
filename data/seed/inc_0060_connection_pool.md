@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0060
 ## Summary
-Service outage affecting orders-service, auth-service, inventory-service for 30 minutes.
+Service outage affecting auth-service for 48 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.12.226:5432 with status 503.
+- HTTP 503 errors on checkout
+- HikariPool saturation
+- Error logs: HikariPool-1 - Connection is not available, request timed out after 30000ms
 ## Root Cause
-Identified issue in connection_pool affecting subsystem stability.
+Identified issue in connection_pool affecting subsystem stability: HTTP 503 errors on checkout.
 ## Resolution Steps
-1. Investigated logs from orders-service.
-2. Restarted failed components.
+1. Followed runbook RB-db-pool-exhaustion.
+2. Investigated logs from auth-service and applied fix.
 3. Validated health check.

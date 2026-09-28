@@ -1,6 +1,6 @@
-# Post-Mortem: Incident INC-0018
+# Post-Mortem: Incident INC-0048
 ## Summary
-Service outage affecting orders-service for 29 minutes.
+Service outage affecting kafka-orders, checkout-api, web-frontend for 22 minutes.
 ## Symptoms
 - HTTP 502 Bad Gateway under surge
 - rate limit exceeded
@@ -9,5 +9,5 @@ Service outage affecting orders-service for 29 minutes.
 Identified issue in capacity_traffic affecting subsystem stability: HTTP 502 Bad Gateway under surge.
 ## Resolution Steps
 1. Followed runbook RB-bad-deploy-rollback.
-2. Investigated logs from orders-service and applied fix.
+2. Investigated logs from kafka-orders and applied fix.
 3. Validated health check.

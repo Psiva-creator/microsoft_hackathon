@@ -1,5 +1,5 @@
-[14:02:11] @channel Alert: inventory-service high error rate (> 15%)
-[14:03:00] @alice: Seeing timeouts connecting to 10.0.4.175:8000 on inventory-service
-[14:05:30] @bob: Root cause appears to be certificate_expiry. Investigating now.
+[14:02:11] @channel Alert: orders-service TLS handshake failures INC-0032
+[14:03:00] @alice: Seeing errors: OpenSSL.SSL.Error: ('SSL routines', 'ssl3_read_bytes', 'certificate verify failed')
+[14:05:30] @bob: Root cause is certificate_expiry. Following runbook RB-cert-expiry.
 [14:12:00] @bob: Applying mitigation steps for certificate_expiry.
 [14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.
