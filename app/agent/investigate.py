@@ -340,3 +340,23 @@ def investigate(
     )
 
     return analysis
+
+
+def get_investigation_trace(analysis: Analysis) -> dict[str, Any]:
+    """Generates a structured, serializable timeline summary of the investigation results."""
+    return {
+        "summary": analysis.summary,
+        "precedent_strength": analysis.precedent_strength,
+        "hypotheses_count": len(analysis.hypotheses),
+        "primary_cause": analysis.hypotheses[0].cause if analysis.hypotheses else "Unknown",
+        "primary_confidence": analysis.hypotheses[0].confidence if analysis.hypotheses else "low",
+        "evidence_for_count": len(analysis.hypotheses[0].evidence_for) if analysis.hypotheses else 0,
+        "similar_incidents": [
+            {"id": sim.id, "why_similar": sim.why_similar}
+            for hyp in analysis.hypotheses
+            for sim in hyp.similar_incidents
+        ],
+        "requires_human_approval": bool(analysis.needs_human_decision),
+        "human_decision_items": analysis.needs_human_decision,
+        "dropped_citations": analysis.dropped_citations,
+    }
