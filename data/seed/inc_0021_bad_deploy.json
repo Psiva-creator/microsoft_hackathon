@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1021",
+  "summary": "Critical outage in kafka-orders caused by bad_deploy",
+  "description": "Service kafka-orders stopped responding after connection error to 10.0.3.142:8000. Root cause was bad_deploy.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for kafka-orders."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed bad_deploy resolved."
+    }
+  ]
+}

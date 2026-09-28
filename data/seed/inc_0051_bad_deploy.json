@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1051",
+  "summary": "Critical outage in web-frontend caused by bad_deploy",
+  "description": "Service web-frontend stopped responding after connection error to 10.0.1.100:8000. Root cause was bad_deploy.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for web-frontend."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed bad_deploy resolved."
+    }
+  ]
+}

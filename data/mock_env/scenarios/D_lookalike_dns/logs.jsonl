@@ -1,0 +1,2 @@
+{"timestamp": "2026-09-28T16:01:22Z", "level": "ERROR", "message": "dial tcp: lookup postgres-primary on 10.96.0.10:53: no such host"}
+{"timestamp": "2026-09-28T16:02:45Z", "level": "ERROR", "message": "HTTP 503 upstream connection timeout to postgres-primary"}

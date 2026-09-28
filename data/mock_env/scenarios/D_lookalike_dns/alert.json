@@ -1,0 +1,7 @@
+{
+  "alertname": "CheckoutLatencyAnd503s",
+  "service": "checkout-api",
+  "severity": "critical",
+  "description": "checkout-api elevated 503 errors and client timeouts",
+  "started_at": "2026-09-28T16:00:00Z"
+}

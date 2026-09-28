@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1019",
+  "summary": "Critical outage in payments-gateway caused by dependency_failure",
+  "description": "Service payments-gateway stopped responding after connection error to 10.0.4.24:9092. Root cause was dependency_failure.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for payments-gateway."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed dependency_failure resolved."
+    }
+  ]
+}

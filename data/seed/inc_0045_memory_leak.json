@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1045",
+  "summary": "Critical outage in redis-cache caused by memory_leak",
+  "description": "Service redis-cache stopped responding after connection error to 10.0.14.106:9092. Root cause was memory_leak.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for redis-cache."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed memory_leak resolved."
+    }
+  ]
+}

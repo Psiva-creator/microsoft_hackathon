@@ -1,0 +1,10 @@
+{
+  "service": "notification-worker",
+  "metric": "pod_crash_count",
+  "points": [
+    {
+      "timestamp": "2026-09-28T15:31:00Z",
+      "value": 1.0
+    }
+  ]
+}

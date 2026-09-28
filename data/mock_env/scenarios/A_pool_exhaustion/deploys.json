@@ -1,0 +1,10 @@
+[
+  {
+    "service": "checkout-api",
+    "version": "v212",
+    "deployed_at": "2026-09-28T14:05:00Z",
+    "commit_sha": "a1b2c3d4",
+    "author": "dev@company.com",
+    "status": "success"
+  }
+]

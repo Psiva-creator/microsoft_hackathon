@@ -1,0 +1,11 @@
+[
+  {
+    "sha": "a1b2c3d4",
+    "author": "dev@company.com",
+    "date": "2026-09-28T13:45:00Z",
+    "message": "Add retry wrapper around OrderClient.submit()",
+    "files": [
+      "services/checkout/OrderClient.py"
+    ]
+  }
+]

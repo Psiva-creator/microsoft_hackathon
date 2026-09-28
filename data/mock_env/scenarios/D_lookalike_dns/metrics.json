@@ -1,0 +1,46 @@
+{
+  "service": "checkout-api",
+  "metric": "dns_lookup_errors",
+  "points": [
+    {
+      "timestamp": "2026-09-28T16:00:00Z",
+      "value": 50
+    },
+    {
+      "timestamp": "2026-09-28T16:01:00Z",
+      "value": 60
+    },
+    {
+      "timestamp": "2026-09-28T16:02:00Z",
+      "value": 70
+    },
+    {
+      "timestamp": "2026-09-28T16:03:00Z",
+      "value": 80
+    },
+    {
+      "timestamp": "2026-09-28T16:04:00Z",
+      "value": 90
+    },
+    {
+      "timestamp": "2026-09-28T16:05:00Z",
+      "value": 100
+    },
+    {
+      "timestamp": "2026-09-28T16:06:00Z",
+      "value": 110
+    },
+    {
+      "timestamp": "2026-09-28T16:07:00Z",
+      "value": 120
+    },
+    {
+      "timestamp": "2026-09-28T16:08:00Z",
+      "value": 130
+    },
+    {
+      "timestamp": "2026-09-28T16:09:00Z",
+      "value": 140
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1031",
+  "summary": "Critical outage in notification-worker caused by bad_deploy",
+  "description": "Service notification-worker stopped responding after connection error to 10.0.13.153:9092. Root cause was bad_deploy.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for notification-worker."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed bad_deploy resolved."
+    }
+  ]
+}

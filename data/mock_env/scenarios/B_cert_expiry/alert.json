@@ -1,0 +1,7 @@
+{
+  "alertname": "TLSHandshakeFailures",
+  "service": "payments-gateway",
+  "severity": "critical",
+  "description": "Inbound payment webhook requests failing with SSL certificate expiration",
+  "started_at": "2026-09-28T10:00:00Z"
+}

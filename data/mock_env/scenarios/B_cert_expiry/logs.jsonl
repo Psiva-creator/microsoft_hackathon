@@ -1,0 +1,2 @@
+{"timestamp": "2026-09-28T10:01:05Z", "level": "ERROR", "message": "x509: certificate has expired for api.payments.internal"}
+{"timestamp": "2026-09-28T10:02:10Z", "level": "ERROR", "message": "SSL_ERROR_EXPIRED_CERT_HASH handshake failed"}

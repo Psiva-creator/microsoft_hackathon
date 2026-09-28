@@ -1,0 +1,7 @@
+{
+  "alertname": "HighLatencyAnd503s",
+  "service": "checkout-api",
+  "severity": "critical",
+  "description": "checkout-api p99 latency spiked to 8200ms and 503 error rate reached 34%",
+  "started_at": "2026-09-28T14:15:00Z"
+}

@@ -1,0 +1,2 @@
+{"timestamp": "2026-09-28T15:31:00Z", "level": "FATAL", "message": "QuantumHardwareParityBitFault: cosmic ray induced bitflip in register 0x7FFF"}
+{"timestamp": "2026-09-28T15:32:00Z", "level": "FATAL", "message": "Kernel panic: unknown machine check exception in user space worker"}

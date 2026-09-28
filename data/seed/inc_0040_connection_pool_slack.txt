@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: orders-service high error rate (> 15%)
+[14:03:00] @alice: Seeing timeouts connecting to 10.0.12.113:9092 on orders-service
+[14:05:30] @bob: Root cause appears to be connection_pool. Investigating now.
+[14:12:00] @bob: Applying mitigation steps for connection_pool.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1020",
+  "summary": "Critical outage in postgres-primary caused by connection_pool",
+  "description": "Service postgres-primary stopped responding after connection error to 10.0.20.68:5432. Root cause was connection_pool.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for postgres-primary."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed connection_pool resolved."
+    }
+  ]
+}

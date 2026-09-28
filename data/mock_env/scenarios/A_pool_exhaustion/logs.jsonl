@@ -1,0 +1,3 @@
+{"timestamp": "2026-09-28T14:10:01Z", "level": "ERROR", "message": "HikariPool-1 - Connection is not available, request timed out after 30000ms"}
+{"timestamp": "2026-09-28T14:12:15Z", "level": "ERROR", "message": "HTTP 503 Service Unavailable on POST /v1/checkout/submit"}
+{"timestamp": "2026-09-28T14:14:22Z", "level": "WARN", "message": "Connection pool saturation 50/50 active connections in checkout-api"}
