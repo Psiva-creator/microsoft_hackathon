@@ -158,6 +158,9 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
     incidents: list[dict[str, Any]] = []
 
     for fn, meta in labels.items():
+        if meta.get("is_duplicate_of"):
+            continue
+
         m = re.search(r"inc_(\d+)", fn)
         inc_id = f"INC-{int(m.group(1)):04d}" if m else fn
         file_path = seed_dir / fn
@@ -194,6 +197,16 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
         )
         emb = embedder.embed_query(normalize_text(symptom_text))
 
+        trigger = "unknown"
+        if "deploy" in content.lower() or "version" in content.lower():
+            trigger = "deploy"
+        elif "cron" in content.lower() or "scheduled" in content.lower() or "nightly" in content.lower():
+            trigger = "cron"
+        elif "traffic" in content.lower() or "load" in content.lower() or "surge" in content.lower():
+            trigger = "traffic"
+        elif "config" in content.lower():
+            trigger = "config"
+
         incidents.append({
             "id": inc_id,
             "title": title,
@@ -207,9 +220,10 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             "root_cause": root_cause,
             "resolution_steps": res_steps or ["Restart service and apply runbook"],
             "runbook_ids": list(set(runbooks)),
-            "fix_worked": True,
-            "weight": 1.0,
-            "trigger_type": "deploy" if "deploy" in content.lower() else "unknown",
+            "fix_worked": meta.get("fix_worked", True),
+            "weight": float(meta.get("weight", 1.0)),
+            "architecture_epoch": int(meta.get("architecture_epoch", 1)),
+            "trigger_type": trigger,
             "emb": emb,
         })
 
@@ -293,6 +307,10 @@ def _offline_recall(
         final = base * float(inc["weight"]) * (0.85 + 0.30 * best_rb_p)
 
         flags: list[str] = []
+        if inc.get("fix_worked") is False:
+            final *= 0.7
+            flags.append("fix_did_not_work")
+
         if cue.services and not (cue_services & set(inc["services"])):
             flags.append("service_mismatch")
 
@@ -304,6 +322,9 @@ def _offline_recall(
             and cue.trigger_type != inc.get("trigger_type")
         ):
             flags.append("trigger_mismatch")
+
+        if inc.get("architecture_epoch", 1) < 1:
+            flags.append("stale_architecture")
 
         if float(inc.get("weight", 1.0)) < 0.6:
             flags.append("old")
@@ -355,6 +376,14 @@ def _offline_recall(
         rb = get_runbook(rb_id)
         if rb:
             result_runbooks.append(rb)
+
+    # Top 2 runbooks by direct embedding similarity
+    existing_ids = {rb.id for rb in result_runbooks}
+    direct_rbs = _find_top_runbooks_by_emb(q_vec, top_n=2)
+    for drb in direct_rbs:
+        if drb.id not in existing_ids:
+            result_runbooks.append(drb)
+            existing_ids.add(drb.id)
 
     return RetrievalResult(
         incidents=top_incidents,
@@ -660,10 +689,19 @@ def recall(
         target_rb_ids.update(pat.recommended_runbooks)
 
     result_runbooks = []
+    existing_ids = set()
     for rb_id in target_rb_ids:
         rb = get_runbook(rb_id)
         if rb:
             result_runbooks.append(rb)
+            existing_ids.add(rb.id)
+
+    # Top 2 runbooks by direct embedding similarity
+    direct_rbs = _find_top_runbooks_by_emb(q_vec, top_n=2)
+    for drb in direct_rbs:
+        if drb.id not in existing_ids:
+            result_runbooks.append(drb)
+            existing_ids.add(drb.id)
 
     return RetrievalResult(
         incidents=top_incidents,

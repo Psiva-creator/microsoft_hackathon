@@ -84,3 +84,20 @@ def test_retrieval_latency_sub_500ms() -> None:
     # 95th percentile index for 10 elements
     p95 = latencies_ms[int(0.95 * len(latencies_ms))]
     assert p95 < 500.0, f"Retrieval p95 latency {p95:.2f}ms exceeded 500ms limit"
+
+
+def test_relevance_breakdown_explainability() -> None:
+    """Verify that compute_relevance_breakdown produces explainable percentage weights."""
+    from app.memory.retrieval import compute_relevance_breakdown
+
+    cue = Cue(
+        text="checkout-api 503s HikariPool timeout",
+        services=["checkout-api"],
+        error_messages=["HikariPool-1 - Connection is not available"],
+    )
+    result = recall(cue, top_k=1)
+    assert len(result.incidents) > 0
+    breakdown = compute_relevance_breakdown(result.incidents[0])
+    for key in ("vec", "fts", "fp", "svc", "code"):
+        assert key in breakdown
+        assert isinstance(breakdown[key], float)
