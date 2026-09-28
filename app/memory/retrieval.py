@@ -569,3 +569,22 @@ def recall(
         patterns=matched_patterns,
         runbooks=result_runbooks,
     )
+
+
+def compute_relevance_breakdown(incident: ScoredIncident) -> dict[str, float]:
+    """Computes percentage contribution of each signal component to the final hybrid score."""
+    total = incident.final
+    if total <= 0:
+        return {"vec": 0.0, "fts": 0.0, "fp": 0.0, "svc": 0.0, "code": 0.0}
+    vec = incident.scores.get("vec", 0.0)
+    fts = incident.scores.get("fts", 0.0)
+    fp = incident.scores.get("fp", 0.0)
+    svc = incident.scores.get("svc", 0.0)
+    code = incident.scores.get("code", 0.0)
+    return {
+        "vec": round((vec * 0.45 / total) * 100, 1),
+        "fts": round((fts * 0.20 / total) * 100, 1),
+        "fp": round((fp * 0.20 / total) * 100, 1),
+        "svc": round((svc * 0.10 / total) * 100, 1),
+        "code": round((code * 0.05 / total) * 100, 1),
+    }
