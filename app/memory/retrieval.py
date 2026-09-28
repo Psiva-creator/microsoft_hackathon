@@ -49,6 +49,95 @@ def _cosine_similarity(v1: list[float], v2: list[float]) -> float:
     return float(np.dot(a, b) / (na * nb))
 
 
+_OFFLINE_RUNBOOKS_CACHE: list[dict[str, Any]] | None = None
+
+
+def _get_offline_runbooks() -> list[dict[str, Any]]:
+    global _OFFLINE_RUNBOOKS_CACHE
+    if _OFFLINE_RUNBOOKS_CACHE is not None:
+        return _OFFLINE_RUNBOOKS_CACHE
+
+    rb_dir = Path("data/runbooks")
+    if not rb_dir.exists():
+        return []
+
+    embedder = get_embedder()
+    res = []
+    texts_to_embed = []
+    for f in sorted(rb_dir.glob("RB-*.md")):
+        content = f.read_text(encoding="utf-8")
+        m = re.match(r"^---\s*\n(.*?)\n---\s*\n(.*)$", content, re.DOTALL)
+        body = m.group(2).strip() if m else content
+        rb_id = f.stem
+        title = rb_id.replace("RB-", "").replace("-", " ").title()
+        services: list[str] = []
+        if m:
+            fm = m.group(1)
+            for line in fm.splitlines():
+                if line.startswith("title:"):
+                    title = line.split(":", 1)[1].strip().strip('"').strip("'")
+                elif line.startswith("services:"):
+                    svcs_raw = line.split(":", 1)[1].strip()
+                    services = [s.strip("[] '\"") for s in svcs_raw.split(",") if s.strip("[] '\"")]
+        embed_text = f"{title}\n{body}"
+        res.append({
+            "id": rb_id,
+            "title": title,
+            "body_md": body,
+            "services": services,
+            "embed_text": embed_text,
+        })
+        texts_to_embed.append(embed_text)
+
+    if texts_to_embed:
+        embs = embedder.embed_documents(texts_to_embed)
+        for r, emb in zip(res, embs):
+            r["emb"] = emb
+
+    _OFFLINE_RUNBOOKS_CACHE = res
+    return _OFFLINE_RUNBOOKS_CACHE
+
+
+def _find_top_runbooks_by_emb(q_vec: list[float], top_n: int = 2) -> list[Runbook]:
+    try:
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, title, body_md, services, success_count, failure_count, updated_at,
+                           1 - (emb <=> %s::vector) AS sim
+                    FROM runbooks
+                    WHERE emb IS NOT NULL
+                    ORDER BY sim DESC
+                    LIMIT %s;
+                    """,
+                    (q_vec, top_n),
+                )
+                rows = cur.fetchall()
+                if rows:
+                    return [Runbook(**r) for r in rows]
+    except Exception:
+        pass
+
+    rbs = _get_offline_runbooks()
+    if not rbs:
+        return []
+    scored = []
+    for r in rbs:
+        sim = _cosine_similarity(q_vec, r.get("emb", []))
+        scored.append((sim, r))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [
+        Runbook(
+            id=r["id"],
+            title=r["title"],
+            body_md=r["body_md"],
+            services=r.get("services", []),
+        )
+        for _, r in scored[:top_n]
+    ]
+
+
 _OFFLINE_INCIDENTS_CACHE: list[dict[str, Any]] | None = None
 
 
@@ -206,6 +295,18 @@ def _offline_recall(
         flags: list[str] = []
         if cue.services and not (cue_services & set(inc["services"])):
             flags.append("service_mismatch")
+
+        if (
+            cue.trigger_type
+            and inc.get("trigger_type")
+            and cue.trigger_type != "unknown"
+            and inc.get("trigger_type") != "unknown"
+            and cue.trigger_type != inc.get("trigger_type")
+        ):
+            flags.append("trigger_mismatch")
+
+        if float(inc.get("weight", 1.0)) < 0.6:
+            flags.append("old")
 
         matched_on: list[str] = []
         if v >= 0.4:

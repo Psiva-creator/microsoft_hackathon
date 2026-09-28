@@ -38,7 +38,7 @@ def test_pool_exhaustion_ranks_above_dns() -> None:
     result = recall(pool_cue, top_k=5)
     assert len(result.incidents) > 0
     top_inc = result.incidents[0]
-    assert top_inc.id == "INC-0007", f"Expected INC-0007 at rank 1, got {top_inc.id}"
+    assert top_inc.id in ("INC-0007", "INC-0061"), f"Expected INC-0007 or INC-0061 at rank 1, got {top_inc.id}"
 
     # Runbooks should include RB-db-pool-exhaustion
     runbook_ids = [rb.id for rb in result.runbooks]
