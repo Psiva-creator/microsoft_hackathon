@@ -53,3 +53,4 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-p no:launch_testing -p no:launch_testing_ros"
