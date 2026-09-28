@@ -255,9 +255,28 @@ def _offline_recall(
         if rb:
             result_runbooks.append(rb)
 
+    matched_patterns: list[Pattern] = []
+    patterns_file = Path("data/consolidated_patterns.json")
+    if patterns_file.exists():
+        try:
+            with open(patterns_file, encoding="utf-8") as pf:
+                all_patterns = json.load(pf)
+            cue_text = f"{cue.text} {' '.join(cue.services)} {' '.join(cue.error_messages)}".lower()
+            for p_dict in all_patterns:
+                title_lower = p_dict.get("title", "").lower()
+                p_services = [s.lower() for s in p_dict.get("services", [])]
+                if any(s.lower() in p_services or s.lower() in title_lower for s in cue.services) or any(
+                    tok in cue_text for tok in title_lower.split() if len(tok) > 4
+                ):
+                    matched_patterns.append(Pattern(**p_dict))
+                    if len(matched_patterns) >= 2:
+                        break
+        except Exception:
+            pass
+
     return RetrievalResult(
         incidents=top_incidents,
-        patterns=[],
+        patterns=matched_patterns,
         runbooks=result_runbooks,
     )
 

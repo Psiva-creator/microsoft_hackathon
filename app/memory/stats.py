@@ -3,6 +3,19 @@ from app.logging import get_logger
 
 logger = get_logger(__name__)
 
+_OFFLINE_RUNBOOK_STATS: dict[str, dict[str, int]] = {}
+
+
+def get_offline_runbook_counts(runbook_id: str) -> dict[str, int]:
+    """Returns local success and failure counts for a runbook."""
+    return _OFFLINE_RUNBOOK_STATS.get(runbook_id, {"success": 0, "failure": 0})
+
+
+def reset_offline_stats() -> None:
+    """Resets in-memory runbook stats (primarily for unit test isolation)."""
+    global _OFFLINE_RUNBOOK_STATS
+    _OFFLINE_RUNBOOK_STATS = {}
+
 
 def get_runbook_success_probability(runbook_id: str) -> float:
     """Computes Laplace-smoothed success probability: (success + 1) / (success + failure + 2)."""
@@ -16,13 +29,18 @@ def get_runbook_success_probability(runbook_id: str) -> float:
                     (runbook_id,),
                 )
                 row = cur.fetchone()
-                if not row:
-                    return 0.5
-                s = row["success_count"]
-                f = row["failure_count"]
-                return (s + 1) / (s + f + 2)
+                if row:
+                    s = row["success_count"]
+                    f = row["failure_count"]
+                    return (s + 1) / (s + f + 2)
     except Exception:
-        return 0.5
+        pass
+
+    # In-memory / offline fallback
+    counts = _OFFLINE_RUNBOOK_STATS.get(runbook_id, {"success": 0, "failure": 0})
+    s = counts["success"]
+    f = counts["failure"]
+    return (s + 1) / (s + f + 2)
 
 
 def record_feedback(
@@ -33,6 +51,14 @@ def record_feedback(
     user_ref: str | None = None,
 ) -> None:
     """Stores user feedback and updates runbook success/failure statistics."""
+    if runbook_id:
+        if runbook_id not in _OFFLINE_RUNBOOK_STATS:
+            _OFFLINE_RUNBOOK_STATS[runbook_id] = {"success": 0, "failure": 0}
+        if helpful:
+            _OFFLINE_RUNBOOK_STATS[runbook_id]["success"] += 1
+        else:
+            _OFFLINE_RUNBOOK_STATS[runbook_id]["failure"] += 1
+
     try:
         with get_db() as conn:
             with conn.cursor() as cur:
@@ -62,6 +88,7 @@ def record_feedback(
                             """,
                             (runbook_id,),
                         )
+                conn.commit()
     except Exception as e:
         logger.debug("record_feedback_offline", error=str(e))
 
@@ -70,6 +97,15 @@ def update_runbook_resolution_stats(runbook_ids: list[str], worked: bool) -> Non
     """Updates success/failure counts on incident resolution."""
     if not runbook_ids:
         return
+
+    for rb_id in runbook_ids:
+        if rb_id not in _OFFLINE_RUNBOOK_STATS:
+            _OFFLINE_RUNBOOK_STATS[rb_id] = {"success": 0, "failure": 0}
+        if worked:
+            _OFFLINE_RUNBOOK_STATS[rb_id]["success"] += 1
+        else:
+            _OFFLINE_RUNBOOK_STATS[rb_id]["failure"] += 1
+
     try:
         with get_db() as conn:
             with conn.cursor() as cur:
@@ -92,6 +128,7 @@ def update_runbook_resolution_stats(runbook_ids: list[str], worked: bool) -> Non
                             """,
                             (rb_id,),
                         )
+                conn.commit()
     except Exception as e:
         logger.debug("update_runbook_resolution_stats_offline", error=str(e))
 
