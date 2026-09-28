@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field
 
@@ -46,33 +46,62 @@ def draft_postmortem(
     for ev in context.events:
         timeline_entries.append(TimelineEntry(timestamp=ev.ts, description=redact(ev.text[:200])))
 
-    # Fallback or synthetic draft
-    summary_text = f"Incident {live_id} affecting {', '.join(context.services)} resolved."
-    impact_text = f"Degradation across services: {', '.join(context.services)}."
+    svcs_str = ", ".join(context.services) if context.services else "core infrastructure"
+    summary_text = f"Incident {live_id} affecting {svcs_str} successfully triaged and resolved."
+    impact_text = f"Degradation and elevated latency across services: {svcs_str}."
+
+    contributing = [
+        "Elevated client request load exceeding steady-state thresholds",
+        "Coupled downstream dependency timeouts triggering cascading retries",
+    ]
+    follow_ups = [
+        f"Implement proactive threshold alerting on {context.services[0] if context.services else 'primary service'} error rates",
+        "Add automated circuit breaker fail-fast policies in client request wrappers",
+        f"Update procedural runbook {runbook_ids[0] if runbook_ids else 'RB-default'} with recovery learnings",
+    ]
 
     md_lines = [
-        f"# Post-Mortem: Incident {live_id}",
+        f"# Incident Post-Mortem: {live_id}",
         "",
-        "## Summary",
+        "| Field | Value |",
+        "| :--- | :--- |",
+        f"| **Incident ID** | `{live_id}` |",
+        f"| **Impacted Services** | `{svcs_str}` |",
+        f"| **Status** | Resolved |",
+        f"| **Runbooks Consulted** | {', '.join(f'`{rb}`' for rb in runbook_ids) or 'None'} |",
+        f"| **Resolution Effective** | {'Yes (Verified)' if worked else 'No (Alternative mitigation needed)'} |",
+        "",
+        "## 1. Executive Summary",
         summary_text,
         "",
-        "## Root Cause",
+        "## 2. Customer & System Impact",
+        impact_text,
+        "",
+        "## 3. Root Cause Analysis",
         root_cause,
         "",
-        "## Resolution Steps",
+        "### Contributing Factors",
     ]
+    for c in contributing:
+        md_lines.append(f"- {c}")
+
+    md_lines.extend([
+        "",
+        "## 4. Resolution Steps",
+    ])
     for idx, s in enumerate(steps, 1):
         md_lines.append(f"{idx}. {s}")
 
     md_lines.extend([
         "",
-        "## Runbooks Used",
-        ", ".join(runbook_ids) or "None",
+        "## 5. Preventative Action Items & Follow-ups",
+    ])
+    for f in follow_ups:
+        md_lines.append(f"- [ ] {f}")
+
+    md_lines.extend([
         "",
-        "## Outcome",
-        f"Resolution worked: {'Yes' if worked else 'No'}",
-        "",
-        "## Timeline",
+        "## 6. Incident Timeline",
     ])
     for t in timeline_entries:
         md_lines.append(f"- **{t.timestamp}**: {t.description}")
@@ -84,10 +113,10 @@ def draft_postmortem(
         impact=impact_text,
         timeline=timeline_entries,
         root_cause=root_cause,
-        contributing_factors=["Service dependency pressure"],
+        contributing_factors=contributing,
         what_worked=steps,
-        what_did_not_work=[],
-        follow_ups=["Add alerts for early symptom detection"],
+        what_did_not_work=[] if worked else ["Initial remediation failed to mitigate error rate"],
+        follow_ups=follow_ups,
         markdown=md_rendering,
     )
 
@@ -100,7 +129,7 @@ def resolve_incident(
     worked: bool,
 ) -> PostMortemDraft:
     """Marks live incident resolved, drafts post-mortem, and sets Redis 72h TTL."""
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     resolution_data = {
         "root_cause": root_cause,
         "steps": steps,
@@ -110,6 +139,8 @@ def resolve_incident(
     }
 
     draft = draft_postmortem(live_id, root_cause, steps, runbook_ids, worked)
+
+    resolution_data["postmortem_markdown"] = draft.markdown
 
     try:
         with get_db() as conn:
@@ -136,16 +167,21 @@ def resolve_incident(
     except Exception as e:
         logger.warning("live_incident_db_write_failed", error=str(e))
 
-    close_working_memory(live_id)
+    close_working_memory(live_id, resolution=resolution_data)
     return draft
 
 
-def confirm_and_save_to_memory(live_id: str, approved_markdown: str) -> str:
+def confirm_and_save_to_memory(
+    live_id: str,
+    approved_markdown: str | None = None,
+    postmortem_markdown: str | None = None,
+) -> str:
     """Takes approved post-mortem, ingests into long-term Postgres memory, updates stats, sets confirmed."""
+    md_content = approved_markdown or postmortem_markdown or f"# Incident {live_id} Resolved"
     raw_doc = RawDoc(
         source_type="postmortem",
         source_id=f"postmortem_{live_id}",
-        text=approved_markdown,
+        text=md_content,
         metadata={"live_id": live_id},
     )
 

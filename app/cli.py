@@ -1,5 +1,18 @@
+import sys
 from pathlib import Path
 from typing import List, Optional
+
+# Configure UTF-8 encoding for standard streams to prevent Windows CP1252 charmap encode crashes
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 import typer
 from rich.console import Console
@@ -34,7 +47,7 @@ def main():
 @app.command()
 def seed():
     """Generates seed data, loads services, dependencies, and runbooks into memory."""
-    console.print("[bold green]🌱 Seeding Incident Response Agent memory...[/bold green]")
+    console.print("[bold green][SEED] Seeding Incident Response Agent memory...[/bold green]")
 
     services = [
         ("web-frontend", "frontend-team", "Customer facing web application"),
@@ -80,7 +93,7 @@ def seed():
         subprocess.run(["python", "scripts/generate_seed_data.py"], check=True)
 
     console.print(
-        "[bold green]✅ Seed setup complete. Ready to ingest incidents via 'cli ingest data/seed'.[/bold green]"
+        "[bold green][OK] Seed setup complete. Ready to ingest incidents via 'cli ingest data/seed'.[/bold green]"
     )
 
 
@@ -90,11 +103,11 @@ def ingest(
     accept_low: bool = typer.Option(False, "--accept-low", help="Accept low confidence extractions"),
 ):
     """Ingests documents into episodic memory."""
-    console.print(f"[bold cyan]📥 Ingesting documents from {path}...[/bold cyan]")
+    console.print(f"[bold cyan][INGEST] Ingesting documents from {path}...[/bold cyan]")
     count = ingest_folder(path, accept_low=accept_low)
     total = get_incident_count()
     console.print(
-        f"[bold green]✅ Ingested {count} documents. Total incidents in memory: {total}[/bold green]"
+        f"[bold green][OK] Ingested {count} documents. Total incidents in memory: {total}[/bold green]"
     )
 
 
@@ -125,22 +138,22 @@ def ask(
         show_header=True,
         header_style="bold magenta",
     )
-    table.add_column("ID", style="bold cyan", width=10)
-    table.add_column("Title", style="white", min_width=24)
-    table.add_column("Final", justify="right", style="bold green", width=8)
-    table.add_column("Vec", justify="right", width=6)
-    table.add_column("FTS", justify="right", width=6)
-    table.add_column("FP", justify="right", width=6)
-    table.add_column("Svc", justify="right", width=6)
-    table.add_column("Code", justify="right", width=6)
-    table.add_column("Matched On", style="yellow", width=12)
-    table.add_column("Flags", style="red", width=18)
+    table.add_column("ID", style="bold cyan", no_wrap=True)
+    table.add_column("Title", style="white", max_width=32)
+    table.add_column("Score", justify="right", style="bold green", no_wrap=True)
+    table.add_column("Vec", justify="right", no_wrap=True)
+    table.add_column("FTS", justify="right", no_wrap=True)
+    table.add_column("FP", justify="right", no_wrap=True)
+    table.add_column("Svc", justify="right", no_wrap=True)
+    table.add_column("Code", justify="right", no_wrap=True)
+    table.add_column("Matched", style="yellow")
+    table.add_column("Flags", style="red")
 
     for inc in result.incidents[:top]:
         s = inc.scores
         table.add_row(
             inc.id,
-            inc.title[:35] + ("..." if len(inc.title) > 35 else ""),
+            inc.title[:30] + ("..." if len(inc.title) > 30 else ""),
             f"{inc.final:.3f}",
             f"{s.get('vec', 0):.2f}",
             f"{s.get('fts', 0):.2f}",
@@ -154,7 +167,7 @@ def ask(
     console.print(table)
 
     if result.runbooks:
-        console.print("\n[bold yellow]📖 Relevant Runbooks:[/bold yellow]")
+        console.print("\n[bold yellow][RUNBOOK] Relevant Runbooks:[/bold yellow]")
         for rb in result.runbooks:
             console.print(f" - [cyan]{rb.id}[/cyan]: {rb.title}")
 
@@ -168,7 +181,7 @@ def investigate(
 ):
     """Executes the full reasoning agent loop to investigate an incident."""
     console.print(
-        f"[bold cyan]🔍 Starting Investigation for Scenario: {scenario}...[/bold cyan]"
+        f"[bold cyan][INVESTIGATE] Starting Investigation for Scenario: {scenario}...[/bold cyan]"
     )
 
     analysis = run_investigation(scenario_name=scenario, note=note)
@@ -183,7 +196,7 @@ def investigate(
         Panel(
             f"[bold]Summary:[/bold] {analysis.summary}\n"
             f"[bold]Precedent Strength:[/bold] [{badge_color}]{analysis.precedent_strength.upper()}[/{badge_color}]",
-            title="🧠 Incident Analysis Report",
+            title="[REPORT] Incident Analysis Report",
             border_style="cyan",
         )
     )
@@ -202,17 +215,17 @@ def investigate(
         if hyp.evidence_for:
             console.print("[green]Evidence For:[/green]")
             for ev in hyp.evidence_for:
-                console.print(f"  ✓ {ev}")
+                console.print(f"  [+] {ev}")
 
         if hyp.evidence_against:
             console.print("[red]Evidence Against:[/red]")
             for ev in hyp.evidence_against:
-                console.print(f"  ✗ {ev}")
+                console.print(f"  [-] {ev}")
 
         if hyp.similar_incidents:
             console.print("[yellow]Similar Precedents & Pattern Separation:[/yellow]")
             for sim in hyp.similar_incidents:
-                console.print(f"  • [cyan]{sim.id}[/cyan]: {sim.why_similar}")
+                console.print(f"  * [cyan]{sim.id}[/cyan]: {sim.why_similar}")
                 console.print(f"    [italic]Differences:[/italic] {sim.differences}")
 
         if hyp.recommended_steps:
@@ -225,15 +238,15 @@ def investigate(
 
     if analysis.needs_human_decision:
         console.print(
-            "\n[bold red]⚠️ Requires Human Authorization (Read-Only Safety Guard):[/bold red]"
+            "\n[bold red][WARN] Requires Human Authorization (Read-Only Safety Guard):[/bold red]"
         )
         for item in analysis.needs_human_decision:
-            console.print(f"  🛑 {item}")
+            console.print(f"  [ACTION] {item}")
 
     if analysis.what_to_check_next:
         console.print("\n[bold magenta]Next Checks to Run:[/bold magenta]")
         for check in analysis.what_to_check_next:
-            console.print(f"  🔍 {check}")
+            console.print(f"  [CHECK] {check}")
 
 
 @app.command()
@@ -245,7 +258,7 @@ def resolve(
     worked: bool = typer.Option(True, "--worked/--failed", help="Whether the resolution worked"),
 ):
     """Marks an incident resolved, drafts post-mortem, and commits to memory."""
-    console.print(f"[bold cyan]📝 Resolving Live Incident {live_id}...[/bold cyan]")
+    console.print(f"[bold cyan][RESOLVE] Resolving Live Incident {live_id}...[/bold cyan]")
     step_list = [s.strip() for s in steps.split(";") if s.strip()] or [steps]
     rb_list = runbook or []
 
@@ -260,14 +273,14 @@ def resolve(
     console.print(
         Panel(
             draft.markdown,
-            title="📋 Generated Post-Mortem Draft (Human Approved)",
+            title="[POST-MORTEM] Generated Post-Mortem Draft (Human Approved)",
             border_style="green",
         )
     )
 
     inc_id = confirm_and_save_to_memory(live_id, draft.markdown)
     console.print(
-        f"[bold green]🎉 Incident {live_id} successfully saved to long-term memory as {inc_id}![/bold green]"
+        f"[bold green][OK] Incident {live_id} successfully saved to long-term memory as {inc_id}![/bold green]"
     )
 
 
@@ -300,20 +313,20 @@ def pr_check(
         console.print(table)
 
     if res["recommendations"]:
-        console.print("\n[bold yellow]🛡️ Proactive Safety Recommendations:[/bold yellow]")
+        console.print("\n[bold yellow][SAFETY] Proactive Safety Recommendations:[/bold yellow]")
         for rec in res["recommendations"]:
-            console.print(f"  • {rec}")
+            console.print(f"  * {rec}")
 
 
 @app.command()
 def consolidate():
     """Triggers sleep-replay consolidation to cluster incidents into patterns and decay stale weights."""
     console.print(
-        "[bold cyan]🧠 Running Sleep-Replay Memory Consolidation...[/bold cyan]"
+        "[bold cyan][CONSOLIDATE] Running Sleep-Replay Memory Consolidation...[/bold cyan]"
     )
     result = run_consolidation()
     console.print(
-        f"[bold green]✅ Consolidation complete. Patterns: {result['patterns_created']}, "
+        f"[bold green][OK] Consolidation complete. Patterns: {result['patterns_created']}, "
         f"Incidents Evaluated: {result['incidents_decayed']}. Report saved to: {result['report_path']}[/bold green]"
     )
 
@@ -352,7 +365,7 @@ def evaluate(
     output: str = typer.Option("eval", "--output", "-o", help="Output directory for reports"),
 ):
     """Runs the quantitative evaluation harness and ablation suite across retrieval modes."""
-    console.print("[bold cyan]📊 Running Retrieval Evaluation & Ablation Suite...[/bold cyan]")
+    console.print("[bold cyan][EVAL] Running Retrieval Evaluation & Ablation Suite...[/bold cyan]")
     results = run_evaluation(cases_path=cases, output_dir=output)
 
     table = Table(title="Retrieval Engine Benchmark Results", header_style="bold cyan")
@@ -504,6 +517,139 @@ def demo_walkthrough():
             expand=False,
         )
     )
+
+
+@app.command(name="active")
+def active_incidents():
+    """Lists all active incidents currently held in Prefrontal Cortex (Redis) working memory."""
+    from app.memory.working import list_active_incidents
+
+    active = list_active_incidents()
+    if not active:
+        console.print("[yellow][PFC] Prefrontal Cortex: No active incidents currently in working memory.[/yellow]")
+        return
+
+    table = Table(
+        title="[PFC] Prefrontal Cortex: Active Incidents in Working Memory",
+        show_header=True,
+        header_style="bold cyan",
+    )
+    table.add_column("Incident ID", style="bold cyan", width=22)
+    table.add_column("Status", style="bold yellow", width=14)
+    table.add_column("Severity", style="bold red", width=10)
+    table.add_column("Title", style="white", min_width=25)
+    table.add_column("Services", style="green", width=22)
+    table.add_column("Events", justify="right", style="magenta", width=8)
+    table.add_column("Started At", style="dim", width=22)
+
+    for inc in active:
+        svcs = ", ".join(inc.get("services", [])) or "-"
+        table.add_row(
+            inc["id"],
+            inc.get("status", "open").upper(),
+            inc.get("severity", "unknown").upper(),
+            inc.get("title", ""),
+            svcs,
+            str(inc.get("event_count", 0)),
+            str(inc.get("started_at", "")),
+        )
+
+    console.print(table)
+
+
+@app.command(name="timeline")
+def incident_timeline(
+    live_id: str = typer.Argument(..., help="Live incident ID"),
+    limit: int = typer.Option(50, "--limit", "-n", help="Max number of events to display"),
+):
+    """Displays the chronological incoming event timeline for a live incident from working memory."""
+    from app.memory.working import get_context, get_events
+
+    ctx = get_context(live_id)
+    events = get_events(live_id, limit=limit)
+
+    if not events:
+        console.print(f"[yellow]No events recorded in working memory for incident {live_id}.[/yellow]")
+        return
+
+    table = Table(
+        title=f"Incident Timeline: {live_id} - {ctx.title} (Status: {ctx.status.upper()})",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table.add_column("Timestamp (UTC)", style="dim", width=22)
+    table.add_column("Kind", style="bold yellow", width=12)
+    table.add_column("Source", style="cyan", width=14)
+    table.add_column("Event Summary / Text", style="white", min_width=40)
+
+    kind_colors = {
+        "alert": "bold red",
+        "log": "yellow",
+        "deploy": "cyan",
+        "message": "white",
+        "tool_result": "blue",
+        "suggestion": "bold green",
+        "note": "magenta",
+        "resolve": "bold green",
+    }
+
+    for ev in events:
+        k_style = kind_colors.get(ev.kind, "white")
+        table.add_row(
+            ev.ts,
+            f"[{k_style}]{ev.kind.upper()}[/{k_style}]",
+            ev.source,
+            ev.text[:120] + ("..." if len(ev.text) > 120 else ""),
+        )
+
+    console.print(table)
+
+
+@app.command(name="hypotheses")
+def incident_hypotheses(
+    live_id: str = typer.Argument(..., help="Live incident ID"),
+):
+    """Displays current active hypotheses held in Prefrontal Cortex working memory during triage."""
+    from app.memory.working import get_context, get_hypotheses
+
+    ctx = get_context(live_id)
+    hypotheses = get_hypotheses(live_id)
+
+    if not hypotheses:
+        console.print(f"[yellow]No active hypotheses currently recorded for incident {live_id}.[/yellow]")
+        return
+
+    console.print(
+        f"\n[bold cyan]Active Triage Hypotheses for {live_id}: {ctx.title}[/bold cyan] "
+        f"(Status: [bold yellow]{ctx.status.upper()}[/bold yellow])\n"
+    )
+
+    for hyp in hypotheses:
+        conf_style = {
+            "high": "bold green",
+            "medium": "bold yellow",
+            "low": "bold red",
+        }.get(hyp.confidence, "white")
+
+        console.print(
+            f"[bold underline]Rank #{hyp.rank} | Confidence: [{conf_style}]{hyp.confidence.upper()}[/{conf_style}][/bold underline]"
+        )
+        console.print(f"  [bold]Cause:[/bold] {hyp.cause}")
+        if hyp.evidence_for:
+            console.print("  [green]Evidence For:[/green]")
+            for ev in hyp.evidence_for:
+                console.print(f"    + {ev}")
+        if hyp.evidence_against:
+            console.print("  [red]Evidence Against:[/red]")
+            for ev in hyp.evidence_against:
+                console.print(f"    - {ev}")
+        if hyp.recommended_steps:
+            console.print("  [blue]Recommended Steps:[/blue]")
+            for idx, s in enumerate(hyp.recommended_steps, 1):
+                console.print(f"    {idx}. {s}")
+        if hyp.runbook_id:
+            console.print(f"  [cyan]Associated Runbook: {hyp.runbook_id}[/cyan]")
+        console.print("")
 
 
 if __name__ == "__main__":

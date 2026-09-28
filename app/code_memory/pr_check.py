@@ -42,7 +42,27 @@ def check_pr(files: list[str], diff: str | None = None) -> dict[str, Any]:
                             }
                         )
         except Exception as e:
-            logger.warning("pr_check_db_failed", error=str(e))
+            logger.debug("pr_check_db_failed", error=str(e))
+
+    # In-memory incident files check for offline/fallback
+    if not matches:
+        try:
+            from app.memory.store import _IN_MEMORY_INCIDENT_FILES
+
+            for item in _IN_MEMORY_INCIDENT_FILES:
+                if any(f in item["file_path"] or item["file_path"] in f for f in files):
+                    matches.append(
+                        {
+                            "incident_id": item["incident_id"],
+                            "title": f"Historical outage linked to {item['file_path']}",
+                            "file_path": item["file_path"],
+                            "role": item.get("role", "related"),
+                            "root_cause": "Historical code change caused production failure",
+                            "weight": 1.0,
+                        }
+                    )
+        except Exception:
+            pass
 
     # Fallback simulation if matching known test file (e.g. OrderClient.py)
     if not matches and any("OrderClient" in f for f in files):

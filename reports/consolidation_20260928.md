@@ -1,5 +1,5 @@
 # Sleep-Replay Consolidation Report - 20260928
-Generated at: 2026-09-28T16:38:57.109157+00:00
+Generated at: 2026-09-28T19:06:56.972979+00:00
 
 ## Executive Summary
 During sleep-replay consolidation, episodic incident records from working and episodic memory
@@ -10,14 +10,6 @@ Additionally, half-life temporal decay is applied to prioritize active architect
 
 ### 📌 Generalized Pattern: Connection Pool Failures (checkout-api, postgres-primary)
 - **Cluster Size:** 2 incidents (INC-0007, INC-0061)
-- **Synthesized Rule:** When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.
-- **Mismatch Boundary (Exceptions):** Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.
-- **Trigger Signals:** HikariPool connection timeout, 503 Service Unavailable latency spike
-- **Recommended Checks:** Inspect HikariCP active/idle pool metrics, Check for long-running uncommitted DB transactions, Verify pool max-size configuration
-- **Reinforced Runbooks:** RB-db-pool-exhaustion
-
-### 📌 Generalized Pattern: Connection Pool Failures (inventory-service, orders-service)
-- **Cluster Size:** 2 incidents (INC-0011, INC-0040)
 - **Synthesized Rule:** When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.
 - **Mismatch Boundary (Exceptions):** Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.
 - **Trigger Signals:** HikariPool connection timeout, 503 Service Unavailable latency spike
@@ -56,8 +48,8 @@ Additionally, half-life temporal decay is applied to prioritize active architect
 - **Recommended Checks:** Check cert-manager pod status, Inspect ingress TLS secret expiration with openssl, Verify automated ACME renewal job
 - **Reinforced Runbooks:** RB-cert-expiry
 
-### 📌 Generalized Pattern: Network Dns Failures (auth-service, checkout-api)
-- **Cluster Size:** 4 incidents (INC-0019, INC-0012, INC-0054, INC-0063)
+### 📌 Generalized Pattern: Network Dns Failures (checkout-api, postgres-primary)
+- **Cluster Size:** 2 incidents (INC-0019, INC-0063)
 - **Synthesized Rule:** When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.
 - **Mismatch Boundary (Exceptions):** Rule does not hold if single-service egress security group rules were modified.
 - **Trigger Signals:** dial tcp: lookup failed: i/o timeout, Temporary failure in name resolution
@@ -73,7 +65,7 @@ Additionally, half-life temporal decay is applied to prioritize active architect
 - **Reinforced Runbooks:** RB-dns-resolution-failure
 
 ### 📌 Generalized Pattern: Cache Issue Failures (inventory-service, redis-cache)
-- **Cluster Size:** 3 incidents (INC-0024, INC-0013, INC-0064)
+- **Cluster Size:** 2 incidents (INC-0024, INC-0064)
 - **Synthesized Rule:** When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.
 - **Mismatch Boundary (Exceptions):** Rule does not hold if Redis memory is exhausted due to missing TTL keys.
 - **Trigger Signals:** Redis latency spike, Cache miss storm on restart, Downstream DB load spike
@@ -103,14 +95,6 @@ Additionally, half-life temporal decay is applied to prioritize active architect
 - **Trigger Signals:** No space left on device, DiskWriteQuotaExceeded
 - **Recommended Checks:** Check df -h and df -i on affected nodes, Verify systemd journald retention limits, Purge unrotated /var/log debug archives
 - **Reinforced Runbooks:** RB-disk-full
-
-### 📌 Generalized Pattern: Capacity Traffic Failures (orders-service, postgres-primary)
-- **Cluster Size:** 2 incidents (INC-0006, INC-0014)
-- **Synthesized Rule:** When global request latency degrades with 429/503 errors during traffic spikes, enable rate limiting and scale out stateless replicas.
-- **Mismatch Boundary (Exceptions):** Rule does not hold if downstream third-party APIs are rate-limiting inbound calls.
-- **Trigger Signals:** HTTP 503 Service Unavailable, P99 latency > 5s across ingress, CPU throttle percentage spike
-- **Recommended Checks:** Inspect HPA replica limits, Check ingress rate limit drop counters, Verify edge CDN cache offload ratio
-- **Reinforced Runbooks:** RB-bad-deploy-rollback
 
 ### 📌 Generalized Pattern: Capacity Traffic Failures (auth-service, inventory-service)
 - **Cluster Size:** 4 incidents (INC-0018, INC-0028, INC-0038, INC-0058)
@@ -180,4 +164,4 @@ Additionally, half-life temporal decay is applied to prioritize active architect
 Half-life parameter: **365 days** ($w = \max(0.3, 0.5^{t / T_{1/2}})$)
 
 - Total episodes evaluated and recalibrated for decay: **64**
-- Total generalized patterns discovered: **21**
+- Total generalized patterns discovered: **19**

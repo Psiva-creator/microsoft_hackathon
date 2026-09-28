@@ -114,7 +114,7 @@ make eval
 
 ## 🎬 Demo Scenarios Walkthrough
 
-The platform ships with 4 end-to-end incident scenarios in [`data/mock_env/scenarios/`](file:///home/siva/Documents/microsoft/data/mock_env/scenarios/):
+The platform ships with 4 end-to-end incident scenarios in [`data/mock_env/scenarios/`](data/mock_env/scenarios/):
 
 ### 1. Scenario A: Connection Pool Exhaustion (`A_pool_exhaustion`)
 - **Trigger:** `checkout-api` latency spikes to 8s with HTTP 503 errors after deploy `v212`.
@@ -161,7 +161,7 @@ We evaluated the Hippocampal Retrieval Engine across **60 leave-one-out benchmar
 .venv/bin/python -m app.cli eval --cases eval/cases.jsonl
 ```
 
-### Results Summary ([eval/report.md](file:///home/siva/Documents/microsoft/eval/report.md)):
+### Results Summary ([eval/report.md](eval/report.md)):
 
 | Retrieval Mode | Recall@1 | Recall@3 | Recall@5 | MRR | p50 Latency | Target Met |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -186,7 +186,7 @@ We evaluated the Hippocampal Retrieval Engine across **60 leave-one-out benchmar
    - Confidence is automatically capped at `low` when strong mismatch flags are present.
    - When no precedent exists (Scenario C), confidence is forced to `low`.
    - Any hallucinated citation is stripped into `dropped_citations` and penalizes confidence.
-3. **Zero-Leak Redaction Engine ([app/core/redact.py](file:///home/siva/Documents/microsoft/app/core/redact.py)):**
+3. **Zero-Leak Redaction Engine ([app/core/redact.py](app/core/redact.py)):**
    - Automatically sanitizes AWS access keys, GitHub tokens, Slack tokens, JWTs, Bearer credentials, and private keys before text touches any model or persistent storage.
 
 ---
@@ -217,14 +217,14 @@ Past Outages Linked to Modified Code:
 
 ## 💬 Slack Bot (Socket Mode) & REST API
 
-### Slack Bot ([app/slack/bot.py](file:///home/siva/Documents/microsoft/app/slack/bot.py))
+### Slack Bot ([app/slack/bot.py](app/slack/bot.py))
 - Runs in **Socket Mode** using `slack-bolt` (no public webhook URL required).
 - Mention `@IncidentBot <problem>` or use `/incident start <title>`.
 - Posts structured Block Kit cards in a dedicated incident thread.
 - Interactive buttons: **Helpful**, **Not helpful**, **Investigate again**, and **Mark resolved**.
 - **Mark resolved** opens a modal to submit root cause, steps, and runbooks used, drafting a post-mortem for one-click approval into memory.
 
-### REST API ([app/api/main.py](file:///home/siva/Documents/microsoft/app/api/main.py))
+### REST API ([app/api/main.py](app/api/main.py))
 - `GET /healthz`: PostgreSQL and Redis health connectivity.
 - `POST /webhooks/alertmanager`: Prometheus Alertmanager webhook triggering automated investigation.
 - `POST /webhooks/pagerduty`: PagerDuty v3 incident webhook.
@@ -236,7 +236,7 @@ Past Outages Linked to Modified Code:
 
 ## 👥 6-Member Team Delegation & Complete Work Details
 
-For full individual dossiers, see [docs/TEAM_SPLIT.md](file:///home/siva/Documents/microsoft/docs/TEAM_SPLIT.md). Below is the comprehensive work distribution across the 6 team members:
+For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Below is the comprehensive work distribution across the 6 team members:
 
 ### 🧑‍💻 Member 1: Team Lead & Systems Architect
 - **Domain & Scaffolding:** Configured centralized `app/config.py` using `pydantic-settings`, structured JSON/console logging with `structlog`, and unified Pydantic v2 domain schemas (`Cue`, `Analysis`, `Hypothesis`, `LiveContext`).
@@ -311,7 +311,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](file:///home/siva/Documen
 
 ## 🎬 3-Minute Demo Video Script & Storyboard
 
-Full script with presenter notes is available in [docs/DEMO_VIDEO_SCRIPT.md](file:///home/siva/Documents/microsoft/docs/DEMO_VIDEO_SCRIPT.md):
+Full script with presenter notes is available in [docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md):
 
 | Timestamp | Scene | Screen Focus | Narration Key Points |
 | :--- | :--- | :--- | :--- |
@@ -326,7 +326,7 @@ Full script with presenter notes is available in [docs/DEMO_VIDEO_SCRIPT.md](fil
 
 ## 📑 12-Slide Pitch Deck Overview
 
-Full slide contents and talking points are detailed in [docs/SLIDES.md](file:///home/siva/Documents/microsoft/docs/SLIDES.md):
+Full slide contents and talking points are detailed in [docs/SLIDES.md](docs/SLIDES.md):
 
 1. **Slide 1: Title & Hook** — Turning 3 AM On-Call Chaos into Instant Institutional Memory.
 2. **Slide 2: The On-Call Crisis** — Alert storms, lost institutional knowledge, and deceptive look-alikes.
@@ -393,12 +393,12 @@ Full slide contents and talking points are detailed in [docs/SLIDES.md](file:///
 
 ## 🎥 Video Script, Slides & Architecture Decisions
 
-- 🎬 **Demo Video Script & Storyboard (3 Minutes):** [docs/DEMO_VIDEO_SCRIPT.md](file:///home/siva/Documents/microsoft/docs/DEMO_VIDEO_SCRIPT.md)
-- 📑 **Pitch Deck Outline (12 Slides):** [docs/SLIDES.md](file:///home/siva/Documents/microsoft/docs/SLIDES.md)
-- 👥 **Team Work Breakdown (6 Members):** [docs/TEAM_SPLIT.md](file:///home/siva/Documents/microsoft/docs/TEAM_SPLIT.md)
-- 📖 **Architectural Decision Records (ADRs):** [docs/DECISIONS.md](file:///home/siva/Documents/microsoft/docs/DECISIONS.md)
-- 📊 **Evaluation & Ablation Report:** [eval/report.md](file:///home/siva/Documents/microsoft/eval/report.md)
-- 📋 **Full Technical Specification:** [SPEC.md](file:///home/siva/Documents/microsoft/SPEC.md)
+- 🎬 **Demo Video Script & Storyboard (3 Minutes):** [docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md)
+- 📑 **Pitch Deck Outline (12 Slides):** [docs/SLIDES.md](docs/SLIDES.md)
+- 👥 **Team Work Breakdown (6 Members):** [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md)
+- 📖 **Architectural Decision Records (ADRs):** [docs/DECISIONS.md](docs/DECISIONS.md)
+- 📊 **Evaluation & Ablation Report:** [eval/report.md](eval/report.md)
+- 📋 **Full Technical Specification:** [SPEC.md](SPEC.md)
 
 ---
 

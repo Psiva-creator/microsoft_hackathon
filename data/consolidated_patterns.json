@@ -28,35 +28,6 @@
   },
   {
     "id": 2,
-    "title": "Generalized Pattern: Connection Pool Failures (inventory-service, orders-service)",
-    "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
-    "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
-    "trigger_signals": [
-      "HikariPool connection timeout",
-      "503 Service Unavailable latency spike"
-    ],
-    "recommended_checks": [
-      "Inspect HikariCP active/idle pool metrics",
-      "Check for long-running uncommitted DB transactions",
-      "Verify pool max-size configuration"
-    ],
-    "recommended_runbooks": [
-      "RB-db-pool-exhaustion"
-    ],
-    "member_incident_ids": [
-      "INC-0011",
-      "INC-0040"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "inventory-service",
-      "orders-service",
-      "postgres-primary",
-      "redis-cache"
-    ]
-  },
-  {
-    "id": 3,
     "title": "Generalized Pattern: Connection Pool Failures (payments-gateway, postgres-primary)",
     "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
     "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
@@ -83,7 +54,7 @@
     ]
   },
   {
-    "id": 4,
+    "id": 3,
     "title": "Generalized Pattern: Connection Pool Failures (auth-service, inventory-service)",
     "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
     "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
@@ -112,7 +83,7 @@
     ]
   },
   {
-    "id": 5,
+    "id": 4,
     "title": "Generalized Pattern: Certificate Expiry Failures (payments-gateway)",
     "rule_text": "When TLS handshake failures or x509 certificate errors occur, verify certificate expiration dates on ingress routes and automated renewal cron jobs.",
     "exceptions_text": "Rule does not hold if the client TLS version is incompatible with server cipher suites.",
@@ -138,7 +109,7 @@
     ]
   },
   {
-    "id": 6,
+    "id": 5,
     "title": "Generalized Pattern: Certificate Expiry Failures (auth-service, inventory-service)",
     "rule_text": "When TLS handshake failures or x509 certificate errors occur, verify certificate expiration dates on ingress routes and automated renewal cron jobs.",
     "exceptions_text": "Rule does not hold if the client TLS version is incompatible with server cipher suites.",
@@ -171,8 +142,8 @@
     ]
   },
   {
-    "id": 7,
-    "title": "Generalized Pattern: Network Dns Failures (auth-service, checkout-api)",
+    "id": 6,
+    "title": "Generalized Pattern: Network Dns Failures (checkout-api, postgres-primary)",
     "rule_text": "When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.",
     "exceptions_text": "Rule does not hold if single-service egress security group rules were modified.",
     "trigger_signals": [
@@ -189,21 +160,16 @@
     ],
     "member_incident_ids": [
       "INC-0019",
-      "INC-0012",
-      "INC-0054",
       "INC-0063"
     ],
     "confidence": 0.88,
     "services": [
-      "auth-service",
       "checkout-api",
-      "orders-service",
-      "postgres-primary",
-      "web-frontend"
+      "postgres-primary"
     ]
   },
   {
-    "id": 8,
+    "id": 7,
     "title": "Generalized Pattern: Network Dns Failures (kafka-orders, orders-service)",
     "rule_text": "When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.",
     "exceptions_text": "Rule does not hold if single-service egress security group rules were modified.",
@@ -232,7 +198,7 @@
     ]
   },
   {
-    "id": 9,
+    "id": 8,
     "title": "Generalized Pattern: Cache Issue Failures (inventory-service, redis-cache)",
     "rule_text": "When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.",
     "exceptions_text": "Rule does not hold if Redis memory is exhausted due to missing TTL keys.",
@@ -251,18 +217,16 @@
     ],
     "member_incident_ids": [
       "INC-0024",
-      "INC-0013",
       "INC-0064"
     ],
     "confidence": 0.88,
     "services": [
       "inventory-service",
-      "redis-cache",
-      "web-frontend"
+      "redis-cache"
     ]
   },
   {
-    "id": 10,
+    "id": 9,
     "title": "Generalized Pattern: Cache Issue Failures (auth-service, checkout-api)",
     "rule_text": "When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.",
     "exceptions_text": "Rule does not hold if Redis memory is exhausted due to missing TTL keys.",
@@ -297,7 +261,7 @@
     ]
   },
   {
-    "id": 11,
+    "id": 10,
     "title": "Generalized Pattern: Disk Full Failures (auth-service, checkout-api)",
     "rule_text": "When disk write errors or log rotation stalls occur, inspect log directories and container ephemeral storage volumes.",
     "exceptions_text": "Rule does not hold if inode exhaustion occurred with available disk space.",
@@ -325,7 +289,7 @@
     ]
   },
   {
-    "id": 12,
+    "id": 11,
     "title": "Generalized Pattern: Disk Full Failures (checkout-api, inventory-service)",
     "rule_text": "When disk write errors or log rotation stalls occur, inspect log directories and container ephemeral storage volumes.",
     "exceptions_text": "Rule does not hold if inode exhaustion occurred with available disk space.",
@@ -354,37 +318,7 @@
     ]
   },
   {
-    "id": 13,
-    "title": "Generalized Pattern: Capacity Traffic Failures (orders-service, postgres-primary)",
-    "rule_text": "When global request latency degrades with 429/503 errors during traffic spikes, enable rate limiting and scale out stateless replicas.",
-    "exceptions_text": "Rule does not hold if downstream third-party APIs are rate-limiting inbound calls.",
-    "trigger_signals": [
-      "HTTP 503 Service Unavailable",
-      "P99 latency > 5s across ingress",
-      "CPU throttle percentage spike"
-    ],
-    "recommended_checks": [
-      "Inspect HPA replica limits",
-      "Check ingress rate limit drop counters",
-      "Verify edge CDN cache offload ratio"
-    ],
-    "recommended_runbooks": [
-      "RB-bad-deploy-rollback"
-    ],
-    "member_incident_ids": [
-      "INC-0006",
-      "INC-0014"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "orders-service",
-      "postgres-primary",
-      "redis-cache",
-      "web-frontend"
-    ]
-  },
-  {
-    "id": 14,
+    "id": 12,
     "title": "Generalized Pattern: Capacity Traffic Failures (auth-service, inventory-service)",
     "rule_text": "When global request latency degrades with 429/503 errors during traffic spikes, enable rate limiting and scale out stateless replicas.",
     "exceptions_text": "Rule does not hold if downstream third-party APIs are rate-limiting inbound calls.",
@@ -419,7 +353,7 @@
     ]
   },
   {
-    "id": 15,
+    "id": 13,
     "title": "Generalized Pattern: Bad Deploy Failures (auth-service, checkout-api)",
     "rule_text": "When error rates immediately surge within 5 minutes of a deployment, initiate automated rollback to previous known-good image tag.",
     "exceptions_text": "Rule does not hold if schema migrations were applied that are backwards-incompatible.",
@@ -451,7 +385,7 @@
     ]
   },
   {
-    "id": 16,
+    "id": 14,
     "title": "Generalized Pattern: Dependency Failure Failures (auth-service, inventory-service)",
     "rule_text": "When an external upstream dependency fails or degrades, enable circuit breakers and fallback cached responses.",
     "exceptions_text": "Rule does not hold if the upstream failure is localized to a single tenant.",
@@ -481,7 +415,7 @@
     ]
   },
   {
-    "id": 17,
+    "id": 15,
     "title": "Generalized Pattern: Dependency Failure Failures (auth-service, checkout-api)",
     "rule_text": "When an external upstream dependency fails or degrades, enable circuit breakers and fallback cached responses.",
     "exceptions_text": "Rule does not hold if the upstream failure is localized to a single tenant.",
@@ -511,7 +445,7 @@
     ]
   },
   {
-    "id": 18,
+    "id": 16,
     "title": "Generalized Pattern: Memory Leak Failures (checkout-api, inventory-service)",
     "rule_text": "When container OOMKilled restarts or GC pause spikes occur, inspect recent commit diffs for unclosed streams or unbounded in-memory caches.",
     "exceptions_text": "Rule does not hold if traffic volume grew by more than 300% without autoscaling.",
@@ -542,7 +476,7 @@
     ]
   },
   {
-    "id": 19,
+    "id": 17,
     "title": "Generalized Pattern: Memory Leak Failures (auth-service, orders-service)",
     "rule_text": "When container OOMKilled restarts or GC pause spikes occur, inspect recent commit diffs for unclosed streams or unbounded in-memory caches.",
     "exceptions_text": "Rule does not hold if traffic volume grew by more than 300% without autoscaling.",
@@ -571,7 +505,7 @@
     ]
   },
   {
-    "id": 20,
+    "id": 18,
     "title": "Generalized Pattern: Queue Backlog Failures (notification-worker, orders-service)",
     "rule_text": "When message consumer lag surges and message processing age exceeds SLA, scale consumer worker pools and inspect dead-letter queues.",
     "exceptions_text": "Rule does not hold if consumer crashes on poison pill payloads.",
@@ -601,7 +535,7 @@
     ]
   },
   {
-    "id": 21,
+    "id": 19,
     "title": "Generalized Pattern: Queue Backlog Failures (checkout-api, inventory-service)",
     "rule_text": "When message consumer lag surges and message processing age exceeds SLA, scale consumer worker pools and inspect dead-letter queues.",
     "exceptions_text": "Rule does not hold if consumer crashes on poison pill payloads.",
