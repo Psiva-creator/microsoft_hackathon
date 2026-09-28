@@ -136,11 +136,16 @@ def get_runbook(id: str) -> Runbook | None:
         content = rb_file.read_text(encoding="utf-8")
         m = re.match(r"^---\s*\n(.*?)\n---\s*\n(.*)$", content, re.DOTALL)
         body = m.group(2).strip() if m else content
+        from app.memory.stats import get_offline_runbook_counts
+
+        counts = get_offline_runbook_counts(id)
         return Runbook(
             id=id,
             title=id.replace("RB-", "").replace("-", " ").title(),
             body_md=body,
             services=[],
+            success_count=counts.get("success", 0),
+            failure_count=counts.get("failure", 0),
         )
     return None
 
@@ -288,4 +293,9 @@ def get_incident_count() -> int:
                 cur.execute("SELECT count(*) AS total FROM incidents;")
                 return cur.fetchone()["total"]
     except Exception:
-        return 0
+        try:
+            from app.memory.retrieval import _get_offline_incidents
+
+            return len(_get_offline_incidents())
+        except Exception:
+            return 0

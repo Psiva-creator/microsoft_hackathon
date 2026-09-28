@@ -1,6 +1,8 @@
+import socket
 import time
 from contextlib import contextmanager
 from typing import Generator
+from urllib.parse import urlparse
 
 import psycopg
 import redis
@@ -16,6 +18,18 @@ logger = get_logger(__name__)
 _pool: ConnectionPool | None = None
 _redis_client: redis.Redis | None = None
 _last_db_failure_time: float = 0.0
+
+
+def is_service_port_open(url: str, timeout: float = 0.05) -> bool:
+    """Performs a quick non-blocking TCP socket check to see if database/redis port is listening."""
+    try:
+        parsed = urlparse(url)
+        host = parsed.hostname or "127.0.0.1"
+        port = parsed.port or (5432 if "postgres" in parsed.scheme else 6379)
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
 
 
 def configure_connection(conn: psycopg.Connection) -> None:
@@ -51,6 +65,11 @@ def get_db() -> Generator[psycopg.Connection, None, None]:
     global _last_db_failure_time
     if time.time() - _last_db_failure_time < 300.0:
         raise ConnectionError("Database offline cooldown active")
+
+    settings = get_settings()
+    if not is_service_port_open(settings.DATABASE_URL):
+        _last_db_failure_time = time.time()
+        raise ConnectionError("Database port is unreachable (offline mode active)")
 
     try:
         pool = get_db_pool()

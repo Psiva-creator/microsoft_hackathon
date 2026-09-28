@@ -1,8 +1,10 @@
 # 🧠 Incident Response Agent with Brain-Inspired Memory
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![Tests: 36 Passed](https://img.shields.io/badge/tests-36%20passed-brightgreen.svg)](tests/)
+[![CI Pipeline](https://github.com/Psiva-creator/microsoft_hackathon/actions/workflows/ci.yml/badge.svg)](https://github.com/Psiva-creator/microsoft_hackathon/actions)
+[![Tests: 41 Passed](https://img.shields.io/badge/tests-41%20passed-brightgreen.svg)](tests/)
 [![Ruff Clean](https://img.shields.io/badge/code%20style-ruff%20100%25-000000.svg)](https://github.com/astral-sh/ruff)
+[![Dashboard: Live](https://img.shields.io/badge/dashboard-interactive%20HTML-blue.svg)](reports/dashboard.html)
 [![PostgreSQL 16](https://img.shields.io/badge/postgres-16%20%2B%20pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 [![Redis 7](https://img.shields.io/badge/redis-7%20AOF-DC382D.svg)](https://redis.io/)
 [![Claude 3.5 Sonnet](https://img.shields.io/badge/LLM-Claude%203.5%20Sonnet-6B4FBB.svg)](https://www.anthropic.com/)
@@ -92,16 +94,19 @@ Get the entire system running in under 2 minutes:
 # 1. Install dependencies into virtual environment
 make install
 
-# 2. Run the complete test suite (36 tests, 100% pass)
+# 2. Run the complete test suite (41 tests, 100% pass)
 make test
 
-# 3. Seed episodic memory with 64 incidents, services, and 8 runbooks
-make seed
+# 3. Run the automated 30-second full system walkthrough (All 6 cognitive layers)
+.venv/bin/python -m app.cli demo
 
-# 4. Run the quantitative retrieval benchmark & ablation suite
+# 4. Generate the interactive dark-mode HTML visual dashboard
+.venv/bin/python -m app.cli dashboard
+
+# 5. Run the quantitative retrieval benchmark & ablation suite (60 cases)
 make eval
 
-# 5. Run full agent investigation on a live outage scenario
+# 6. Run full agent investigation on a live outage scenario
 .venv/bin/python -m app.cli investigate --scenario A_pool_exhaustion
 ```
 
