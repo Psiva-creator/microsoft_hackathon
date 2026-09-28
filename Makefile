@@ -40,3 +40,9 @@ clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type d -name .pytest_cache -exec rm -rf {} +
 	find . -type d -name .ruff_cache -exec rm -rf {} +
+
+demo:
+	python -m app.cli demo
+
+dashboard:
+	python -m app.cli dashboard
