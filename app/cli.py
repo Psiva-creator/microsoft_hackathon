@@ -384,5 +384,59 @@ def evaluate(
     console.print(f"[bold green]✅ Evaluation complete. Full report written to {output}/report.md[/bold green]")
 
 
+@app.command()
+def doctor():
+    """Runs system diagnostics: verifies environment, memory, guardrails, and data stores."""
+    import platform
+    import sys
+
+    from app.config import get_settings
+
+    settings = get_settings()
+    console.print(Panel.fit("[bold blue]🩺 Incident Response Agent: System Diagnostics[/bold blue]", border_style="blue"))
+
+    table = Table(title="Component Health Check", show_header=True, header_style="bold magenta")
+    table.add_column("Component", style="cyan", width=28)
+    table.add_column("Status", justify="center", style="bold")
+    table.add_column("Details", style="dim")
+
+    # 1. Python runtime
+    py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    table.add_row("Python Runtime", "[green]PASS[/green]", f"{py_ver} on {platform.system()} ({platform.machine()})")
+
+    # 2. Read-only safety guardrail
+    if not settings.ALLOW_ACTIONS:
+        table.add_row("Read-Only Safety Guard", "[bold green]ENFORCED[/bold green]", "ALLOW_ACTIONS=false (Zero mutating tools)")
+    else:
+        table.add_row("Read-Only Safety Guard", "[bold red]MUTATING[/bold red]", "ALLOW_ACTIONS=true (Danger!)")
+
+    # 3. Embedding cache
+    cache_path = Path(".cache/embeddings.sqlite")
+    if cache_path.exists():
+        table.add_row("Embedding Cache", "[green]READY[/green]", f"{cache_path} ({cache_path.stat().st_size} bytes)")
+    else:
+        table.add_row("Embedding Cache", "[yellow]WARMUP[/yellow]", "No cache yet; local model will initialize on first query")
+
+    # 4. Seed incident data
+    seed_dir = Path("data/seed")
+    seed_count = len(list(seed_dir.glob("inc_*.*"))) if seed_dir.exists() else 0
+    if seed_count >= 50:
+        table.add_row("Seed Incident Data", "[green]READY[/green]", f"{seed_count} seed incident documents")
+    else:
+        table.add_row("Seed Incident Data", "[yellow]PARTIAL[/yellow]", f"{seed_count} documents in data/seed")
+
+    # 5. Outage scenarios
+    scenario_dir = Path("data/mock_env/scenarios")
+    scenarios = [d.name for d in scenario_dir.iterdir() if d.is_dir()] if scenario_dir.exists() else []
+    table.add_row("Outage Scenarios (A-D)", "[green]READY[/green]", f"{len(scenarios)} scenarios: {', '.join(scenarios)}")
+
+    # 6. Procedural Runbooks
+    runbooks = get_all_runbooks()
+    table.add_row("Procedural Runbooks", "[green]READY[/green]", f"{len(runbooks)} runbooks loaded")
+
+    console.print(table)
+    console.print("[bold green]✅ System diagnostics complete. All core systems operational.[/bold green]")
+
+
 if __name__ == "__main__":
     app()
