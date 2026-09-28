@@ -60,6 +60,10 @@ class Settings(BaseSettings):
     # --- Safety ---
     ALLOW_ACTIONS: bool = Field(default=False)
 
+    # --- Logging ---
+    LOG_LEVEL: str = Field(default="INFO")
+    LOG_FORMAT: Literal["json", "console"] = Field(default="console")
+
 
 @lru_cache()
 def get_settings() -> Settings:
