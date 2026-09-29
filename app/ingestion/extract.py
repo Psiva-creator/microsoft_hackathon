@@ -103,6 +103,14 @@ def _heuristic_extract(text: str, source_id: str) -> ExtractedIncident:
     """Fast deterministic extractor used when LLM is unavailable or for synthetic seed ingestion."""
     lines = text.strip().splitlines()
     first_line = lines[0] if lines else "Incident"
+    for line in lines[:10]:
+        clean = line.strip()
+        if any(k in clean.lower() for k in ("post-mortem:", "incident:", "ticket:", "outage:")):
+            first_line = clean
+            break
+        if clean.startswith("#") and "copy" not in clean.lower():
+            first_line = clean
+            break
     title = re.sub(r"^[#\s\-*]+", "", first_line).strip()
 
     services: set[str] = set()

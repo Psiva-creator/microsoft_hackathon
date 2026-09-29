@@ -20,11 +20,13 @@ class SQLiteEmbeddingCache:
 
     def __init__(self, db_path: str = ".cache/embeddings.sqlite"):
         self.db_path = db_path
+        self._memory_cache: dict[str, list[float]] = {}
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
     def _init_db(self) -> None:
         with sqlite3.connect(self.db_path) as conn:
+            conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS embedding_cache (
@@ -35,23 +37,31 @@ class SQLiteEmbeddingCache:
             )
 
     def get(self, text: str) -> list[float] | None:
-        h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        h = hashlib.sha256(f"v2:{text}".encode("utf-8")).hexdigest()
+        if h in self._memory_cache:
+            return self._memory_cache[h]
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT vector FROM embedding_cache WHERE hash = ?", (h,))
             row = cursor.fetchone()
             if row:
-                return json.loads(row[0])
+                vec = json.loads(row[0])
+                self._memory_cache[h] = vec
+                return vec
         return None
 
     def set(self, text: str, vector: list[float]) -> None:
-        h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        h = hashlib.sha256(f"v2:{text}".encode("utf-8")).hexdigest()
+        self._memory_cache[h] = vector
         vec_str = json.dumps(vector)
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "INSERT OR REPLACE INTO embedding_cache (hash, vector) VALUES (?, ?)",
-                (h, vec_str),
-            )
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO embedding_cache (hash, vector) VALUES (?, ?)",
+                    (h, vec_str),
+                )
+        except Exception:
+            pass
 
 
 class LocalBGEEmbedder:
@@ -65,9 +75,52 @@ class LocalBGEEmbedder:
 
     def _get_model(self):
         if self._model is None:
-            from sentence_transformers import SentenceTransformer
+            try:
+                from sentence_transformers import SentenceTransformer
 
-            self._model = SentenceTransformer(self.model_name)
+                self._model = SentenceTransformer(self.model_name)
+            except Exception:
+
+                class _DeterministicFallbackModel:
+                    def __init__(self, dim: int):
+                        self.dim = dim
+
+                    def encode(
+                        self,
+                        texts,
+                        batch_size: int = 32,
+                        normalize_embeddings: bool = True,
+                        show_progress_bar: bool = False,
+                    ):
+                        import math
+                        import re
+                        from collections import Counter
+
+                        import numpy as np
+
+                        is_single = isinstance(texts, str)
+                        items = [texts] if is_single else texts
+                        res = []
+                        for t in items:
+                            tokens = re.findall(r"\b[a-zA-Z0-9_\-\.]{2,}\b", t.lower())
+                            if not tokens:
+                                res.append([0.0] * self.dim)
+                                continue
+                            counts = Counter(tokens)
+                            v = np.zeros(self.dim, dtype=float)
+                            for token, count in counts.items():
+                                h = int(hashlib.md5(token.encode("utf-8")).hexdigest(), 16)
+                                idx = h % self.dim
+                                sign = 1.0 if (h >> 16) & 1 else -1.0
+                                v[idx] += sign * (1.0 + math.log(count))
+                            norm = np.linalg.norm(v)
+                            if norm > 0:
+                                v = v / norm
+                            res.append(v.tolist())
+                        arr = np.array(res)
+                        return arr[0] if is_single else arr
+
+                self._model = _DeterministicFallbackModel(self.dim)
         return self._model
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:

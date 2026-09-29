@@ -7,6 +7,7 @@ from app.core.embeddings import LocalBGEEmbedder, SQLiteEmbeddingCache, get_embe
 def test_sqlite_embedding_cache():
     with tempfile.NamedTemporaryFile(suffix=".sqlite", delete=False) as f:
         db_path = f.name
+    f.close()
 
     try:
         cache = SQLiteEmbeddingCache(db_path=db_path)
@@ -20,8 +21,11 @@ def test_sqlite_embedding_cache():
         assert len(cached) == 384
         assert cached[0] == 0.123
     finally:
-        if os.path.exists(db_path):
-            os.remove(db_path)
+        try:
+            if os.path.exists(db_path):
+                os.remove(db_path)
+        except OSError:
+            pass
 
 
 def test_embedder_factory():

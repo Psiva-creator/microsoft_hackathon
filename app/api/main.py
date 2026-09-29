@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, AsyncGenerator, List, Optional
 
@@ -15,9 +15,16 @@ from app.db import check_db, check_redis, close_db_pool, get_db_pool
 from app.logging import get_logger, setup_logging
 from app.memory.retrieval import recall
 from app.memory.stats import record_feedback
-from app.memory.working import append_event, get_context
+from app.memory.working import (
+    append_event,
+    get_context,
+    get_events,
+    get_hypotheses,
+    list_active_incidents,
+    set_hypotheses,
+)
 from app.memory.working import create as create_working_memory
-from app.models import Cue, LiveEvent
+from app.models import Cue, Hypothesis, LiveEvent
 from app.ui.portal import get_portal_html
 
 logger = get_logger(__name__)
@@ -150,7 +157,8 @@ def alertmanager_webhook(
     api_key: str = Depends(verify_api_key),
 ):
     group_key = payload.get("groupKey", "alert")
-    live_id = f"LIVE-{datetime.utcnow().strftime('%Y%m%d')}-{abs(hash(group_key)) % 1000:03d}"
+    now_dt = datetime.now(timezone.utc)
+    live_id = f"LIVE-{now_dt.strftime('%Y%m%d')}-{abs(hash(group_key)) % 1000:03d}"
 
     alerts = payload.get("alerts", [])
     first_alert = alerts[0] if alerts else {}
@@ -165,7 +173,7 @@ def alertmanager_webhook(
     append_event(
         live_id,
         LiveEvent(
-            ts=datetime.utcnow().isoformat() + "Z",
+            ts=now_dt.isoformat().replace("+00:00", "Z"),
             kind="alert",
             source="alertmanager",
             text=f"{title}: {description}",
@@ -202,8 +210,9 @@ def create_incident(
     req: CreateIncidentRequest,
     api_key: str = Depends(verify_api_key),
 ):
-    now_str = datetime.utcnow().strftime("%Y%m%d")
-    live_id = f"LIVE-{now_str}-{int(datetime.utcnow().timestamp()) % 1000:03d}"
+    now_dt = datetime.now(timezone.utc)
+    now_str = now_dt.strftime("%Y%m%d")
+    live_id = f"LIVE-{now_str}-{int(now_dt.timestamp()) % 1000:03d}"
 
     create_working_memory(
         live_id,
@@ -218,7 +227,7 @@ def create_incident(
         append_event(
             live_id,
             LiveEvent(
-                ts=datetime.utcnow().isoformat() + "Z",
+                ts=now_dt.isoformat().replace("+00:00", "Z"),
                 kind="alert",
                 source="user",
                 text=f"{req.description}\n{req.error_text or ''}".strip(),
@@ -226,6 +235,14 @@ def create_incident(
         )
 
     return {"live_incident_id": live_id, "title": req.title, "services": req.services}
+
+
+@app.get("/incidents")
+def list_active_incidents_view(
+    api_key: str = Depends(verify_api_key),
+):
+    """Lists all active incidents currently held in Prefrontal Cortex working memory."""
+    return list_active_incidents()
 
 
 @app.get("/incidents/{id}")
@@ -244,7 +261,7 @@ def append_incident_event(
     api_key: str = Depends(verify_api_key),
 ):
     event = LiveEvent(
-        ts=datetime.utcnow().isoformat() + "Z",
+        ts=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         kind=req.kind,  # type: ignore
         source=req.source,
         text=req.text,
@@ -252,6 +269,51 @@ def append_incident_event(
     )
     append_event(id, event)
     return {"status": "appended", "event": event.model_dump()}
+
+
+@app.get("/incidents/{id}/events")
+def get_incident_events_view(
+    id: str,
+    limit: int = Query(30, ge=1, le=200),
+    kind: Optional[str] = Query(None),
+    api_key: str = Depends(verify_api_key),
+):
+    """Retrieves chronological timeline events for an active incident."""
+    events = get_events(id, limit=limit)
+    if kind:
+        events = [e for e in events if e.kind == kind]
+    return [e.model_dump() for e in events]
+
+
+@app.get("/incidents/{id}/hypotheses")
+def get_incident_hypotheses_view(
+    id: str,
+    api_key: str = Depends(verify_api_key),
+):
+    """Retrieves active hypotheses held in Prefrontal Cortex working memory during triage."""
+    hypotheses = get_hypotheses(id)
+    return [h.model_dump() for h in (hypotheses or [])]
+
+
+@app.put("/incidents/{id}/hypotheses")
+def update_incident_hypotheses_view(
+    id: str,
+    hypotheses: list[Hypothesis],
+    api_key: str = Depends(verify_api_key),
+):
+    """Updates active hypotheses during triage and appends a triage note to the timeline."""
+    set_hypotheses(id, hypotheses)
+    append_event(
+        id,
+        LiveEvent(
+            ts=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            kind="note",
+            source="human_triage",
+            text=f"Updated triage hypotheses ({len(hypotheses)} active)",
+            data={"hypotheses": [h.model_dump() for h in hypotheses]},
+        ),
+    )
+    return {"status": "updated", "hypotheses": [h.model_dump() for h in hypotheses]}
 
 
 @app.post("/incidents/{id}/investigate")

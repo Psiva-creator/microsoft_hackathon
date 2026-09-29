@@ -1,3 +1,4 @@
+import json
 import re
 from typing import Any
 
@@ -8,9 +9,10 @@ from app.agent.investigate import investigate
 from app.agent.postmortem import confirm_and_save_to_memory, resolve_incident
 from app.config import get_settings
 from app.core.redact import redact
+from app.db import get_db
 from app.logging import get_logger
 from app.memory.stats import record_feedback
-from app.memory.working import append_event, get_live_context, init_live_incident
+from app.memory.working import append_event, init_live_incident
 from app.models import Analysis, LiveEvent
 
 logger = get_logger(__name__)
@@ -423,10 +425,24 @@ def create_slack_app() -> App:
     def handle_postmortem_approve(ack: Any, body: dict[str, Any], respond: Any) -> None:
         ack()
         live_id = body["actions"][0]["value"]
-        ctx = get_live_context(live_id)
-        draft_md = ctx.resolution.get("postmortem_markdown", "# Post-Mortem Resolved")
+        draft_md = f"# Post-Mortem: Incident {live_id}\n\nResolved via Slack."
+        try:
+            with get_db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT postmortem_draft FROM live_incidents WHERE id = %s", (live_id,)
+                    )
+                    row = cur.fetchone()
+                    if row and row.get("postmortem_draft"):
+                        pm_draft = row["postmortem_draft"]
+                        if isinstance(pm_draft, str):
+                            pm_draft = json.loads(pm_draft)
+                        if isinstance(pm_draft, dict):
+                            draft_md = pm_draft.get("markdown", draft_md)
+        except Exception as e:
+            logger.warning("fetch_postmortem_draft_failed", live_id=live_id, error=str(e))
 
-        inc_id = confirm_and_save_to_memory(live_id=live_id, postmortem_markdown=draft_md)
+        inc_id = confirm_and_save_to_memory(live_id=live_id, approved_markdown=draft_md)
         respond(
             text=f"🎉 *Post-mortem approved!* Incident committed to long-term episodic memory as `{inc_id}`. Runbook statistics updated.",
             replace_original=False,

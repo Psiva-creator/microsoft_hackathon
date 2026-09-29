@@ -97,6 +97,15 @@ class LiveEvent(BaseModel):
 class LiveContext(BaseModel):
     id: str
     title: str
+    status: str = "open"
+    severity: str = "unknown"
     services: list[str] = Field(default_factory=list)
     events: list[LiveEvent] = Field(default_factory=list)
     hypotheses: list[Hypothesis] | None = None
+    cue: Cue | None = None
+    started_at: str | None = None
+    resolved_at: str | None = None
+    slack_channel: str | None = None
+    slack_thread_ts: str | None = None
+    resolution: dict[str, Any] = Field(default_factory=dict)
+    meta: dict[str, Any] = Field(default_factory=dict)

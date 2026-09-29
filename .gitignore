@@ -24,3 +24,4 @@ ENV/
 .idea/
 .serena/
 uv.lock
+.vercel

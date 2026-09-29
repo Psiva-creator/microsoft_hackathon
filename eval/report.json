@@ -1,65 +1,1727 @@
 {
   "keyword": {
     "mode": "keyword",
-    "sample_count": 64,
-    "recall_at_1": 1.0,
-    "recall_at_3": 1.0,
-    "recall_at_5": 1.0,
-    "mrr": 1.0,
-    "p50_latency_ms": 1.0,
-    "p95_latency_ms": 21.66,
-    "misses": [],
-    "label": "Keyword (FTS only)"
-  },
-  "vector": {
-    "mode": "vector",
-    "sample_count": 64,
-    "recall_at_1": 0.9688,
-    "recall_at_3": 1.0,
-    "recall_at_5": 1.0,
-    "mrr": 0.9844,
-    "p50_latency_ms": 1.66,
-    "p95_latency_ms": 1.86,
-    "misses": [],
-    "label": "Vector (BGE Embeddings only)"
-  },
-  "hybrid": {
-    "mode": "hybrid",
-    "sample_count": 64,
-    "recall_at_1": 0.9688,
-    "recall_at_3": 1.0,
-    "recall_at_5": 1.0,
-    "mrr": 0.9844,
-    "p50_latency_ms": 1.86,
-    "p95_latency_ms": 1.96,
-    "misses": [],
-    "label": "Hybrid (Full Brain Architecture)"
-  },
-  "no_vector": {
-    "mode": "hybrid",
-    "sample_count": 64,
-    "recall_at_1": 0.9844,
-    "recall_at_3": 0.9844,
-    "recall_at_5": 0.9844,
-    "mrr": 0.9844,
-    "p50_latency_ms": 1.09,
-    "p95_latency_ms": 1.14,
+    "sample_count": 60,
+    "recall_at_1": 0.6,
+    "recall_at_3": 0.7833,
+    "recall_at_5": 0.8667,
+    "mrr": 0.7061,
+    "p50_latency_ms": 1.89,
+    "p95_latency_ms": 2.46,
     "misses": [
       {
-        "case_id": "c039",
-        "source_id": "INC-0039",
-        "cue_text": "inventory-service degraded: third-party partner API outages and upstream 500 responses",
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
         "retrieved": [
-          "INC-0042",
-          "INC-0054",
-          "INC-0013",
+          "INC-0005",
+          "INC-0006",
+          "INC-0010",
+          "INC-0011",
+          "INC-0012"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c009",
+        "source_id": "INC-0029",
+        "cue_text": "payments-gateway external provider timeouts on checkout completion",
+        "retrieved": [
+          "INC-0012",
+          "INC-0025",
+          "INC-0055",
+          "INC-0062",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Upstream third-party payment partner outage."
+      },
+      {
+        "case_id": "c011",
+        "source_id": "INC-0008",
+        "cue_text": "payments-gateway degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0012",
+          "INC-0025",
+          "INC-0055",
+          "INC-0062",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0010",
+          "INC-0017",
+          "INC-0018",
           "INC-0022",
           "INC-0028"
         ],
         "expected": [
-          "INC-0004",
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0055",
+          "INC-0012",
+          "INC-0007",
+          "INC-0008"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0031",
+          "INC-0019",
+          "INC-0007",
+          "INC-0008",
+          "INC-0009"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0007",
+          "INC-0019",
+          "INC-0008",
+          "INC-0009",
+          "INC-0015"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0019",
+          "INC-0009",
+          "INC-0010",
+          "INC-0017",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0005",
+          "INC-0006",
+          "INC-0008",
+          "INC-0009",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0013",
+          "INC-0014",
+          "INC-0024",
+          "INC-0009",
+          "INC-0016"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0012",
+          "INC-0013",
+          "INC-0014",
+          "INC-0015"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0007",
+          "INC-0008",
+          "INC-0012",
+          "INC-0009",
+          "INC-0019"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0014",
+          "INC-0028",
+          "INC-0024",
+          "INC-0009",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      }
+    ],
+    "label": "Keyword (FTS only)"
+  },
+  "vector": {
+    "mode": "vector",
+    "sample_count": 60,
+    "recall_at_1": 0.4667,
+    "recall_at_3": 0.6167,
+    "recall_at_5": 0.75,
+    "mrr": 0.5681,
+    "p50_latency_ms": 3.42,
+    "p95_latency_ms": 5.44,
+    "misses": [
+      {
+        "case_id": "c002",
+        "source_id": "INC-0019",
+        "cue_text": "checkout-api connection failures across all replicas simultaneously",
+        "retrieved": [
+          "INC-0020",
+          "INC-0050",
+          "INC-0031",
+          "INC-0021",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0030",
+          "INC-0061",
+          "INC-0020"
+        ],
+        "notes": "Expired Let's Encrypt TLS certificate."
+      },
+      {
+        "case_id": "c004",
+        "source_id": "INC-0024",
+        "cue_text": "redis-cache high memory usage and cache miss avalanche",
+        "retrieved": [
+          "INC-0057",
+          "INC-0045",
+          "INC-0020",
+          "INC-0029",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0064"
+        ],
+        "notes": "Cache stampede due to simultaneous key expiration."
+      },
+      {
+        "case_id": "c005",
+        "source_id": "INC-0005",
+        "cue_text": "postgres-primary refusing writes with disk exhaustion alert",
+        "retrieved": [
+          "INC-0020",
+          "INC-0024",
+          "INC-0050",
+          "INC-0033",
+          "INC-0022"
+        ],
+        "expected": [
+          "INC-0033",
+          "INC-0043",
+          "INC-0053"
+        ],
+        "notes": "Disk full look-alike vs sudden traffic spike."
+      },
+      {
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
+        "retrieved": [
+          "INC-0053",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c007",
+        "source_id": "INC-0027",
+        "cue_text": "kafka-orders consumer group rebalancing loop and lag spike",
+        "retrieved": [
+          "INC-0009",
+          "INC-0062",
+          "INC-0020",
+          "INC-0044",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0039",
           "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Kafka consumer lag and group rebalancing timeout."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0035",
+          "INC-0020",
+          "INC-0029",
+          "INC-0050",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0051"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0031",
+          "INC-0020",
+          "INC-0050",
+          "INC-0017",
+          "INC-0022"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c013",
+        "source_id": "INC-0010",
+        "cue_text": "notification-worker degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0009",
+          "INC-0031",
+          "INC-0020",
+          "INC-0050",
+          "INC-0017"
+        ],
+        "expected": [
+          "INC-0047",
+          "INC-0027",
+          "INC-0037"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c014",
+        "source_id": "INC-0011",
+        "cue_text": "orders-service degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0005",
+          "INC-0053",
+          "INC-0012",
+          "INC-0019",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0040",
+          "INC-0061"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c015",
+        "source_id": "INC-0013",
+        "cue_text": "web-frontend degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0051",
+          "INC-0019",
+          "INC-0020",
+          "INC-0029",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0064",
+          "INC-0026"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0064",
+          "INC-0020",
+          "INC-0050",
+          "INC-0024"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c017",
+        "source_id": "INC-0016",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0029",
+          "INC-0035",
+          "INC-0019",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c018",
+        "source_id": "INC-0017",
+        "cue_text": "notification-worker degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0009",
+          "INC-0031",
+          "INC-0020",
+          "INC-0050",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0030",
+          "INC-0061",
+          "INC-0050"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0031",
+          "INC-0020",
+          "INC-0050",
+          "INC-0024"
+        ],
+        "expected": [
+          "INC-0033",
+          "INC-0005",
+          "INC-0043"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0020",
+          "INC-0050",
+          "INC-0031",
+          "INC-0021",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c024",
+        "source_id": "INC-0026",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0029",
+          "INC-0035",
+          "INC-0019",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0064"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0020",
+          "INC-0044",
+          "INC-0050",
+          "INC-0036"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c026",
+        "source_id": "INC-0030",
+        "cue_text": "web-frontend degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0051",
+          "INC-0046",
+          "INC-0013",
+          "INC-0005",
+          "INC-0011"
+        ],
+        "expected": [
+          "INC-0061",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0009",
+          "INC-0020",
+          "INC-0050",
+          "INC-0017",
+          "INC-0022"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c030",
+        "source_id": "INC-0034",
+        "cue_text": "inventory-service degraded: cluster wide DNS resolution errors and service discovery timeouts",
+        "retrieved": [
+          "INC-0029",
+          "INC-0048",
+          "INC-0035",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0063",
+          "INC-0024",
+          "INC-0044"
+        ],
+        "notes": "High-fidelity leave-one-out case for network_dns."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0020",
+          "INC-0029",
+          "INC-0050",
+          "INC-0021",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c033",
+        "source_id": "INC-0037",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0047",
+          "INC-0027",
+          "INC-0057"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0035",
+          "INC-0020",
+          "INC-0029",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0005",
+          "INC-0020"
+        ],
+        "expected": [
+          "INC-0023",
+          "INC-0005",
+          "INC-0033"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0020",
+          "INC-0029",
+          "INC-0050",
+          "INC-0057",
+          "INC-0053"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c043",
+        "source_id": "INC-0047",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0027",
+          "INC-0037",
+          "INC-0057"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c044",
+        "source_id": "INC-0048",
+        "cue_text": "inventory-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0029",
+          "INC-0024",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c046",
+        "source_id": "INC-0050",
+        "cue_text": "payments-gateway degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0051",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0013",
+          "INC-0020",
+          "INC-0050",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0051"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c052",
+        "source_id": "INC-0056",
+        "cue_text": "redis-cache degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0045",
+          "INC-0029",
+          "INC-0019",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0064"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0045",
+          "INC-0020",
+          "INC-0029",
+          "INC-0050",
+          "INC-0009"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c054",
+        "source_id": "INC-0058",
+        "cue_text": "orders-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0053",
+          "INC-0064",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c060",
+        "source_id": "INC-0064",
+        "cue_text": "redis-cache degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0045",
+          "INC-0029",
+          "INC-0019",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0026"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      }
+    ],
+    "label": "Vector (BGE Embeddings only)"
+  },
+  "hybrid": {
+    "mode": "hybrid",
+    "sample_count": 60,
+    "recall_at_1": 0.55,
+    "recall_at_3": 0.6333,
+    "recall_at_5": 0.7,
+    "mrr": 0.6011,
+    "p50_latency_ms": 4.74,
+    "p95_latency_ms": 6.94,
+    "misses": [
+      {
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c009",
+        "source_id": "INC-0029",
+        "cue_text": "payments-gateway external provider timeouts on checkout completion",
+        "retrieved": [
+          "INC-0012",
+          "INC-0062",
+          "INC-0007",
+          "INC-0055",
+          "INC-0008"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Upstream third-party payment partner outage."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0035",
+          "INC-0029",
+          "INC-0020",
+          "INC-0050",
+          "INC-0032"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c011",
+        "source_id": "INC-0008",
+        "cue_text": "payments-gateway degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0012",
+          "INC-0050",
+          "INC-0062",
+          "INC-0019",
+          "INC-0055"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0031",
+          "INC-0017",
+          "INC-0022",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0055",
+          "INC-0030",
+          "INC-0036",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c017",
+        "source_id": "INC-0016",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0045",
+          "INC-0035",
+          "INC-0019",
+          "INC-0024",
+          "INC-0029"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0031",
+          "INC-0022",
+          "INC-0017",
+          "INC-0009",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0063",
+          "INC-0050",
+          "INC-0023",
+          "INC-0027",
+          "INC-0043"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0036",
+          "INC-0059",
+          "INC-0044",
+          "INC-0014"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0009",
+          "INC-0017",
+          "INC-0022",
+          "INC-0010",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0029",
+          "INC-0021",
+          "INC-0053",
+          "INC-0019",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c032",
+        "source_id": "INC-0036",
+        "cue_text": "postgres-primary degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0020",
+          "INC-0005",
+          "INC-0063",
+          "INC-0026",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0064"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c033",
+        "source_id": "INC-0037",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0006",
+          "INC-0005",
+          "INC-0040"
+        ],
+        "expected": [
+          "INC-0047",
+          "INC-0027",
+          "INC-0057"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0035",
+          "INC-0021",
+          "INC-0029",
+          "INC-0026",
+          "INC-0054"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0005",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0021",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c039",
+        "source_id": "INC-0043",
+        "cue_text": "checkout-api degraded: database write rejections and disk capacity 100% full",
+        "retrieved": [
+          "INC-0007",
+          "INC-0063",
+          "INC-0019",
+          "INC-0061",
+          "INC-0023"
+        ],
+        "expected": [
+          "INC-0023",
+          "INC-0005",
+          "INC-0033"
+        ],
+        "notes": "High-fidelity leave-one-out case for disk_full."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0057",
+          "INC-0013",
+          "INC-0064",
+          "INC-0014",
+          "INC-0056"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c044",
+        "source_id": "INC-0048",
+        "cue_text": "inventory-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0029",
+          "INC-0024",
+          "INC-0018",
           "INC-0059"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c045",
+        "source_id": "INC-0049",
+        "cue_text": "auth-service degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0035",
+          "INC-0016",
+          "INC-0043",
+          "INC-0031",
+          "INC-0021"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0013",
+          "INC-0030",
+          "INC-0050",
+          "INC-0036"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0045",
+          "INC-0014",
+          "INC-0064",
+          "INC-0013",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c054",
+        "source_id": "INC-0058",
+        "cue_text": "orders-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0053",
+          "INC-0041",
+          "INC-0011",
+          "INC-0019",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      }
+    ],
+    "label": "Hybrid (Full Brain Architecture)"
+  },
+  "no_vector": {
+    "mode": "hybrid",
+    "sample_count": 60,
+    "recall_at_1": 0.4833,
+    "recall_at_3": 0.6333,
+    "recall_at_5": 0.7667,
+    "mrr": 0.5844,
+    "p50_latency_ms": 1.76,
+    "p95_latency_ms": 2.16,
+    "misses": [
+      {
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
+        "retrieved": [
+          "INC-0005",
+          "INC-0006",
+          "INC-0011",
+          "INC-0012",
+          "INC-0023"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c009",
+        "source_id": "INC-0029",
+        "cue_text": "payments-gateway external provider timeouts on checkout completion",
+        "retrieved": [
+          "INC-0012",
+          "INC-0025",
+          "INC-0055",
+          "INC-0062",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Upstream third-party payment partner outage."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0016",
+          "INC-0026",
+          "INC-0029",
+          "INC-0035",
+          "INC-0038"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c011",
+        "source_id": "INC-0008",
+        "cue_text": "payments-gateway degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0012",
+          "INC-0025",
+          "INC-0055",
+          "INC-0062",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0010",
+          "INC-0017",
+          "INC-0018",
+          "INC-0022",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0055",
+          "INC-0013",
+          "INC-0015",
+          "INC-0030"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0031",
+          "INC-0009",
+          "INC-0010",
+          "INC-0028",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c021",
+        "source_id": "INC-0022",
+        "cue_text": "notification-worker degraded: TLS handshake failures and HTTPS webhook delivery errors",
+        "retrieved": [
+          "INC-0009",
+          "INC-0018",
+          "INC-0028",
+          "INC-0042",
+          "INC-0012"
+        ],
+        "expected": [
+          "INC-0052",
+          "INC-0042"
+        ],
+        "notes": "High-fidelity leave-one-out case for certificate_expiry."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0007",
+          "INC-0019",
+          "INC-0008",
+          "INC-0015",
+          "INC-0016"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0009",
+          "INC-0010",
+          "INC-0014",
+          "INC-0036"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0019",
+          "INC-0009",
+          "INC-0010",
+          "INC-0017",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0005",
+          "INC-0006",
+          "INC-0011",
+          "INC-0012",
+          "INC-0016"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c032",
+        "source_id": "INC-0036",
+        "cue_text": "postgres-primary degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0019",
+          "INC-0063",
+          "INC-0005",
+          "INC-0026",
+          "INC-0024"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0016",
+          "INC-0026",
+          "INC-0029",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c035",
+        "source_id": "INC-0039",
+        "cue_text": "inventory-service degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0015",
+          "INC-0027",
+          "INC-0024",
+          "INC-0018",
+          "INC-0029"
+        ],
+        "expected": [
+          "INC-0049",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0005",
+          "INC-0006",
+          "INC-0011",
+          "INC-0012"
+        ],
+        "expected": [
+          "INC-0021",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0013",
+          "INC-0014",
+          "INC-0024",
+          "INC-0016",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c045",
+        "source_id": "INC-0049",
+        "cue_text": "auth-service degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0016",
+          "INC-0043",
+          "INC-0007",
+          "INC-0019",
+          "INC-0015"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0012",
+          "INC-0013",
+          "INC-0014",
+          "INC-0015"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0007",
+          "INC-0008",
+          "INC-0012",
+          "INC-0019",
+          "INC-0024"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0014",
+          "INC-0028",
+          "INC-0024",
+          "INC-0013",
+          "INC-0016"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c055",
+        "source_id": "INC-0059",
+        "cue_text": "inventory-service degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0015",
+          "INC-0027",
+          "INC-0024",
+          "INC-0018",
+          "INC-0029"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
         ],
         "notes": "High-fidelity leave-one-out case for dependency_failure."
       }
@@ -68,57 +1730,1355 @@
   },
   "no_fts": {
     "mode": "hybrid",
-    "sample_count": 64,
-    "recall_at_1": 0.9688,
-    "recall_at_3": 0.9844,
-    "recall_at_5": 0.9844,
-    "mrr": 0.9766,
-    "p50_latency_ms": 1.66,
-    "p95_latency_ms": 1.76,
+    "sample_count": 60,
+    "recall_at_1": 0.45,
+    "recall_at_3": 0.5833,
+    "recall_at_5": 0.7,
+    "mrr": 0.535,
+    "p50_latency_ms": 3.36,
+    "p95_latency_ms": 5.25,
     "misses": [
       {
-        "case_id": "c039",
-        "source_id": "INC-0039",
-        "cue_text": "inventory-service degraded: third-party partner API outages and upstream 500 responses",
+        "case_id": "c003",
+        "source_id": "INC-0012",
+        "cue_text": "payments-gateway TLS handshake errors on webhook delivery",
         "retrieved": [
-          "INC-0028",
-          "INC-0032",
-          "INC-0053",
-          "INC-0046",
-          "INC-0022"
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0062",
+          "INC-0044"
         ],
         "expected": [
-          "INC-0004",
+          "INC-0039",
           "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Expired Let's Encrypt TLS certificate."
+      },
+      {
+        "case_id": "c004",
+        "source_id": "INC-0024",
+        "cue_text": "redis-cache high memory usage and cache miss avalanche",
+        "retrieved": [
+          "INC-0057",
+          "INC-0045",
+          "INC-0029",
+          "INC-0052",
+          "INC-0040"
+        ],
+        "expected": [
+          "INC-0016",
+          "INC-0013",
+          "INC-0064"
+        ],
+        "notes": "Cache stampede due to simultaneous key expiration."
+      },
+      {
+        "case_id": "c007",
+        "source_id": "INC-0027",
+        "cue_text": "kafka-orders consumer group rebalancing loop and lag spike",
+        "retrieved": [
+          "INC-0009",
+          "INC-0044",
+          "INC-0021",
+          "INC-0010",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0047",
+          "INC-0037",
+          "INC-0057"
+        ],
+        "notes": "Kafka consumer lag and group rebalancing timeout."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0035",
+          "INC-0029",
+          "INC-0032",
+          "INC-0034",
+          "INC-0020"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0031",
+          "INC-0017",
+          "INC-0022",
+          "INC-0046",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0064",
+          "INC-0024",
+          "INC-0030",
+          "INC-0036"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c017",
+        "source_id": "INC-0016",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0029",
+          "INC-0035",
+          "INC-0038",
+          "INC-0026",
+          "INC-0054"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0031",
+          "INC-0024",
+          "INC-0028",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c021",
+        "source_id": "INC-0022",
+        "cue_text": "notification-worker degraded: TLS handshake failures and HTTPS webhook delivery errors",
+        "retrieved": [
+          "INC-0031",
+          "INC-0020",
+          "INC-0046",
+          "INC-0017",
+          "INC-0009"
+        ],
+        "expected": [
+          "INC-0052",
+          "INC-0042"
+        ],
+        "notes": "High-fidelity leave-one-out case for certificate_expiry."
+      },
+      {
+        "case_id": "c022",
+        "source_id": "INC-0023",
+        "cue_text": "checkout-api degraded: database write rejections and disk capacity 100% full",
+        "retrieved": [
+          "INC-0007",
+          "INC-0063",
+          "INC-0019",
+          "INC-0061",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0033",
+          "INC-0005",
+          "INC-0043"
+        ],
+        "notes": "High-fidelity leave-one-out case for disk_full."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0031",
+          "INC-0021",
+          "INC-0033",
+          "INC-0046"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c024",
+        "source_id": "INC-0026",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0029",
+          "INC-0035",
+          "INC-0019",
+          "INC-0038",
+          "INC-0054"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0044",
+          "INC-0036",
+          "INC-0059",
+          "INC-0064"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0009",
+          "INC-0017",
+          "INC-0022",
+          "INC-0046",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c028",
+        "source_id": "INC-0032",
+        "cue_text": "inventory-service degraded: TLS handshake failures and HTTPS webhook delivery errors",
+        "retrieved": [
+          "INC-0048",
+          "INC-0029",
+          "INC-0039",
+          "INC-0052",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0052",
+          "INC-0042",
+          "INC-0062"
+        ],
+        "notes": "High-fidelity leave-one-out case for certificate_expiry."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0029",
+          "INC-0021",
+          "INC-0053",
+          "INC-0019",
+          "INC-0032"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c032",
+        "source_id": "INC-0036",
+        "cue_text": "postgres-primary degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0005",
+          "INC-0006",
+          "INC-0019",
+          "INC-0011",
+          "INC-0033"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c033",
+        "source_id": "INC-0037",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0057",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0035",
+          "INC-0029",
+          "INC-0026",
+          "INC-0054",
+          "INC-0060"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0005",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0021",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c038",
+        "source_id": "INC-0042",
+        "cue_text": "orders-service degraded: TLS handshake failures and HTTPS webhook delivery errors",
+        "retrieved": [
+          "INC-0053",
+          "INC-0019",
+          "INC-0035",
+          "INC-0044",
+          "INC-0037"
+        ],
+        "expected": [
+          "INC-0023",
+          "INC-0005",
+          "INC-0033"
+        ],
+        "notes": "High-fidelity leave-one-out case for certificate_expiry."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0029",
+          "INC-0057",
+          "INC-0064",
+          "INC-0052",
+          "INC-0013"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c043",
+        "source_id": "INC-0047",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c044",
+        "source_id": "INC-0048",
+        "cue_text": "inventory-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0029",
+          "INC-0024",
+          "INC-0018",
           "INC-0059"
         ],
-        "notes": "High-fidelity leave-one-out case for dependency_failure."
+        "expected": [
+          "INC-0039",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0013",
+          "INC-0050",
+          "INC-0019",
+          "INC-0024"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c048",
+        "source_id": "INC-0052",
+        "cue_text": "inventory-service degraded: TLS handshake failures and HTTPS webhook delivery errors",
+        "retrieved": [
+          "INC-0048",
+          "INC-0029",
+          "INC-0039",
+          "INC-0033",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0042",
+          "INC-0062",
+          "INC-0022"
+        ],
+        "notes": "High-fidelity leave-one-out case for certificate_expiry."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0051"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0045",
+          "INC-0029",
+          "INC-0064",
+          "INC-0013",
+          "INC-0014"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c054",
+        "source_id": "INC-0058",
+        "cue_text": "orders-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0053",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
       }
     ],
     "label": "Ablation: Hybrid without FTS"
   },
   "no_fp": {
     "mode": "hybrid",
-    "sample_count": 64,
-    "recall_at_1": 0.9688,
-    "recall_at_3": 1.0,
-    "recall_at_5": 1.0,
-    "mrr": 0.9844,
-    "p50_latency_ms": 1.84,
-    "p95_latency_ms": 1.96,
-    "misses": [],
+    "sample_count": 60,
+    "recall_at_1": 0.4667,
+    "recall_at_3": 0.6,
+    "recall_at_5": 0.6833,
+    "mrr": 0.5433,
+    "p50_latency_ms": 3.89,
+    "p95_latency_ms": 6.49,
+    "misses": [
+      {
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0035",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c009",
+        "source_id": "INC-0029",
+        "cue_text": "payments-gateway external provider timeouts on checkout completion",
+        "retrieved": [
+          "INC-0012",
+          "INC-0062",
+          "INC-0007",
+          "INC-0055",
+          "INC-0008"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Upstream third-party payment partner outage."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0035",
+          "INC-0029",
+          "INC-0020",
+          "INC-0050",
+          "INC-0032"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c011",
+        "source_id": "INC-0008",
+        "cue_text": "payments-gateway degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0012",
+          "INC-0050",
+          "INC-0062",
+          "INC-0019",
+          "INC-0055"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for dependency_failure."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0031",
+          "INC-0017",
+          "INC-0022",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c014",
+        "source_id": "INC-0011",
+        "cue_text": "orders-service degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0012",
+          "INC-0005",
+          "INC-0053",
+          "INC-0061",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0040",
+          "INC-0061"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0055",
+          "INC-0030",
+          "INC-0036",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c017",
+        "source_id": "INC-0016",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0045",
+          "INC-0035",
+          "INC-0019",
+          "INC-0024",
+          "INC-0029"
+        ],
+        "expected": [
+          "INC-0013",
+          "INC-0064",
+          "INC-0046"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c019",
+        "source_id": "INC-0018",
+        "cue_text": "notification-worker degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0031",
+          "INC-0022",
+          "INC-0017",
+          "INC-0009",
+          "INC-0010"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0063",
+          "INC-0050",
+          "INC-0023",
+          "INC-0027",
+          "INC-0043"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0036",
+          "INC-0059",
+          "INC-0044",
+          "INC-0014"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c026",
+        "source_id": "INC-0030",
+        "cue_text": "web-frontend degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0051",
+          "INC-0046",
+          "INC-0013",
+          "INC-0036",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0061",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0009",
+          "INC-0017",
+          "INC-0022",
+          "INC-0010",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0029",
+          "INC-0021",
+          "INC-0053",
+          "INC-0019",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0063",
+          "INC-0024",
+          "INC-0044"
+        ],
+        "notes": "High-fidelity leave-one-out case for cache_issue."
+      },
+      {
+        "case_id": "c033",
+        "source_id": "INC-0037",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0006",
+          "INC-0005",
+          "INC-0040"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0035",
+          "INC-0021",
+          "INC-0029",
+          "INC-0026",
+          "INC-0054"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0005",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0021",
+          "INC-0031",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c039",
+        "source_id": "INC-0043",
+        "cue_text": "checkout-api degraded: database write rejections and disk capacity 100% full",
+        "retrieved": [
+          "INC-0007",
+          "INC-0063",
+          "INC-0019",
+          "INC-0061",
+          "INC-0023"
+        ],
+        "expected": [
+          "INC-0023",
+          "INC-0005",
+          "INC-0033"
+        ],
+        "notes": "High-fidelity leave-one-out case for disk_full."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0057",
+          "INC-0013",
+          "INC-0064",
+          "INC-0014",
+          "INC-0056"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c044",
+        "source_id": "INC-0048",
+        "cue_text": "inventory-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0029",
+          "INC-0024",
+          "INC-0018",
+          "INC-0059"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c046",
+        "source_id": "INC-0050",
+        "cue_text": "payments-gateway degraded: elevated 503 error rates and connection pool saturation",
+        "retrieved": [
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0007",
+          "INC-0008"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0008",
+          "INC-0029"
+        ],
+        "notes": "High-fidelity leave-one-out case for connection_pool."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0013",
+          "INC-0030",
+          "INC-0050",
+          "INC-0036"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0045",
+          "INC-0014",
+          "INC-0064",
+          "INC-0013",
+          "INC-0028"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c054",
+        "source_id": "INC-0058",
+        "cue_text": "orders-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0053",
+          "INC-0041",
+          "INC-0011",
+          "INC-0019",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      }
+    ],
     "label": "Ablation: Hybrid without Fingerprints"
   },
   "no_svc": {
     "mode": "hybrid",
-    "sample_count": 64,
-    "recall_at_1": 0.9844,
-    "recall_at_3": 1.0,
-    "recall_at_5": 1.0,
-    "mrr": 0.9922,
-    "p50_latency_ms": 1.84,
-    "p95_latency_ms": 1.99,
-    "misses": [],
+    "sample_count": 60,
+    "recall_at_1": 0.45,
+    "recall_at_3": 0.7167,
+    "recall_at_5": 0.7667,
+    "mrr": 0.6775,
+    "p50_latency_ms": 3.68,
+    "p95_latency_ms": 4.67,
+    "misses": [
+      {
+        "case_id": "c006",
+        "source_id": "INC-0015",
+        "cue_text": "orders-service JVM garbage collection pauses exceeding 15 seconds",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0020",
+          "INC-0035"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "Memory leak from unclosed static cache list."
+      },
+      {
+        "case_id": "c010",
+        "source_id": "INC-0021",
+        "cue_text": "auth-service crashlooping immediately upon startup after config push",
+        "retrieved": [
+          "INC-0012",
+          "INC-0062",
+          "INC-0063",
+          "INC-0007",
+          "INC-0055"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0008"
+        ],
+        "notes": "Upstream third-party payment partner outage."
+      },
+      {
+        "case_id": "c011",
+        "source_id": "INC-0008",
+        "cue_text": "payments-gateway degraded: third-party partner API outages and upstream 500 responses",
+        "retrieved": [
+          "INC-0012",
+          "INC-0050",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0039",
+          "INC-0049",
+          "INC-0029"
+        ],
+        "notes": "Invalid configuration key syntax introduced in deployment."
+      },
+      {
+        "case_id": "c012",
+        "source_id": "INC-0009",
+        "cue_text": "notification-worker degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0031",
+          "INC-0017",
+          "INC-0022",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c016",
+        "source_id": "INC-0014",
+        "cue_text": "web-frontend degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0051",
+          "INC-0055",
+          "INC-0030",
+          "INC-0036",
+          "INC-0042"
+        ],
+        "expected": [
+          "INC-0058",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c017",
+        "source_id": "INC-0016",
+        "cue_text": "auth-service degraded: cache stampede and Redis memory exhaustion",
+        "retrieved": [
+          "INC-0045",
+          "INC-0035",
+          "INC-0029",
+          "INC-0026",
+          "INC-0064"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c023",
+        "source_id": "INC-0025",
+        "cue_text": "checkout-api degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0063",
+          "INC-0007",
+          "INC-0061",
+          "INC-0019",
+          "INC-0009"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c025",
+        "source_id": "INC-0028",
+        "cue_text": "kafka-orders degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0021",
+          "INC-0036",
+          "INC-0059",
+          "INC-0044",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c027",
+        "source_id": "INC-0031",
+        "cue_text": "notification-worker degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0009",
+          "INC-0017",
+          "INC-0022",
+          "INC-0010",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0041",
+          "INC-0021",
+          "INC-0051"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c031",
+        "source_id": "INC-0035",
+        "cue_text": "auth-service degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0020",
+          "INC-0029",
+          "INC-0050",
+          "INC-0021",
+          "INC-0045"
+        ],
+        "expected": [
+          "INC-0025",
+          "INC-0009",
+          "INC-0055"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c033",
+        "source_id": "INC-0037",
+        "cue_text": "orders-service degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0053",
+          "INC-0009",
+          "INC-0011",
+          "INC-0010",
+          "INC-0006"
+        ],
+        "expected": [
+          "INC-0047",
+          "INC-0027",
+          "INC-0057"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c034",
+        "source_id": "INC-0038",
+        "cue_text": "auth-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0050",
+          "INC-0035",
+          "INC-0021",
+          "INC-0020",
+          "INC-0029"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c037",
+        "source_id": "INC-0041",
+        "cue_text": "orders-service degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0053",
+          "INC-0011",
+          "INC-0019",
+          "INC-0005",
+          "INC-0020"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0051",
+          "INC-0021"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c041",
+        "source_id": "INC-0045",
+        "cue_text": "redis-cache degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0057",
+          "INC-0013",
+          "INC-0064",
+          "INC-0009",
+          "INC-0014"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c044",
+        "source_id": "INC-0048",
+        "cue_text": "inventory-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0064",
+          "INC-0029",
+          "INC-0024",
+          "INC-0050",
+          "INC-0018"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0058",
+          "INC-0018"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      },
+      {
+        "case_id": "c047",
+        "source_id": "INC-0051",
+        "cue_text": "web-frontend degraded: pod CrashLoopBackOff and syntax error in configuration",
+        "retrieved": [
+          "INC-0046",
+          "INC-0013",
+          "INC-0030",
+          "INC-0020",
+          "INC-0050"
+        ],
+        "expected": [
+          "INC-0007",
+          "INC-0041",
+          "INC-0021",
+          "INC-0031"
+        ],
+        "notes": "High-fidelity leave-one-out case for bad_deploy."
+      },
+      {
+        "case_id": "c051",
+        "source_id": "INC-0055",
+        "cue_text": "payments-gateway degraded: JVM GC pause times > 10s and container OOMKilled",
+        "retrieved": [
+          "INC-0050",
+          "INC-0019",
+          "INC-0024",
+          "INC-0044",
+          "INC-0007"
+        ],
+        "expected": [
+          "INC-0035",
+          "INC-0025",
+          "INC-0009"
+        ],
+        "notes": "High-fidelity leave-one-out case for memory_leak."
+      },
+      {
+        "case_id": "c053",
+        "source_id": "INC-0057",
+        "cue_text": "redis-cache degraded: Kafka consumer group lag spike and message processing backlog",
+        "retrieved": [
+          "INC-0045",
+          "INC-0014",
+          "INC-0009",
+          "INC-0064",
+          "INC-0013"
+        ],
+        "expected": [
+          "INC-0037",
+          "INC-0017",
+          "INC-0027"
+        ],
+        "notes": "High-fidelity leave-one-out case for queue_backlog."
+      },
+      {
+        "case_id": "c054",
+        "source_id": "INC-0058",
+        "cue_text": "orders-service degraded: ingress 502 Bad Gateway and upstream connection reset under flash sale",
+        "retrieved": [
+          "INC-0053",
+          "INC-0041",
+          "INC-0011",
+          "INC-0019",
+          "INC-0044"
+        ],
+        "expected": [
+          "INC-0014",
+          "INC-0018",
+          "INC-0028"
+        ],
+        "notes": "High-fidelity leave-one-out case for capacity_traffic."
+      }
+    ],
     "label": "Ablation: Hybrid without Service Graph"
   }
 }

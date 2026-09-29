@@ -215,25 +215,118 @@ def _generate_mock_scenario_analysis(scenario_name: str, cue: Cue, recall_result
             needs_human_decision=["Restart CoreDNS deployment and increase replica count to 6"],
         )
 
-    # Generic default
+    # Dynamic synthesis using retrieved hippocampal memory and live cue
+    top_inc = recall_result.incidents[0] if recall_result.incidents else None
+    precedent_strength = (
+        "strong"
+        if (top_inc and top_inc.final >= 0.6)
+        else ("partial" if (top_inc and top_inc.final >= 0.35) else "none")
+    )
+
+    similar_list: list[SimilarIncident] = []
+    if top_inc and top_inc.final >= 0.35:
+        match_reasons = ", ".join(top_inc.matched_on) if top_inc.matched_on else "symptom vector"
+        similar_list.append(
+            SimilarIncident(
+                id=top_inc.id,
+                why_similar=f"Matches historical outage '{top_inc.title}' on {match_reasons} (similarity: {top_inc.final:.2f})",
+                differences=f"Historical resolution: {', '.join(top_inc.resolution_steps[:2]) if top_inc.resolution_steps else 'See runbook'}; verify active service telemetry.",
+            )
+        )
+
+    evidence_for: list[str] = []
+    if cue.error_messages:
+        evidence_for.append(f"Observed error signature: {cue.error_messages[0][:150]}")
+    if top_inc:
+        evidence_for.append(f"Correlates with past incident {top_inc.id} ({top_inc.title})")
+    if cue.services:
+        evidence_for.append(f"Impacted services in blast radius: {', '.join(cue.services)}")
+
+    cause = (
+        top_inc.root_cause
+        if (top_inc and top_inc.root_cause)
+        else f"Service degradation in {', '.join(cue.services) if cue.services else 'system'}: {cue.text[:120]}"
+    )
+    rec_steps = (
+        top_inc.resolution_steps
+        if (top_inc and top_inc.resolution_steps)
+        else [
+            "Inspect application error logs and latency metrics",
+            "Verify upstream and downstream service dependencies",
+            "Review recent deployment and configuration diffs",
+        ]
+    )
+    runbook_id = (
+        top_inc.runbook_ids[0]
+        if (top_inc and top_inc.runbook_ids)
+        else (recall_result.runbooks[0].id if recall_result.runbooks else None)
+    )
+    confidence = (
+        "high"
+        if (top_inc and top_inc.final >= 0.6)
+        else ("medium" if (top_inc and top_inc.final >= 0.35) else "low")
+    )
+
+    services_str = ", ".join(cue.services) if cue.services else "system"
+    summary_text = (
+        f"Investigation for {services_str}: {top_inc.title if top_inc else cue.text[:120]}"
+    )
+
     return Analysis(
-        summary=f"Investigating incident for services: {', '.join(cue.services)}",
-        precedent_strength="partial",
+        summary=summary_text,
+        precedent_strength=precedent_strength,
         hypotheses=[
             Hypothesis(
                 rank=1,
-                cause="Transient service disruption",
-                confidence="low",
-                evidence_for=[],
+                cause=cause,
+                confidence=confidence,
+                evidence_for=evidence_for,
                 evidence_against=[],
-                similar_incidents=[],
-                recommended_steps=["Check recent service logs and metrics"],
-                runbook_id=None,
+                similar_incidents=similar_list,
+                recommended_steps=rec_steps,
+                runbook_id=runbook_id,
+                risk_notes="Any mutating remediation (service restart, traffic shift, config rollback) requires human approval.",
             )
         ],
-        what_to_check_next=["Inspect service telemetry dashboards"],
-        needs_human_decision=[],
+        what_to_check_next=[
+            "Inspect pod health and crash backoffs using kubectl",
+            "Review database connection pool and query latency metrics",
+            "Examine distributed tracing traces for error spans",
+        ],
+        needs_human_decision=[
+            "Authorize canary rollback if error rate persists above threshold",
+            "Approve temporary traffic reroute or rate limiting",
+        ],
     )
+
+
+def _record_investigation_in_working_memory(
+    live_id: str | None, analysis: Analysis, cue: Cue | None
+) -> None:
+    if not live_id:
+        return
+    try:
+        from datetime import datetime, timezone
+
+        from app.memory.working import append_event, set_cue, set_hypotheses, update_status
+        from app.models import LiveEvent
+
+        set_hypotheses(live_id, analysis.hypotheses)
+        if cue:
+            set_cue(live_id, cue)
+        update_status(live_id, "investigating")
+        append_event(
+            live_id,
+            LiveEvent(
+                ts=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                kind="suggestion",
+                source="agent",
+                text=f"Reasoning analysis: {analysis.summary}",
+                data=analysis.model_dump(),
+            ),
+        )
+    except Exception as e:
+        logger.debug("failed_to_sync_investigation_working_memory", error=str(e), live_id=live_id)
 
 
 def investigate(
@@ -275,10 +368,20 @@ def investigate(
                 else (0.78 if "D_lookalike" in active_scenario else 0.0)
             )
         )
-        score_to_use = best_score if best_score > 0 else simulated_score
+        score_to_use = (
+            simulated_score
+            if (
+                "A_pool" in active_scenario
+                or "B_cert" in active_scenario
+                or "D_lookalike" in active_scenario
+                or "C_novel" in active_scenario
+            )
+            else (best_score if best_score > 0 else simulated_score)
+        )
         analysis = _generate_mock_scenario_analysis(active_scenario, cue, recall_result)
         analysis = _validate_and_sanitize_citations(analysis)
         analysis = _enforce_code_confidence_rules(analysis, score_to_use, live_evidence_found=True)
+        _record_investigation_in_working_memory(live_id, analysis, cue)
         return analysis
 
     # 4. Construct tagged prompt blocks
@@ -342,7 +445,7 @@ def investigate(
     analysis = _enforce_code_confidence_rules(
         analysis, best_score, live_evidence_found=has_live_evidence
     )
-
+    _record_investigation_in_working_memory(live_id, analysis, cue)
     return analysis
 
 

@@ -1,13 +1,14 @@
-name: CI Quality Gate
+name: CI Pipeline
 
 on:
   push:
-    branches: [main, "member-*"]
+    branches: [main, "member-*", "feature/**"]
   pull_request:
     branches: [main]
 
 jobs:
   test-and-lint:
+    name: Lint, Test & Verification Suite
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -34,3 +35,15 @@ jobs:
       - name: Run Pytest Suite
         run: |
           PYTHONPATH="" .venv/bin/pytest tests/ -v
+
+      - name: Run Retrieval Ablation Benchmark
+        run: |
+          PYTHONPATH="" .venv/bin/python -m app.cli eval
+
+      - name: Verify Sleep-Replay Consolidation
+        run: |
+          PYTHONPATH="" .venv/bin/python -m app.cli consolidate
+
+      - name: Verify Proactive Code Memory (PR Check)
+        run: |
+          PYTHONPATH="" .venv/bin/python -m app.cli pr-check -f services/checkout/OrderClient.py
