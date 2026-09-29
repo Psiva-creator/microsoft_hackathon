@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Any, AsyncGenerator, List, Optional
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, status
-from fastapi.responses import JSONResponse
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.agent.investigate import investigate
@@ -16,6 +18,7 @@ from app.memory.stats import record_feedback
 from app.memory.working import append_event, get_context
 from app.memory.working import create as create_working_memory
 from app.models import Cue, LiveEvent
+from app.ui.portal import get_portal_html
 
 logger = get_logger(__name__)
 
@@ -88,6 +91,39 @@ class PRCheckRequest(BaseModel):
     repo: str | None = None
     files: list[str] = Field(default_factory=list)
     diff: str | None = None
+
+
+@app.get("/", response_class=HTMLResponse)
+def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "application/json" in accept and "text/html" not in accept:
+        return JSONResponse(
+            content={
+                "status": "healthy",
+                "service": "Incident Response Agent",
+                "version": "0.1.0",
+                "docs": "/docs",
+                "health": "/healthz",
+                "portal": "/portal",
+                "flutter_app": "/app/",
+            }
+        )
+    web_dir = Path("frontend/build/web")
+    if web_dir.exists():
+        return RedirectResponse(url="/app/")
+    return HTMLResponse(content=get_portal_html())
+
+
+@app.get("/portal", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
+def portal_view():
+    return HTMLResponse(content=get_portal_html())
+
+
+# Mount Flutter Web Application if build/web exists
+_web_dir = Path("frontend/build/web")
+if _web_dir.exists():
+    app.mount("/app", StaticFiles(directory=str(_web_dir), html=True), name="flutter_app")
 
 
 @app.get("/healthz")
