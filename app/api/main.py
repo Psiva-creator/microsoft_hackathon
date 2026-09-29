@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, List, Optional
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, status
-from fastapi.responses import JSONResponse
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from app.agent.investigate import investigate
@@ -95,6 +95,20 @@ class PRCheckRequest(BaseModel):
     repo: str | None = None
     files: list[str] = Field(default_factory=list)
     diff: str | None = None
+
+
+@app.get("/")
+def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/docs")
+    return {
+        "status": "healthy",
+        "service": "Incident Response Agent",
+        "version": "0.1.0",
+        "docs": "/docs",
+        "health": "/healthz",
+    }
 
 
 @app.get("/healthz")
