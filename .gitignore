@@ -25,3 +25,4 @@ ENV/
 .serena/
 uv.lock
 .vercel
+.playwright-mcp/
