@@ -136,4 +136,3 @@ def check_redis_health() -> bool:
 
 check_db = check_db_health
 check_redis = check_redis_health
-

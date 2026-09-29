@@ -28,6 +28,7 @@ _LABELS_PATH = Path("data/seed/_labels.json")
 _ID_TO_CAT: dict[str, str] = {}
 if _LABELS_PATH.exists():
     import re
+
     with open(_LABELS_PATH, encoding="utf-8") as _f:
         _raw = json.load(_f)
         for _fn, _meta in _raw.items():
@@ -97,14 +98,16 @@ def evaluate_mode(
         reciprocal_ranks.append(rr)
 
         if r3 == 0.0:
-            misses.append({
-                "case_id": case.get("case_id"),
-                "source_id": source_id,
-                "cue_text": cue.text,
-                "retrieved": retrieved_ids,
-                "expected": list(expected_related)[:3],
-                "notes": case.get("notes", ""),
-            })
+            misses.append(
+                {
+                    "case_id": case.get("case_id"),
+                    "source_id": source_id,
+                    "cue_text": cue.text,
+                    "retrieved": retrieved_ids,
+                    "expected": list(expected_related)[:3],
+                    "notes": case.get("notes", ""),
+                }
+            )
 
     return {
         "mode": mode,
@@ -169,22 +172,28 @@ def run_evaluation(
     ]
 
     for key, data in results.items():
-        met = "✅ PASS" if data["recall_at_3"] >= 0.80 else ("⚡ BASELINE" if key in ("keyword", "vector") else "⚠️ ABLATION")
+        met = (
+            "✅ PASS"
+            if data["recall_at_3"] >= 0.80
+            else ("⚡ BASELINE" if key in ("keyword", "vector") else "⚠️ ABLATION")
+        )
         md_lines.append(
             f"| **{data['label']}** | {data['recall_at_1']:.1%} | **{data['recall_at_3']:.1%}** | {data['recall_at_5']:.1%} | {data['mrr']:.3f} | {data['p50_latency_ms']} ms | {data['p95_latency_ms']} ms | {met} |"
         )
 
-    md_lines.extend([
-        "",
-        "## 2. Key Architectural Takeaways",
-        "",
-        "1. **Hybrid Retrieval Superiority:** Full multi-modal hybrid retrieval achieves superior Recall@3 compared to both Vector-only and Keyword-only baselines.",
-        "2. **Pattern Separation Impact:** Error fingerprints and service graph adjacency prevent false precedent conflation (e.g. distinguishing connection pool leaks from DNS evictions).",
-        "3. **Zero Hallucinated Citations:** All cited precedents are strictly resolved and validated against verified incident records.",
-        "",
-        "## 3. Notable Edge Cases and Misses",
-        "",
-    ])
+    md_lines.extend(
+        [
+            "",
+            "## 2. Key Architectural Takeaways",
+            "",
+            "1. **Hybrid Retrieval Superiority:** Full multi-modal hybrid retrieval achieves superior Recall@3 compared to both Vector-only and Keyword-only baselines.",
+            "2. **Pattern Separation Impact:** Error fingerprints and service graph adjacency prevent false precedent conflation (e.g. distinguishing connection pool leaks from DNS evictions).",
+            "3. **Zero Hallucinated Citations:** All cited precedents are strictly resolved and validated against verified incident records.",
+            "",
+            "## 3. Notable Edge Cases and Misses",
+            "",
+        ]
+    )
 
     hybrid_misses = results["hybrid"]["misses"][:5]
     if hybrid_misses:
@@ -202,5 +211,7 @@ def run_evaluation(
     with open(report_json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
-    logger.info("evaluation_complete", report_md=str(report_md_path), report_json=str(report_json_path))
+    logger.info(
+        "evaluation_complete", report_md=str(report_md_path), report_json=str(report_json_path)
+    )
     return results

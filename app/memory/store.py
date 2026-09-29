@@ -125,9 +125,7 @@ def get_service_dependencies(service_name: str) -> dict[str, list[str]]:
 
     # In-memory dependency lookup
     downstream = list(_IN_MEMORY_DEPENDENCIES.get(service_name, []))
-    upstream = [
-        svc for svc, deps in _IN_MEMORY_DEPENDENCIES.items() if service_name in deps
-    ]
+    upstream = [svc for svc, deps in _IN_MEMORY_DEPENDENCIES.items() if service_name in deps]
     return {"upstream": upstream, "downstream": downstream}
 
 
@@ -392,9 +390,13 @@ def merge_incident(
     services = _union_lists(existing.get("services"), incoming.get("services"))
     symptoms = _union_lists(existing.get("symptoms"), incoming.get("symptoms"))
     error_messages = _union_lists(existing.get("error_messages"), incoming.get("error_messages"))
-    error_fingerprints = _union_lists(existing.get("error_fingerprints"), incoming.get("error_fingerprints"))
+    error_fingerprints = _union_lists(
+        existing.get("error_fingerprints"), incoming.get("error_fingerprints")
+    )
     runbook_ids = _union_lists(existing.get("runbook_ids"), incoming.get("runbook_ids"))
-    resolution_steps = _union_lists(existing.get("resolution_steps"), incoming.get("resolution_steps"))
+    resolution_steps = _union_lists(
+        existing.get("resolution_steps"), incoming.get("resolution_steps")
+    )
 
     # 2. Retain the longer root-cause text
     existing_cause = existing.get("root_cause") or ""
@@ -547,12 +549,14 @@ def insert_incident_file(
     except Exception:
         pass
 
-    _IN_MEMORY_INCIDENT_FILES.append({
-        "incident_id": incident_id,
-        "file_path": file_path,
-        "function_name": function_name,
-        "role": role,
-    })
+    _IN_MEMORY_INCIDENT_FILES.append(
+        {
+            "incident_id": incident_id,
+            "file_path": file_path,
+            "function_name": function_name,
+            "role": role,
+        }
+    )
 
 
 def get_incident_count() -> int:

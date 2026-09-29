@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1013",
+  "summary": "Critical outage in checkout-api caused by disk_full (INC-0013)",
+  "description": "Service checkout-api incident INC-0013. Symptoms: database write rejections. Error: java.io.IOException: Disk space is full for path /var/lib/postgresql/data. Root cause was disk_full. Followed runbook RB-disk-full.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for checkout-api and applied RB-disk-full."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed disk_full resolved."
+    }
+  ]
+}

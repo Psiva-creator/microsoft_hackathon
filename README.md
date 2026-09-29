@@ -238,7 +238,7 @@ Past Outages Linked to Modified Code:
 
 For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Below is the comprehensive work distribution across the 6 team members:
 
-### 🧑‍💻 Member 1: Team Lead & Systems Architect
+### 🧑‍💻 Member 1: Team Lead & Systems Architect ([Dossier](docs/members/MEMBER_1_SYSTEMS_ARCHITECT.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-1-systems-architect))
 - **Domain & Scaffolding:** Configured centralized `app/config.py` using `pydantic-settings`, structured JSON/console logging with `structlog`, and unified Pydantic v2 domain schemas (`Cue`, `Analysis`, `Hypothesis`, `LiveContext`).
 - **Core Guardrails:** Enforced strict read-only safety policy (`ALLOW_ACTIONS=false`) across all tool definitions and dispatcher.
 - **Terminal Orchestrator:** Developed the rich terminal CLI (`cli.py`) with colored confidence badges, evidence tables, and runbook links.
@@ -250,7 +250,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Belo
   .venv/bin/python -m app.cli --help
   ```
 
-### 🧑‍💻 Member 2: Working Memory & Ingestion Engineer
+### 🧑‍💻 Member 2: Working Memory & Ingestion Engineer ([Dossier](docs/members/MEMBER_2_WORKING_MEMORY.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-2-working-memory-ingestion))
 - **Prefrontal Cortex (Redis):** Implemented `app/memory/working.py` storing live incident timeline, incoming events, active hypotheses, and automatic 72-hour TTL expiration upon resolution.
 - **Zero-Leak Redaction:** Built `app/core/redact.py` scrubbing AWS keys, GitHub tokens, Slack tokens, JWTs, Bearer headers, private keys, and passwords.
 - **Normalization:** Created `app/core/normalize.py` abstracting timestamps, UUIDs, IP addresses, and numbers while safely preserving HTTP status codes (`HTTP/1.1 502`).
@@ -261,7 +261,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Belo
   .venv/bin/python -m app.cli seed
   ```
 
-### 🧑‍💻 Member 3: Hippocampal Search & Retrieval Specialist
+### 🧑‍💻 Member 3: Hippocampal Search & Retrieval Specialist ([Dossier](docs/members/MEMBER_3_HIPPOCAMPAL_RETRIEVAL.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-3-hippocampal-retrieval))
 - **Dual Representation Embeddings:** Developed `app/core/embeddings.py` using local `BAAI/bge-small-en-v1.5` (384 dimensions) with persistent SQLite caching. Symptoms and full post-mortems are indexed separately to prevent cue bias.
 - **Stack Trace Fingerprinting:** Built `app/core/fingerprint.py` parsing multi-language stack traces (Python, Java, Node.js, Go) to extract innermost application frames and compute SHA-1 fingerprints.
 - **Hippocampal Retrieval Engine:** Implemented `app/memory/retrieval.py` unifying Vector ($W=0.45$), FTS ($W=0.20$), Fingerprints ($W=0.20$), Service Graph ($W=0.10$), and Code History ($W=0.05$). Achieved **3.72 ms** p50 retrieval latency.
@@ -272,7 +272,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Belo
   .venv/bin/python -m app.cli ask "checkout-api 503s and p99 8s after deploy" --service checkout-api
   ```
 
-### 🧑‍💻 Member 4: Reasoning Agent & Tooling Developer
+### 🧑‍💻 Member 4: Reasoning Agent & Tooling Developer ([Dossier](docs/members/MEMBER_4_REASONING_AGENT.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-4-reasoning-agent))
 - **Claude ReAct Loop:** Built `app/agent/investigate.py` managing hypothesis formulation, tool calling, evidence accumulation, and confidence capping.
 - **Read-Only Telemetry Adapters:** Implemented `app/agent/tools.py`, `app/adapters/base.py`, and `app/adapters/mock.py` providing safe queries to logs, metrics, deploys, and service topology without mutating real infrastructure.
 - **Deterministic Confidence Rules:** Capped confidence to `low` when strong mismatch flags exist, `none` precedent forces `low`, and zero citations trigger auto-downgrades.
@@ -284,7 +284,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Belo
   .venv/bin/python -m app.cli investigate --scenario C_novel_error
   ```
 
-### 🧑‍💻 Member 5: Evaluation & Continuous Learning Lead
+### 🧑‍💻 Member 5: Evaluation & Continuous Learning Lead ([Dossier](docs/members/MEMBER_5_EVAL_CONSOLIDATION.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-5-eval-continuous-learning))
 - **Evaluation Harness & Ablation:** Developed `app/eval/harness.py` running leave-one-out benchmarks across 60 evaluation cases (`eval/cases.jsonl`), generating `eval/report.md` and `eval/report.json`.
 - **Sleep-Replay Consolidation:** Built `app/jobs/consolidate.py` using `AgglomerativeClustering` to cluster similar incidents into general `patterns`, synthesize preventive rules, and apply half-life decay to stale architectures.
 - **Post-Mortem & Memory Writeback:** Built `app/agent/postmortem.py` generating blameless post-mortem drafts upon resolution and writing approved records back into long-term memory.
@@ -296,7 +296,7 @@ For full individual dossiers, see [docs/TEAM_SPLIT.md](docs/TEAM_SPLIT.md). Belo
   .venv/bin/python -m app.cli consolidate
   ```
 
-### 🧑‍💻 Member 6: Interface & Developer Experience Lead
+### 🧑‍💻 Member 6: Interface & Developer Experience Lead ([Dossier](docs/members/MEMBER_6_INTERFACES_DEVREL.md) · [Branch](https://github.com/ved354/microsoft_hackathon/tree/member-6-interface-slack-api))
 - **Slack Bolt Bot:** Built `app/slack/bot.py` in Socket Mode featuring rich Block Kit cards, thread discussions, `/reinvestigate`, interactive buttons (`Helpful`, `Not helpful`), and interactive resolve modal.
 - **REST API:** Implemented `app/api/main.py` with `/healthz`, Prometheus Alertmanager webhooks, PagerDuty webhooks, investigate, and resolve endpoints.
 - **Proactive Code Memory:** Developed `app/code_memory/git_indexer.py` and `app/code_memory/pr_check.py` linking git commits to past outages and warning developers before merging risky code.

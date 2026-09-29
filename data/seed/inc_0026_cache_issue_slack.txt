@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: checkout-api cache hit ratio dropped from 95% to 40% INC-0026
+[14:03:00] @alice: Seeing errors: CacheMissStorm: Simultaneous cache key invalidation caused DB CPU to reach 99%
+[14:05:30] @bob: Root cause is cache_issue. Following runbook RB-cache-stampede.
+[14:12:00] @bob: Applying mitigation steps for cache_issue.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

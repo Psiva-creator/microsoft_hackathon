@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0036
 ## Summary
-Service outage affecting postgres-primary, kafka-orders, web-frontend for 30 minutes.
+Service outage affecting orders-service, inventory-service for 59 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.12.225:8000 with status 503.
+- cache hit ratio dropped from 95% to 40%
+- database CPU surge
+- Error logs: OOM command not allowed when used memory > 'maxmemory' in redis-cache
 ## Root Cause
-Identified issue in cache_issue affecting subsystem stability.
+Identified issue in cache_issue affecting subsystem stability: cache hit ratio dropped from 95% to 40%.
 ## Resolution Steps
-1. Investigated logs from postgres-primary.
-2. Restarted failed components.
+1. Followed runbook RB-cache-stampede.
+2. Investigated logs from orders-service and applied fix.
 3. Validated health check.

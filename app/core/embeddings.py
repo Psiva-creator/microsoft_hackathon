@@ -80,6 +80,7 @@ class LocalBGEEmbedder:
 
                 self._model = SentenceTransformer(self.model_name)
             except Exception:
+
                 class _DeterministicFallbackModel:
                     def __init__(self, dim: int):
                         self.dim = dim
@@ -94,6 +95,7 @@ class LocalBGEEmbedder:
                         import math
                         import re
                         from collections import Counter
+
                         import numpy as np
 
                         is_single = isinstance(texts, str)

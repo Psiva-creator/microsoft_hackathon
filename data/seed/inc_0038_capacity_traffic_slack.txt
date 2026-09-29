@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: kafka-orders HTTP 502 Bad Gateway under surge INC-0038
+[14:03:00] @alice: Seeing errors: HTTP 429 Too Many Requests: Ingress gateway connection queue full
+[14:05:30] @bob: Root cause is capacity_traffic. Following runbook RB-bad-deploy-rollback.
+[14:12:00] @bob: Applying mitigation steps for capacity_traffic.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

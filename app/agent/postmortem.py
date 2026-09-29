@@ -67,7 +67,7 @@ def draft_postmortem(
         "| :--- | :--- |",
         f"| **Incident ID** | `{live_id}` |",
         f"| **Impacted Services** | `{svcs_str}` |",
-        f"| **Status** | Resolved |",
+        "| **Status** | Resolved |",
         f"| **Runbooks Consulted** | {', '.join(f'`{rb}`' for rb in runbook_ids) or 'None'} |",
         f"| **Resolution Effective** | {'Yes (Verified)' if worked else 'No (Alternative mitigation needed)'} |",
         "",
@@ -85,24 +85,37 @@ def draft_postmortem(
     for c in contributing:
         md_lines.append(f"- {c}")
 
-    md_lines.extend([
-        "",
-        "## 4. Resolution Steps",
-    ])
+    md_lines.extend(
+        [
+            "",
+            "## 4. Resolution Steps",
+        ]
+    )
     for idx, s in enumerate(steps, 1):
         md_lines.append(f"{idx}. {s}")
 
-    md_lines.extend([
-        "",
-        "## 5. Preventative Action Items & Follow-ups",
-    ])
+    md_lines.extend(
+        [
+            "",
+            "## Runbooks Used",
+            ", ".join(runbook_ids) or "None",
+            "",
+            "## Outcome",
+            f"Resolution worked: {'Yes' if worked else 'No'}",
+            "",
+            "## 5. Preventative Action Items & Follow-ups",
+        ]
+    )
     for f in follow_ups:
         md_lines.append(f"- [ ] {f}")
 
-    md_lines.extend([
-        "",
-        "## 6. Incident Timeline",
-    ])
+    md_lines.extend(
+        [
+            "",
+            "## 6. Incident Timeline",
+        ]
+    )
+
     for t in timeline_entries:
         md_lines.append(f"- **{t.timestamp}**: {t.description}")
 
@@ -199,7 +212,9 @@ def confirm_and_save_to_memory(
                     worked = res.get("worked", True)
                     update_runbook_resolution_outcome(runbook_ids, worked)
 
-                cur.execute("UPDATE live_incidents SET status = 'confirmed' WHERE id = %s", (live_id,))
+                cur.execute(
+                    "UPDATE live_incidents SET status = 'confirmed' WHERE id = %s", (live_id,)
+                )
                 conn.commit()
     except Exception as e:
         logger.warning("confirm_memory_stats_failed", error=str(e))

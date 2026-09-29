@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0030
 ## Summary
-Service outage affecting web-frontend for 58 minutes.
+Service outage affecting inventory-service, postgres-primary, orders-service for 60 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.5.161:6379 with status 503.
+- HTTP 503 errors on checkout
+- HikariPool saturation
+- Error logs: HikariPool-1 - Connection is not available, request timed out after 30000ms
 ## Root Cause
-Identified issue in connection_pool affecting subsystem stability.
+Identified issue in connection_pool affecting subsystem stability: HTTP 503 errors on checkout.
 ## Resolution Steps
-1. Investigated logs from web-frontend.
-2. Restarted failed components.
+1. Followed runbook RB-db-pool-exhaustion.
+2. Investigated logs from inventory-service and applied fix.
 3. Validated health check.

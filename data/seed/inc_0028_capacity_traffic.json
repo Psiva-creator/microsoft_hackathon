@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1028",
+  "summary": "Critical outage in inventory-service caused by capacity_traffic (INC-0028)",
+  "description": "Service inventory-service incident INC-0028. Symptoms: HTTP 502 Bad Gateway under surge. Error: RateLimitExceeded: Maximum concurrency limit 5000 requests/sec reached. Root cause was capacity_traffic. Followed runbook RB-bad-deploy-rollback.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for inventory-service and applied RB-bad-deploy-rollback."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed capacity_traffic resolved."
+    }
+  ]
+}

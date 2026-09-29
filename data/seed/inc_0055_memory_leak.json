@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1055",
+  "summary": "Critical outage in kafka-orders caused by memory_leak (INC-0055)",
+  "description": "Service kafka-orders incident INC-0055. Symptoms: container OOMKilled. Error: MemoryError: unable to allocate 128MB array in worker.py:64. Root cause was memory_leak. Followed runbook RB-memory-leak-restart.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for kafka-orders and applied RB-memory-leak-restart."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed memory_leak resolved."
+    }
+  ]
+}

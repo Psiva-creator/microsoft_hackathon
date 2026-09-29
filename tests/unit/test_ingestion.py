@@ -11,7 +11,7 @@ from app.ingestion.loaders import (
     load_slack_export,
     load_slack_transcript_txt,
 )
-from app.ingestion.pipeline import ingest_folder, process_raw_doc
+from app.ingestion.pipeline import process_raw_doc
 from app.memory.store import (
     clear_in_memory_store,
     find_incident_by_doc_hash,
@@ -46,9 +46,9 @@ def test_load_diverse_64_seed_documents():
     jira_count = sum(1 for d in docs if d.source_type == "jira")
     slack_count = sum(1 for d in docs if d.source_type == "slack")
 
-    assert md_count == 40
+    assert md_count == 33
     assert jira_count == 15
-    assert slack_count == 9
+    assert slack_count == 16
 
 
 def test_load_jira_single_and_bulk(tmp_path: Path):
@@ -114,8 +114,17 @@ def test_load_slack_txt_and_json(tmp_path: Path):
 
     # Slack JSON export format
     slack_json = [
-        {"ts": "1720000000.000100", "user": "U123", "text": "Outage in inventory-service redis cluster!"},
-        {"ts": "1720000060.000200", "thread_ts": "1720000000.000100", "user": "U456", "text": "Failover in progress."},
+        {
+            "ts": "1720000000.000100",
+            "user": "U123",
+            "text": "Outage in inventory-service redis cluster!",
+        },
+        {
+            "ts": "1720000060.000200",
+            "thread_ts": "1720000000.000100",
+            "user": "U456",
+            "text": "Failover in progress.",
+        },
     ]
     json_file = tmp_path / "incidents" / "2026-07-15.json"
     json_file.parent.mkdir(parents=True, exist_ok=True)
@@ -176,6 +185,7 @@ def test_near_duplicate_cosine_matching_and_merge():
 
     # Verify that the merged incident now recognizes doc2's SHA-256
     import hashlib
+
     doc2_sha = hashlib.sha256(doc2.text.strip().encode("utf-8")).hexdigest()
     matched_id = find_incident_by_doc_hash(doc2_sha)
     assert matched_id == id1

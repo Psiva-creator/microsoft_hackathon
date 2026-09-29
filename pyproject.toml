@@ -24,6 +24,7 @@ dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "ruff>=0.6.0",
+    "fakeredis>=2.20.0",
 ]
 full = [
     "uvicorn[standard]>=0.30.0",
@@ -56,6 +57,8 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-p no:launch_testing -p no:launch_testing_ros"
 
 [tool.vercel]
 entrypoint = "app.api.main:app"
+

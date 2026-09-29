@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1037",
+  "summary": "Critical outage in checkout-api caused by queue_backlog (INC-0037)",
+  "description": "Service checkout-api incident INC-0037. Symptoms: Kafka consumer lag exceeding 500k messages. Error: kafka.errors.BufferError: Queue is full and cannot accept more messages. Root cause was queue_backlog. Followed runbook RB-queue-backlog.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for checkout-api and applied RB-queue-backlog."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed queue_backlog resolved."
+    }
+  ]
+}

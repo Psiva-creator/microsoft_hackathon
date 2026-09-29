@@ -47,14 +47,19 @@ def test_normalize_http_status_with_colons_equals_and_json():
     assert normalize_text("code: 404") == "code: 404"
     assert normalize_text("code=404") == "code=404"
     assert normalize_text("error: 504") == "error: 504"
-    assert normalize_text('{"status": 500, "error": "Internal Error"}') == '{"status": 500, "error": "Internal Error"}'
+    assert (
+        normalize_text('{"status": 500, "error": "Internal Error"}')
+        == '{"status": 500, "error": "Internal Error"}'
+    )
 
 
 def test_normalize_http_versions_and_access_logs():
     # Various HTTP protocol versions
     assert normalize_text("HTTP/1.0 404 Not Found") == "HTTP/1.0 404 Not Found"
     assert normalize_text("HTTP/2 503 Service Unavailable") == "HTTP/2 503 Service Unavailable"
-    assert normalize_text("HTTP/2.0 500 Internal Server Error") == "HTTP/2.0 500 Internal Server Error"
+    assert (
+        normalize_text("HTTP/2.0 500 Internal Server Error") == "HTTP/2.0 500 Internal Server Error"
+    )
     assert normalize_text("HTTP/3 504 Gateway Timeout") == "HTTP/3 504 Gateway Timeout"
 
     # Web server access log format: "GET /checkout HTTP/1.1" 502 1450
@@ -64,13 +69,28 @@ def test_normalize_http_versions_and_access_logs():
 
 def test_normalize_standalone_http_reason_phrases():
     # Reason phrases without explicit 'http' prefix
-    assert normalize_text("Upstream returned 502 Bad Gateway") == "Upstream returned 502 Bad Gateway"
-    assert normalize_text("Gateway yielded 504 Gateway Timeout") == "Gateway yielded 504 Gateway Timeout"
-    assert normalize_text("Service returned 503 Service Unavailable") == "Service returned 503 Service Unavailable"
-    assert normalize_text("Endpoint responded with 404 Not Found") == "Endpoint responded with 404 Not Found"
-    assert normalize_text("Auth failed with 401 Unauthorized") == "Auth failed with 401 Unauthorized"
+    assert (
+        normalize_text("Upstream returned 502 Bad Gateway") == "Upstream returned 502 Bad Gateway"
+    )
+    assert (
+        normalize_text("Gateway yielded 504 Gateway Timeout")
+        == "Gateway yielded 504 Gateway Timeout"
+    )
+    assert (
+        normalize_text("Service returned 503 Service Unavailable")
+        == "Service returned 503 Service Unavailable"
+    )
+    assert (
+        normalize_text("Endpoint responded with 404 Not Found")
+        == "Endpoint responded with 404 Not Found"
+    )
+    assert (
+        normalize_text("Auth failed with 401 Unauthorized") == "Auth failed with 401 Unauthorized"
+    )
     assert normalize_text("Client error 400 Bad Request") == "Client error 400 Bad Request"
-    assert normalize_text("Rate limited 429 Too Many Requests") == "Rate limited 429 Too Many Requests"
+    assert (
+        normalize_text("Rate limited 429 Too Many Requests") == "Rate limited 429 Too Many Requests"
+    )
 
 
 def test_non_status_numbers_abstracted():
@@ -96,10 +116,7 @@ def test_normalize_timestamps_all_formats():
         normalize_text("Incident started at 2026-09-28T14:30:00Z on host-1")
         == "Incident started at <ts> on host-<n>"
     )
-    assert (
-        normalize_text("Started at 2026-09-28 14:30:00.123456+05:30")
-        == "Started at <ts>"
-    )
+    assert normalize_text("Started at 2026-09-28 14:30:00.123456+05:30") == "Started at <ts>"
 
     # Go / Nginx slash dates
     assert normalize_text("2026/09/28 14:30:00 [error] failed") == "<ts> [error] failed"

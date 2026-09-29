@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, AsyncGenerator, List, Optional
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.agent.investigate import investigate
@@ -109,16 +111,26 @@ def root(request: Request):
                 "version": "0.1.0",
                 "docs": "/docs",
                 "health": "/healthz",
-                "portal": "/",
+                "portal": "/portal",
+                "flutter_app": "/app/",
             }
         )
+    web_dir = Path("frontend/build/web")
+    if web_dir.exists():
+        return RedirectResponse(url="/app/")
     return HTMLResponse(content=get_portal_html())
 
 
-@app.get("/dashboard", response_class=HTMLResponse)
 @app.get("/portal", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
 def portal_view():
     return HTMLResponse(content=get_portal_html())
+
+
+# Mount Flutter Web Application if build/web exists
+_web_dir = Path("frontend/build/web")
+if _web_dir.exists():
+    app.mount("/app", StaticFiles(directory=str(_web_dir), html=True), name="flutter_app")
 
 
 @app.get("/healthz")
@@ -380,5 +392,6 @@ def pr_check(
     api_key: str = Depends(verify_api_key),
 ):
     from app.code_memory.pr_check import check_pr
+
     result = check_pr(files=req.files, diff=req.diff)
     return result

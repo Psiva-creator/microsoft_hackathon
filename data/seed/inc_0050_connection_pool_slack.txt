@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: redis-cache HTTP 503 errors on checkout INC-0050
+[14:03:00] @alice: Seeing errors: ActiveConnectionsExhausted: Pool max size 50 reached in OrderRepository.getConnection()
+[14:05:30] @bob: Root cause is connection_pool. Following runbook RB-db-pool-exhaustion.
+[14:12:00] @bob: Applying mitigation steps for connection_pool.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

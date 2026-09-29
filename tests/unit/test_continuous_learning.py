@@ -84,7 +84,9 @@ def test_consolidated_patterns_recalled_in_cue():
     cue = Cue(
         text="HikariPool connection timeout and 503 errors on checkout-api",
         services=["checkout-api"],
-        error_messages=["HikariPool-1 - Connection is not available, request timed out after 30000ms"],
+        error_messages=[
+            "HikariPool-1 - Connection is not available, request timed out after 30000ms"
+        ],
     )
     result = recall(cue=cue, top_k=3)
 

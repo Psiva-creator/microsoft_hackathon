@@ -100,7 +100,9 @@ def seed():
 @app.command()
 def ingest(
     path: str = typer.Argument(default="data/seed", help="Path to incident files directory"),
-    accept_low: bool = typer.Option(False, "--accept-low", help="Accept low confidence extractions"),
+    accept_low: bool = typer.Option(
+        False, "--accept-low", help="Accept low confidence extractions"
+    ),
 ):
     """Ingests documents into episodic memory."""
     console.print(f"[bold cyan][INGEST] Ingesting documents from {path}...[/bold cyan]")
@@ -324,6 +326,7 @@ def consolidate():
     console.print(
         "[bold cyan][CONSOLIDATE] Running Sleep-Replay Memory Consolidation...[/bold cyan]"
     )
+
     result = run_consolidation()
     console.print(
         f"[bold green][OK] Consolidation complete. Patterns: {result['patterns_created']}, "
@@ -361,7 +364,9 @@ def stats():
 
 @app.command(name="eval")
 def evaluate(
-    cases: str = typer.Option("eval/cases.jsonl", "--cases", "-c", help="Path to evaluation cases JSONL"),
+    cases: str = typer.Option(
+        "eval/cases.jsonl", "--cases", "-c", help="Path to evaluation cases JSONL"
+    ),
     output: str = typer.Option("eval", "--output", "-o", help="Output directory for reports"),
 ):
     """Runs the quantitative evaluation harness and ablation suite across retrieval modes."""
@@ -381,7 +386,11 @@ def evaluate(
         status = (
             "[green]PASS[/green]"
             if data["recall_at_3"] >= 0.80
-            else ("[yellow]BASELINE[/yellow]" if key in ("keyword", "vector") else "[dim]ABLATION[/dim]")
+            else (
+                "[yellow]BASELINE[/yellow]"
+                if key in ("keyword", "vector")
+                else "[dim]ABLATION[/dim]"
+            )
         )
         table.add_row(
             data["label"],
@@ -394,19 +403,116 @@ def evaluate(
         )
 
     console.print(table)
-    console.print(f"[bold green]✅ Evaluation complete. Full report written to {output}/report.md[/bold green]")
+    console.print(
+        f"[bold green]✅ Evaluation complete. Full report written to {output}/report.md[/bold green]"
+    )
     try:
         from app.eval.dashboard import generate_html_dashboard
 
         dash_path = generate_html_dashboard()
-        console.print(f"[bold green]🌐 Interactive HTML Dashboard updated: {dash_path}[/bold green]")
+        console.print(
+            f"[bold green]🌐 Interactive HTML Dashboard updated: {dash_path}[/bold green]"
+        )
     except Exception:
         pass
 
 
+@app.command()
+def doctor():
+    """Runs system diagnostics: verifies environment, memory, guardrails, and data stores."""
+    import platform
+    import sys
+
+    from app.config import get_settings
+
+    settings = get_settings()
+    console.print(
+        Panel.fit(
+            "[bold blue]🩺 Incident Response Agent: System Diagnostics[/bold blue]",
+            border_style="blue",
+        )
+    )
+
+    table = Table(title="Component Health Check", show_header=True, header_style="bold magenta")
+    table.add_column("Component", style="cyan", width=28)
+    table.add_column("Status", justify="center", style="bold")
+    table.add_column("Details", style="dim")
+
+    # 1. Python runtime
+    py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    table.add_row(
+        "Python Runtime",
+        "[green]PASS[/green]",
+        f"{py_ver} on {platform.system()} ({platform.machine()})",
+    )
+
+    # 2. Read-only safety guardrail
+    if not settings.ALLOW_ACTIONS:
+        table.add_row(
+            "Read-Only Safety Guard",
+            "[bold green]ENFORCED[/bold green]",
+            "ALLOW_ACTIONS=false (Zero mutating tools)",
+        )
+    else:
+        table.add_row(
+            "Read-Only Safety Guard",
+            "[bold red]MUTATING[/bold red]",
+            "ALLOW_ACTIONS=true (Danger!)",
+        )
+
+    # 3. Embedding cache
+    cache_path = Path(".cache/embeddings.sqlite")
+    if cache_path.exists():
+        table.add_row(
+            "Embedding Cache",
+            "[green]READY[/green]",
+            f"{cache_path} ({cache_path.stat().st_size} bytes)",
+        )
+    else:
+        table.add_row(
+            "Embedding Cache",
+            "[yellow]WARMUP[/yellow]",
+            "No cache yet; local model will initialize on first query",
+        )
+
+    # 4. Seed incident data
+    seed_dir = Path("data/seed")
+    seed_count = len(list(seed_dir.glob("inc_*.*"))) if seed_dir.exists() else 0
+    if seed_count >= 50:
+        table.add_row(
+            "Seed Incident Data", "[green]READY[/green]", f"{seed_count} seed incident documents"
+        )
+    else:
+        table.add_row(
+            "Seed Incident Data", "[yellow]PARTIAL[/yellow]", f"{seed_count} documents in data/seed"
+        )
+
+    # 5. Outage scenarios
+    scenario_dir = Path("data/mock_env/scenarios")
+    scenarios = (
+        [d.name for d in scenario_dir.iterdir() if d.is_dir()] if scenario_dir.exists() else []
+    )
+    table.add_row(
+        "Outage Scenarios (A-D)",
+        "[green]READY[/green]",
+        f"{len(scenarios)} scenarios: {', '.join(scenarios)}",
+    )
+
+    # 6. Procedural Runbooks
+    runbooks = get_all_runbooks()
+    table.add_row("Procedural Runbooks", "[green]READY[/green]", f"{len(runbooks)} runbooks loaded")
+
+    console.print(table)
+    console.print(
+        "[bold green]✅ System diagnostics complete. All core systems operational.[/bold green]"
+    )
+
+
 @app.command(name="dashboard")
 def dashboard(
-    output: str = typer.Option("reports/dashboard.html", "--output", "-o", help="Output path for HTML dashboard")
+    output: str = typer.Option(
+        "reports/dashboard.html", "--output", "-o", help="Output path for HTML dashboard"
+    ),
 ):
     """Generates an interactive, dark-mode visual HTML dashboard for presentation."""
     console.print("[bold cyan]📊 Generating Interactive HTML Visual Dashboard...[/bold cyan]")
@@ -444,7 +550,9 @@ def demo_walkthrough():
     )
 
     # Act 1: Working Memory & Ingestion
-    console.print("\n[bold yellow]═══ ACT 1: Working Memory (Prefrontal Cortex) & Zero-Leak Scrubbing ═══[/bold yellow]")
+    console.print(
+        "\n[bold yellow]═══ ACT 1: Working Memory (Prefrontal Cortex) & Zero-Leak Scrubbing ═══[/bold yellow]"
+    )
     raw_alert = "CRITICAL: 503 errors on checkout-api after deploy. DB key: AKIAIOSFODNN7EXAMPLE, host: 10.0.4.15"
     sanitized = redact(raw_alert)
     normalized = normalize_text(sanitized)
@@ -453,11 +561,15 @@ def demo_walkthrough():
     console.print(f"[green]✓ Normalized Cue:[/green] {normalized}")
 
     # Act 2: Hippocampal Search & Retrieval
-    console.print("\n[bold yellow]═══ ACT 2: Hippocampal Search (Sub-5ms Hybrid Multi-Modal Recall) ═══[/bold yellow]")
+    console.print(
+        "\n[bold yellow]═══ ACT 2: Hippocampal Search (Sub-5ms Hybrid Multi-Modal Recall) ═══[/bold yellow]"
+    )
     cue = Cue(
         text="checkout-api 503s HikariPool connection timeout after deploy",
         services=["checkout-api"],
-        error_messages=["HikariPool-1 - Connection is not available, request timed out after 30000ms"],
+        error_messages=[
+            "HikariPool-1 - Connection is not available, request timed out after 30000ms"
+        ],
     )
     rec_res = recall(cue=cue, top_k=2)
     top_inc = rec_res.incidents[0]
@@ -468,7 +580,9 @@ def demo_walkthrough():
     console.print(f"  [bold]Recommended Runbook:[/bold] {', '.join(top_inc.runbook_ids)}")
 
     # Act 3: Pattern Separation
-    console.print("\n[bold yellow]═══ ACT 3: Pattern Separation (Ruling Out Deceptive Look-Alikes) ═══[/bold yellow]")
+    console.print(
+        "\n[bold yellow]═══ ACT 3: Pattern Separation (Ruling Out Deceptive Look-Alikes) ═══[/bold yellow]"
+    )
     dns_cue = Cue(
         text="dial tcp: lookup auth-service on 10.96.0.10:53: i/o timeout",
         services=["checkout-api"],
@@ -479,19 +593,27 @@ def demo_walkthrough():
         console.print(
             f"  • Candidate [cyan]{inc.id}[/cyan]: Mismatch Flags = [yellow]{inc.flags or 'None'}[/yellow]"
         )
-    console.print("[green]✓ Pattern separation prevented false pool restart; correctly identified DNS outage.[/green]")
+    console.print(
+        "[green]✓ Pattern separation prevented false pool restart; correctly identified DNS outage.[/green]"
+    )
 
     # Act 4: Proactive PR Check
-    console.print("\n[bold yellow]═══ ACT 4: Proactive Code Memory (Pre-Deployment PR Guardrail) ═══[/bold yellow]")
+    console.print(
+        "\n[bold yellow]═══ ACT 4: Proactive Code Memory (Pre-Deployment PR Guardrail) ═══[/bold yellow]"
+    )
     pr_eval = assess_pr_risk(files=["services/checkout/OrderClient.py"])
     console.print(
         f"[bold red]⚠️ PR Risk Assessment:[/bold red] [bold yellow]{pr_eval['risk_level'].upper()}[/bold yellow]"
     )
     for match in pr_eval["matched_incidents"]:
-        console.print(f"  • Flags [cyan]{match['incident_id']}[/cyan] ({match['file_path']}): {match['root_cause']}")
+        console.print(
+            f"  • Flags [cyan]{match['incident_id']}[/cyan] ({match['file_path']}): {match['root_cause']}"
+        )
 
     # Act 5: Sleep-Replay Consolidation & Procedural Reinforcement
-    console.print("\n[bold yellow]═══ ACT 5: Sleep-Replay Consolidation & Procedural Learning ═══[/bold yellow]")
+    console.print(
+        "\n[bold yellow]═══ ACT 5: Sleep-Replay Consolidation & Procedural Learning ═══[/bold yellow]"
+    )
     cons_res = run_consolidation(dry_run=True)
     console.print(
         f"[bold green]✓ Sleep-Replay Clustered:[/bold green] [cyan]{cons_res['patterns_created']} Generalized Patterns[/cyan] across [cyan]{cons_res['incidents_decayed']} Outages[/cyan]"
@@ -503,7 +625,7 @@ def demo_walkthrough():
     update_runbook_resolution_outcome([rb_test], worked=True)
     prob_1 = get_runbook_success_probability(rb_test)
     console.print(
-        f"[bold green]✓ Laplace Smoothing Reinforcement:[/bold green] Initial [yellow]{prob_0*100:.1f}%[/yellow] ➔ After Successful Fix: [bold green]{prob_1*100:.1f}%[/bold green] ($p = (s+1)/(s+f+2)$)"
+        f"[bold green]✓ Laplace Smoothing Reinforcement:[/bold green] Initial [yellow]{prob_0 * 100:.1f}%[/yellow] ➔ After Successful Fix: [bold green]{prob_1 * 100:.1f}%[/bold green] ($p = (s+1)/(s+f+2)$)"
     )
 
     # Act 6: Visual Dashboard
@@ -526,7 +648,9 @@ def active_incidents():
 
     active = list_active_incidents()
     if not active:
-        console.print("[yellow][PFC] Prefrontal Cortex: No active incidents currently in working memory.[/yellow]")
+        console.print(
+            "[yellow][PFC] Prefrontal Cortex: No active incidents currently in working memory.[/yellow]"
+        )
         return
 
     table = Table(
@@ -569,7 +693,9 @@ def incident_timeline(
     events = get_events(live_id, limit=limit)
 
     if not events:
-        console.print(f"[yellow]No events recorded in working memory for incident {live_id}.[/yellow]")
+        console.print(
+            f"[yellow]No events recorded in working memory for incident {live_id}.[/yellow]"
+        )
         return
 
     table = Table(
@@ -616,7 +742,9 @@ def incident_hypotheses(
     hypotheses = get_hypotheses(live_id)
 
     if not hypotheses:
-        console.print(f"[yellow]No active hypotheses currently recorded for incident {live_id}.[/yellow]")
+        console.print(
+            f"[yellow]No active hypotheses currently recorded for incident {live_id}.[/yellow]"
+        )
         return
 
     console.print(

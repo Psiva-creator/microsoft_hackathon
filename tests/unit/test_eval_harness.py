@@ -46,11 +46,11 @@ def test_run_evaluation_creates_reports():
                     "text": "checkout-api 503s after deploy",
                     "services": ["checkout-api"],
                     "error_messages": ["HikariPool connection timeout"],
-                    "trigger_type": "deploy"
+                    "trigger_type": "deploy",
                 },
                 "expected_related_ids": ["INC-0011", "INC-0061"],
                 "expected_root_cause_category": "connection_pool",
-                "notes": "Test case"
+                "notes": "Test case",
             }
         ]
         with open(cases_file, "w", encoding="utf-8") as f:

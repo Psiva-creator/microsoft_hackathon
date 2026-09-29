@@ -9,7 +9,6 @@ from app.memory.working import (
     MAX_CONTEXT_EVENTS,
     MAX_EVENT_TEXT_LEN,
     PrefrontalCortex,
-    WorkingMemory,
 )
 from app.models import Cue, Hypothesis, LiveEvent, SimilarIncident
 
@@ -237,7 +236,9 @@ def test_active_incidents_management_and_state_transitions(pfc_redis, fake_redis
 def test_close_incident_resolution_and_72h_ttl(pfc_redis, fake_redis_client):
     """Verifies that closing/resolving an incident applies 72h TTL to all keys and removes from active index."""
     live_id = "LIVE-20260928-TEST05"
-    pfc_redis.create(live_id, {"title": "Memory Leak in auth-service", "services": ["auth-service"]})
+    pfc_redis.create(
+        live_id, {"title": "Memory Leak in auth-service", "services": ["auth-service"]}
+    )
     pfc_redis.append_event(
         live_id,
         LiveEvent(

@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: postgres-primary CrashLoopBackOff on service pods INC-0041
+[14:03:00] @alice: Seeing errors: panic: runtime error: invalid memory address or nil pointer dereference at main.go:42
+[14:05:30] @bob: Root cause is bad_deploy. Following runbook RB-bad-deploy-rollback.
+[14:12:00] @bob: Applying mitigation steps for bad_deploy.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

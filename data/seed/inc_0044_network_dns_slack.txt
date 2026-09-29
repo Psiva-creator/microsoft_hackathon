@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: kafka-orders CoreDNS lookup failures INC-0044
+[14:03:00] @alice: Seeing errors: getaddrinfo ENOTFOUND kafka-orders.cluster.local:53
+[14:05:30] @bob: Root cause is network_dns. Following runbook RB-dns-resolution-failure.
+[14:12:00] @bob: Applying mitigation steps for network_dns.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

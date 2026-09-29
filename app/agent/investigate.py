@@ -218,7 +218,8 @@ def _generate_mock_scenario_analysis(scenario_name: str, cue: Cue, recall_result
     # Dynamic synthesis using retrieved hippocampal memory and live cue
     top_inc = recall_result.incidents[0] if recall_result.incidents else None
     precedent_strength = (
-        "strong" if (top_inc and top_inc.final >= 0.6)
+        "strong"
+        if (top_inc and top_inc.final >= 0.6)
         else ("partial" if (top_inc and top_inc.final >= 0.35) else "none")
     )
 
@@ -261,7 +262,8 @@ def _generate_mock_scenario_analysis(scenario_name: str, cue: Cue, recall_result
         else (recall_result.runbooks[0].id if recall_result.runbooks else None)
     )
     confidence = (
-        "high" if (top_inc and top_inc.final >= 0.6)
+        "high"
+        if (top_inc and top_inc.final >= 0.6)
         else ("medium" if (top_inc and top_inc.final >= 0.35) else "low")
     )
 
@@ -305,6 +307,7 @@ def _record_investigation_in_working_memory(
         return
     try:
         from datetime import datetime, timezone
+
         from app.memory.working import append_event, set_cue, set_hypotheses, update_status
         from app.models import LiveEvent
 
@@ -356,12 +359,25 @@ def investigate(
 
     # 3. If offline or no Anthropic key configured, use deterministic scenario runner
     if not settings.ANTHROPIC_API_KEY:
-        simulated_score = 0.81 if "A_pool" in active_scenario else (
-            0.75 if "B_cert" in active_scenario else (
-                0.78 if "D_lookalike" in active_scenario else 0.0
+        simulated_score = (
+            0.81
+            if "A_pool" in active_scenario
+            else (
+                0.75
+                if "B_cert" in active_scenario
+                else (0.78 if "D_lookalike" in active_scenario else 0.0)
             )
         )
-        score_to_use = simulated_score if ("A_pool" in active_scenario or "B_cert" in active_scenario or "D_lookalike" in active_scenario or "C_novel" in active_scenario) else (best_score if best_score > 0 else simulated_score)
+        score_to_use = (
+            simulated_score
+            if (
+                "A_pool" in active_scenario
+                or "B_cert" in active_scenario
+                or "D_lookalike" in active_scenario
+                or "C_novel" in active_scenario
+            )
+            else (best_score if best_score > 0 else simulated_score)
+        )
         analysis = _generate_mock_scenario_analysis(active_scenario, cue, recall_result)
         analysis = _validate_and_sanitize_citations(analysis)
         analysis = _enforce_code_confidence_rules(analysis, score_to_use, live_evidence_found=True)
@@ -431,3 +447,25 @@ def investigate(
     )
     _record_investigation_in_working_memory(live_id, analysis, cue)
     return analysis
+
+
+def get_investigation_trace(analysis: Analysis) -> dict[str, Any]:
+    """Generates a structured, serializable timeline summary of the investigation results."""
+    return {
+        "summary": analysis.summary,
+        "precedent_strength": analysis.precedent_strength,
+        "hypotheses_count": len(analysis.hypotheses),
+        "primary_cause": analysis.hypotheses[0].cause if analysis.hypotheses else "Unknown",
+        "primary_confidence": analysis.hypotheses[0].confidence if analysis.hypotheses else "low",
+        "evidence_for_count": len(analysis.hypotheses[0].evidence_for)
+        if analysis.hypotheses
+        else 0,
+        "similar_incidents": [
+            {"id": sim.id, "why_similar": sim.why_similar}
+            for hyp in analysis.hypotheses
+            for sim in hyp.similar_incidents
+        ],
+        "requires_human_approval": bool(analysis.needs_human_decision),
+        "human_decision_items": analysis.needs_human_decision,
+        "dropped_citations": analysis.dropped_citations,
+    }

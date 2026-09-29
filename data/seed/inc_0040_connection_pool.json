@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1040",
+  "summary": "Critical outage in postgres-primary caused by connection_pool (INC-0040)",
+  "description": "Service postgres-primary incident INC-0040. Symptoms: HTTP 503 errors on checkout. Error: org.postgresql.util.PSQLException: FATAL: remaining connection slots are reserved for non-replication superuser connections. Root cause was connection_pool. Followed runbook RB-db-pool-exhaustion.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for postgres-primary and applied RB-db-pool-exhaustion."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed connection_pool resolved."
+    }
+  ]
+}

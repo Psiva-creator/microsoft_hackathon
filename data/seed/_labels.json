@@ -30,86 +30,86 @@
       "inventory-service"
     ]
   },
-  "inc_0005_lookalike_disk_full.md": {
+  "inc_0001_lookalike_disk_full.md": {
     "category": "disk_full",
-    "lookalike_partner": "inc_0006_lookalike_capacity_traffic.md",
+    "lookalike_partner": "inc_0002_lookalike_capacity_traffic.md",
     "services": [
       "postgres-primary",
       "orders-service"
     ]
   },
-  "inc_0006_lookalike_capacity_traffic.md": {
+  "inc_0002_lookalike_capacity_traffic.md": {
     "category": "capacity_traffic",
-    "lookalike_partner": "inc_0005_lookalike_disk_full.md",
+    "lookalike_partner": "inc_0001_lookalike_disk_full.md",
     "services": [
       "postgres-primary",
       "orders-service"
     ]
   },
-  "inc_0007_lookalike_bad_deploy.md": {
+  "inc_0003_lookalike_bad_deploy.md": {
     "category": "bad_deploy",
-    "lookalike_partner": "inc_0008_lookalike_dependency_failure.md",
+    "lookalike_partner": "inc_0004_lookalike_dependency_failure.md",
     "services": [
       "payments-gateway"
     ]
   },
-  "inc_0008_lookalike_dependency_failure.md": {
+  "inc_0004_lookalike_dependency_failure.md": {
     "category": "dependency_failure",
-    "lookalike_partner": "inc_0007_lookalike_bad_deploy.md",
+    "lookalike_partner": "inc_0003_lookalike_bad_deploy.md",
     "services": [
       "payments-gateway"
     ]
   },
-  "inc_0009_lookalike_memory_leak.md": {
+  "inc_0005_lookalike_memory_leak.md": {
     "category": "memory_leak",
-    "lookalike_partner": "inc_0010_lookalike_queue_backlog.md",
+    "lookalike_partner": "inc_0006_lookalike_queue_backlog.md",
     "services": [
       "notification-worker",
       "kafka-orders"
     ]
   },
-  "inc_0010_lookalike_queue_backlog.md": {
+  "inc_0006_lookalike_queue_backlog.md": {
     "category": "queue_backlog",
-    "lookalike_partner": "inc_0009_lookalike_memory_leak.md",
+    "lookalike_partner": "inc_0005_lookalike_memory_leak.md",
     "services": [
       "notification-worker",
       "kafka-orders"
     ]
   },
-  "inc_0011_lookalike_connection_pool.md": {
+  "inc_0008_lookalike_connection_pool.md": {
     "category": "connection_pool",
-    "lookalike_partner": "inc_0012_lookalike_network_dns.md",
+    "lookalike_partner": "inc_0009_lookalike_network_dns.md",
     "services": [
       "orders-service",
       "postgres-primary"
     ]
   },
-  "inc_0012_lookalike_network_dns.md": {
+  "inc_0009_lookalike_network_dns.md": {
     "category": "network_dns",
-    "lookalike_partner": "inc_0011_lookalike_connection_pool.md",
+    "lookalike_partner": "inc_0008_lookalike_connection_pool.md",
     "services": [
       "orders-service",
       "postgres-primary"
     ]
   },
-  "inc_0013_lookalike_cache_issue.md": {
+  "inc_0010_lookalike_cache_issue.md": {
     "category": "cache_issue",
-    "lookalike_partner": "inc_0014_lookalike_capacity_traffic.md",
+    "lookalike_partner": "inc_0011_lookalike_capacity_traffic.md",
     "services": [
       "web-frontend",
       "redis-cache"
     ]
   },
-  "inc_0014_lookalike_capacity_traffic.md": {
+  "inc_0011_lookalike_capacity_traffic.md": {
     "category": "capacity_traffic",
-    "lookalike_partner": "inc_0013_lookalike_cache_issue.md",
+    "lookalike_partner": "inc_0010_lookalike_cache_issue.md",
     "services": [
       "web-frontend",
       "redis-cache"
     ]
   },
-  "inc_0015_memory_leak.md": {
-    "category": "memory_leak",
+  "inc_0013_disk_full.json": {
+    "category": "disk_full",
     "lookalike_partner": null,
     "services": [
       "checkout-api",
@@ -117,7 +117,21 @@
       "inventory-service"
     ]
   },
-  "inc_0016_cache_issue.md": {
+  "inc_0014_network_dns_slack.txt": {
+    "category": "network_dns",
+    "lookalike_partner": null,
+    "services": [
+      "orders-service"
+    ]
+  },
+  "inc_0015_memory_leak.md": {
+    "category": "memory_leak",
+    "lookalike_partner": null,
+    "services": [
+      "checkout-api"
+    ]
+  },
+  "inc_0016_cache_issue.json": {
     "category": "cache_issue",
     "lookalike_partner": null,
     "services": [
@@ -130,349 +144,332 @@
     "category": "queue_backlog",
     "lookalike_partner": null,
     "services": [
-      "notification-worker",
-      "web-frontend",
-      "orders-service"
+      "web-frontend"
     ]
   },
   "inc_0018_capacity_traffic.md": {
     "category": "capacity_traffic",
     "lookalike_partner": null,
     "services": [
-      "notification-worker",
-      "inventory-service"
-    ]
-  },
-  "inc_0019_dependency_failure.json": {
-    "category": "dependency_failure",
-    "lookalike_partner": null,
-    "services": [
-      "payments-gateway",
       "orders-service"
     ]
   },
-  "inc_0020_connection_pool.json": {
+  "inc_0020_connection_pool_slack.txt": {
     "category": "connection_pool",
     "lookalike_partner": null,
     "services": [
-      "postgres-primary"
+      "notification-worker",
+      "web-frontend",
+      "orders-service"
     ]
   },
-  "inc_0021_bad_deploy.json": {
+  "inc_0021_bad_deploy.md": {
     "category": "bad_deploy",
     "lookalike_partner": null,
     "services": [
-      "kafka-orders",
       "auth-service",
-      "checkout-api"
+      "redis-cache",
+      "orders-service"
     ]
   },
-  "inc_0022_certificate_expiry_slack.txt": {
+  "inc_0022_certificate_expiry.json": {
     "category": "certificate_expiry",
     "lookalike_partner": null,
     "services": [
-      "notification-worker",
-      "postgres-primary",
-      "orders-service"
+      "inventory-service",
+      "web-frontend",
+      "payments-gateway"
     ]
   },
-  "inc_0023_disk_full.md": {
+  "inc_0023_disk_full_slack.txt": {
     "category": "disk_full",
     "lookalike_partner": null,
     "services": [
-      "checkout-api",
-      "orders-service"
+      "redis-cache",
+      "postgres-primary",
+      "inventory-service"
     ]
   },
-  "inc_0024_network_dns.json": {
-    "category": "network_dns",
-    "lookalike_partner": null,
-    "services": [
-      "payments-gateway",
-      "postgres-primary"
-    ]
-  },
-  "inc_0025_memory_leak.md": {
+  "inc_0025_memory_leak.json": {
     "category": "memory_leak",
     "lookalike_partner": null,
     "services": [
-      "checkout-api",
-      "payments-gateway",
       "orders-service"
     ]
   },
-  "inc_0026_cache_issue.md": {
+  "inc_0026_cache_issue_slack.txt": {
     "category": "cache_issue",
     "lookalike_partner": null,
     "services": [
-      "auth-service",
-      "orders-service",
-      "postgres-primary"
+      "checkout-api",
+      "notification-worker"
     ]
   },
   "inc_0027_queue_backlog.md": {
     "category": "queue_backlog",
     "lookalike_partner": null,
     "services": [
-      "inventory-service",
-      "checkout-api"
+      "checkout-api",
+      "postgres-primary"
     ]
   },
-  "inc_0028_capacity_traffic.md": {
+  "inc_0028_capacity_traffic.json": {
     "category": "capacity_traffic",
     "lookalike_partner": null,
     "services": [
-      "kafka-orders",
-      "redis-cache",
-      "notification-worker"
+      "inventory-service",
+      "web-frontend",
+      "kafka-orders"
     ]
   },
-  "inc_0029_dependency_failure.json": {
+  "inc_0029_dependency_failure_slack.txt": {
     "category": "dependency_failure",
     "lookalike_partner": null,
     "services": [
-      "inventory-service",
+      "checkout-api",
       "redis-cache",
-      "auth-service"
+      "notification-worker"
     ]
   },
   "inc_0030_connection_pool.md": {
     "category": "connection_pool",
     "lookalike_partner": null,
     "services": [
-      "web-frontend"
+      "inventory-service",
+      "postgres-primary",
+      "orders-service"
     ]
   },
   "inc_0031_bad_deploy.json": {
     "category": "bad_deploy",
     "lookalike_partner": null,
     "services": [
-      "notification-worker",
-      "checkout-api"
+      "web-frontend"
     ]
   },
   "inc_0032_certificate_expiry_slack.txt": {
     "category": "certificate_expiry",
     "lookalike_partner": null,
     "services": [
+      "orders-service",
       "inventory-service",
-      "auth-service",
-      "web-frontend"
+      "checkout-api"
     ]
   },
-  "inc_0033_disk_full.json": {
+  "inc_0033_disk_full.md": {
     "category": "disk_full",
     "lookalike_partner": null,
     "services": [
-      "postgres-primary",
-      "checkout-api",
-      "inventory-service"
+      "checkout-api"
     ]
   },
-  "inc_0034_network_dns_slack.txt": {
+  "inc_0034_network_dns.json": {
     "category": "network_dns",
     "lookalike_partner": null,
     "services": [
-      "inventory-service",
-      "auth-service",
-      "payments-gateway"
+      "kafka-orders",
+      "postgres-primary"
     ]
   },
-  "inc_0035_memory_leak.json": {
+  "inc_0035_memory_leak_slack.txt": {
     "category": "memory_leak",
     "lookalike_partner": null,
     "services": [
-      "auth-service",
-      "orders-service",
-      "payments-gateway"
+      "postgres-primary"
     ]
   },
   "inc_0036_cache_issue.md": {
     "category": "cache_issue",
     "lookalike_partner": null,
     "services": [
-      "postgres-primary",
-      "kafka-orders",
-      "web-frontend"
-    ]
-  },
-  "inc_0037_queue_backlog_slack.txt": {
-    "category": "queue_backlog",
-    "lookalike_partner": null,
-    "services": [
-      "orders-service"
-    ]
-  },
-  "inc_0038_capacity_traffic.md": {
-    "category": "capacity_traffic",
-    "lookalike_partner": null,
-    "services": [
-      "auth-service"
-    ]
-  },
-  "inc_0039_dependency_failure_slack.txt": {
-    "category": "dependency_failure",
-    "lookalike_partner": null,
-    "services": [
+      "orders-service",
       "inventory-service"
     ]
   },
-  "inc_0040_connection_pool_slack.txt": {
+  "inc_0037_queue_backlog.json": {
+    "category": "queue_backlog",
+    "lookalike_partner": null,
+    "services": [
+      "checkout-api",
+      "payments-gateway",
+      "orders-service"
+    ]
+  },
+  "inc_0038_capacity_traffic_slack.txt": {
+    "category": "capacity_traffic",
+    "lookalike_partner": null,
+    "services": [
+      "kafka-orders"
+    ]
+  },
+  "inc_0039_dependency_failure.md": {
+    "category": "dependency_failure",
+    "lookalike_partner": null,
+    "services": [
+      "inventory-service",
+      "auth-service"
+    ]
+  },
+  "inc_0040_connection_pool.json": {
     "category": "connection_pool",
     "lookalike_partner": null,
     "services": [
-      "orders-service",
-      "inventory-service",
-      "redis-cache"
+      "postgres-primary",
+      "web-frontend",
+      "orders-service"
     ]
   },
-  "inc_0041_bad_deploy.md": {
+  "inc_0041_bad_deploy_slack.txt": {
     "category": "bad_deploy",
     "lookalike_partner": null,
     "services": [
-      "orders-service"
+      "postgres-primary"
     ]
   },
   "inc_0042_certificate_expiry.md": {
     "category": "certificate_expiry",
     "lookalike_partner": null,
     "services": [
-      "orders-service",
-      "notification-worker",
-      "web-frontend"
+      "inventory-service",
+      "checkout-api"
     ]
   },
-  "inc_0043_disk_full.md": {
+  "inc_0043_disk_full.json": {
     "category": "disk_full",
     "lookalike_partner": null,
     "services": [
-      "checkout-api",
-      "auth-service"
+      "postgres-primary",
+      "orders-service",
+      "kafka-orders"
     ]
   },
-  "inc_0044_network_dns.json": {
+  "inc_0044_network_dns_slack.txt": {
     "category": "network_dns",
     "lookalike_partner": null,
     "services": [
-      "payments-gateway",
       "kafka-orders",
-      "orders-service"
+      "payments-gateway"
     ]
   },
-  "inc_0045_memory_leak.json": {
+  "inc_0045_memory_leak.md": {
     "category": "memory_leak",
     "lookalike_partner": null,
     "services": [
-      "redis-cache"
+      "payments-gateway",
+      "orders-service"
     ]
   },
   "inc_0046_cache_issue.json": {
     "category": "cache_issue",
     "lookalike_partner": null,
     "services": [
-      "web-frontend",
+      "inventory-service",
+      "redis-cache",
+      "auth-service"
+    ]
+  },
+  "inc_0047_queue_backlog_slack.txt": {
+    "category": "queue_backlog",
+    "lookalike_partner": null,
+    "services": [
+      "orders-service",
+      "payments-gateway"
+    ]
+  },
+  "inc_0048_capacity_traffic.md": {
+    "category": "capacity_traffic",
+    "lookalike_partner": null,
+    "services": [
+      "kafka-orders",
+      "checkout-api",
+      "web-frontend"
+    ]
+  },
+  "inc_0049_dependency_failure.json": {
+    "category": "dependency_failure",
+    "lookalike_partner": null,
+    "services": [
+      "payments-gateway"
+    ]
+  },
+  "inc_0050_connection_pool_slack.txt": {
+    "category": "connection_pool",
+    "lookalike_partner": null,
+    "services": [
+      "redis-cache",
       "checkout-api",
       "notification-worker"
     ]
   },
-  "inc_0047_queue_backlog.md": {
-    "category": "queue_backlog",
-    "lookalike_partner": null,
-    "services": [
-      "orders-service"
-    ]
-  },
-  "inc_0048_capacity_traffic.json": {
-    "category": "capacity_traffic",
-    "lookalike_partner": null,
-    "services": [
-      "inventory-service"
-    ]
-  },
-  "inc_0049_dependency_failure.md": {
-    "category": "dependency_failure",
-    "lookalike_partner": null,
-    "services": [
-      "auth-service",
-      "checkout-api"
-    ]
-  },
-  "inc_0050_connection_pool.json": {
-    "category": "connection_pool",
-    "lookalike_partner": null,
-    "services": [
-      "payments-gateway"
-    ]
-  },
-  "inc_0051_bad_deploy.json": {
+  "inc_0051_bad_deploy.md": {
     "category": "bad_deploy",
     "lookalike_partner": null,
     "services": [
-      "web-frontend",
-      "payments-gateway"
+      "notification-worker",
+      "kafka-orders"
     ]
   },
-  "inc_0052_certificate_expiry_slack.txt": {
+  "inc_0052_certificate_expiry.json": {
     "category": "certificate_expiry",
     "lookalike_partner": null,
     "services": [
-      "inventory-service",
-      "redis-cache"
+      "auth-service",
+      "web-frontend"
     ]
   },
-  "inc_0053_disk_full.json": {
+  "inc_0053_disk_full_slack.txt": {
     "category": "disk_full",
     "lookalike_partner": null,
     "services": [
-      "orders-service"
+      "checkout-api",
+      "auth-service",
+      "inventory-service"
     ]
   },
   "inc_0054_network_dns.md": {
     "category": "network_dns",
     "lookalike_partner": null,
     "services": [
-      "auth-service",
-      "web-frontend",
-      "postgres-primary"
+      "postgres-primary",
+      "checkout-api",
+      "inventory-service"
     ]
   },
-  "inc_0055_memory_leak.md": {
+  "inc_0055_memory_leak.json": {
     "category": "memory_leak",
     "lookalike_partner": null,
     "services": [
-      "payments-gateway",
-      "web-frontend",
-      "checkout-api"
+      "kafka-orders"
     ]
   },
-  "inc_0056_cache_issue.md": {
+  "inc_0056_cache_issue_slack.txt": {
     "category": "cache_issue",
     "lookalike_partner": null,
     "services": [
-      "redis-cache"
+      "inventory-service"
     ]
   },
-  "inc_0057_queue_backlog_slack.txt": {
+  "inc_0057_queue_backlog.md": {
     "category": "queue_backlog",
     "lookalike_partner": null,
     "services": [
-      "redis-cache"
+      "payments-gateway",
+      "auth-service",
+      "checkout-api"
     ]
   },
-  "inc_0058_capacity_traffic.md": {
+  "inc_0058_capacity_traffic.json": {
     "category": "capacity_traffic",
     "lookalike_partner": null,
     "services": [
-      "orders-service",
-      "postgres-primary"
+      "auth-service",
+      "orders-service"
     ]
   },
-  "inc_0059_dependency_failure.md": {
+  "inc_0059_dependency_failure_slack.txt": {
     "category": "dependency_failure",
     "lookalike_partner": null,
     "services": [
-      "inventory-service",
-      "kafka-orders",
       "postgres-primary"
     ]
   },
@@ -480,9 +477,7 @@
     "category": "connection_pool",
     "lookalike_partner": null,
     "services": [
-      "orders-service",
-      "auth-service",
-      "inventory-service"
+      "auth-service"
     ]
   },
   "inc_0061_dupe_0007.md": {

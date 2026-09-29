@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Any
 
 import redis
 
@@ -57,7 +57,6 @@ class PrefrontalCortex:
         redis_client: redis.Redis | None = None,
         fallback_to_memory: bool = True,
     ) -> None:
-        import time
 
         self._custom_redis = redis_client
         self._fallback_to_memory = fallback_to_memory

@@ -37,7 +37,10 @@ def test_redact_github_token():
 
 
 def test_redact_github_fine_grained_pat():
-    dummy_pat = "github_pat_" + "11AAAAAAA0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    dummy_pat = (
+        "github_pat_"
+        + "11AAAAAAA0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    )
     text = f"Accessing repo with {dummy_pat}"
     redacted = redact(text)
     assert "github_pat_" not in redacted
@@ -91,7 +94,9 @@ def test_redact_key_value_password():
 
 
 def test_redact_json_secret():
-    json_text = '{"username": "admin", "password": "SuperSecretPassword123!", "api_key": "ak_test_456"}'
+    json_text = (
+        '{"username": "admin", "password": "SuperSecretPassword123!", "api_key": "ak_test_456"}'
+    )
     redacted = redact(json_text)
     assert "SuperSecretPassword123!" not in redacted
     assert "ak_test_456" not in redacted
@@ -101,9 +106,14 @@ def test_redact_json_secret():
 
 
 def test_redact_connection_uri():
-    db_uri = "Connecting to postgresql://dbuser:MySecretPassword99@postgres.internal.net:5432/orders_db"
+    db_uri = (
+        "Connecting to postgresql://dbuser:MySecretPassword99@postgres.internal.net:5432/orders_db"
+    )
     redis_uri = "Cache at redis://:secretpass123@redis-cluster:6379/0"
-    assert redact(db_uri) == "Connecting to postgresql://dbuser:<redacted>@postgres.internal.net:5432/orders_db"
+    assert (
+        redact(db_uri)
+        == "Connecting to postgresql://dbuser:<redacted>@postgres.internal.net:5432/orders_db"
+    )
     assert redact(redis_uri) == "Cache at redis://:<redacted>@redis-cluster:6379/0"
 
 

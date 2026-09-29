@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: checkout-api third-party vendor API timeouts INC-0029
+[14:03:00] @alice: Seeing errors: HTTP 504 Gateway Timeout: Upstream banking partner failed to respond in 30s
+[14:05:30] @bob: Root cause is dependency_failure. Following runbook RB-bad-deploy-rollback.
+[14:12:00] @bob: Applying mitigation steps for dependency_failure.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.

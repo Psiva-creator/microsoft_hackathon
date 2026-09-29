@@ -84,8 +84,12 @@ def _parse_jira_issue_dict(
     meta = {
         "key": ticket_id,
         "summary": summary,
-        "status": fields.get("status", {}).get("name") if isinstance(fields.get("status"), dict) else fields.get("status"),
-        "resolution": fields.get("resolution", {}).get("name") if isinstance(fields.get("resolution"), dict) else fields.get("resolution"),
+        "status": fields.get("status", {}).get("name")
+        if isinstance(fields.get("status"), dict)
+        else fields.get("status"),
+        "resolution": fields.get("resolution", {}).get("name")
+        if isinstance(fields.get("resolution"), dict)
+        else fields.get("resolution"),
     }
     if file_path:
         meta["file_path"] = file_path
@@ -119,8 +123,8 @@ def load_slack_transcript_txt(file_path: Path) -> Generator[RawDoc, None, None]:
 
     # Check if lines look like chat messages [HH:MM] user: ... or user: ...
     is_slack = any(
-        re.match(r"^\[\d{2}:\d{2}(?::\d{2})?\]", l) or "@channel" in l or "@here" in l
-        for l in lines
+        re.match(r"^\[\d{2}:\d{2}(?::\d{2})?\]", line) or "@channel" in line or "@here" in line
+        for line in lines
     )
     source_type = "slack" if is_slack or "slack" in file_path.stem.lower() else "txt"
 
@@ -218,11 +222,15 @@ def load_folder(folder_path: str | Path) -> Generator[RawDoc, None, None]:
             try:
                 content = file_path.read_text(encoding="utf-8")
                 data = json.loads(content)
-                if isinstance(data, dict) and ("key" in data or "summary" in data or "issues" in data):
+                if isinstance(data, dict) and (
+                    "key" in data or "summary" in data or "issues" in data
+                ):
                     yield from load_jira_file(file_path)
                 elif isinstance(data, list):
                     # Could be slack export or list of jira tickets
-                    if any("user" in item and "text" in item for item in data if isinstance(item, dict)):
+                    if any(
+                        "user" in item and "text" in item for item in data if isinstance(item, dict)
+                    ):
                         yield from load_slack_export(file_path)
                     else:
                         yield from load_jira_file(file_path)
@@ -248,3 +256,23 @@ def load_folder(folder_path: str | Path) -> Generator[RawDoc, None, None]:
                 text=content,
                 metadata={"file_path": str(file_path)},
             )
+
+
+def load_alert_payload(payload: dict[str, Any], source_id: str = "alert") -> RawDoc:
+    """Parses monitoring alert payloads (Prometheus, Datadog, CloudWatch, PagerDuty) into a RawDoc."""
+    title = payload.get("title") or payload.get("alertname") or payload.get("event_type") or "Alert"
+    service = (
+        payload.get("service") or payload.get("tags", {}).get("service")
+        if isinstance(payload.get("tags"), dict)
+        else payload.get("service", "")
+    )
+    description = payload.get("description") or payload.get("text") or payload.get("message") or ""
+    severity = payload.get("severity") or payload.get("priority") or "high"
+
+    text = f"Alert: {title}\nService: {service}\nSeverity: {severity}\nDescription:\n{description}"
+    return RawDoc(
+        source_type="alert",
+        source_id=source_id,
+        text=text,
+        metadata={"service": service, "severity": severity, "title": title},
+    )

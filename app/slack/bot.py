@@ -54,18 +54,24 @@ def build_analysis_blocks(analysis: Analysis, live_id: str) -> list[dict[str, An
         if hyp.evidence_for:
             hyp_text += "*Evidence For:*\n" + "\n".join(f"  • {e}" for e in hyp.evidence_for) + "\n"
         if hyp.evidence_against:
-            hyp_text += "*Evidence Against:*\n" + "\n".join(f"  • {e}" for e in hyp.evidence_against) + "\n"
+            hyp_text += (
+                "*Evidence Against:*\n" + "\n".join(f"  • {e}" for e in hyp.evidence_against) + "\n"
+            )
         if hyp.recommended_steps:
-            hyp_text += "*Recommended Steps (Safest First):*\n" + "\n".join(
-                f"  {s_idx}. {s}" for s_idx, s in enumerate(hyp.recommended_steps, 1)
-            ) + "\n"
+            hyp_text += (
+                "*Recommended Steps (Safest First):*\n"
+                + "\n".join(f"  {s_idx}. {s}" for s_idx, s in enumerate(hyp.recommended_steps, 1))
+                + "\n"
+            )
         if hyp.runbook_id:
             hyp_text += f"*Runbook:* `{hyp.runbook_id}`\n"
 
-        blocks.append({
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": redact(hyp_text)},
-        })
+        blocks.append(
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": redact(hyp_text)},
+            }
+        )
 
     # Pattern Separation & Similar Precedents
     similar_blocks = []
@@ -76,58 +82,65 @@ def build_analysis_blocks(analysis: Analysis, live_id: str) -> list[dict[str, An
             )
 
     if similar_blocks:
-        blocks.append({
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "*🧠 Similar Past Incidents & Pattern Separation:*\n" + "\n".join(similar_blocks[:3]),
-            },
-        })
+        blocks.append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*🧠 Similar Past Incidents & Pattern Separation:*\n"
+                    + "\n".join(similar_blocks[:3]),
+                },
+            }
+        )
 
     if analysis.needs_human_decision:
-        blocks.append({
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "⚠️ *Requires Human Authorization (Read-Only Safety Guard):*\n"
-                + "\n".join(f"  🛑 {item}" for item in analysis.needs_human_decision),
-            },
-        })
+        blocks.append(
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "⚠️ *Requires Human Authorization (Read-Only Safety Guard):*\n"
+                    + "\n".join(f"  🛑 {item}" for item in analysis.needs_human_decision),
+                },
+            }
+        )
 
     blocks.append({"type": "divider"})
 
     # Action Buttons
-    blocks.append({
-        "type": "actions",
-        "elements": [
-            {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "👍 Helpful"},
-                "style": "primary",
-                "action_id": "feedback_helpful",
-                "value": live_id,
-            },
-            {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "👎 Not Helpful"},
-                "style": "danger",
-                "action_id": "feedback_unhelpful",
-                "value": live_id,
-            },
-            {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "🔍 Re-investigate"},
-                "action_id": "reinvestigate",
-                "value": live_id,
-            },
-            {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "✅ Mark Resolved"},
-                "action_id": "mark_resolved",
-                "value": live_id,
-            },
-        ],
-    })
+    blocks.append(
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "👍 Helpful"},
+                    "style": "primary",
+                    "action_id": "feedback_helpful",
+                    "value": live_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "👎 Not Helpful"},
+                    "style": "danger",
+                    "action_id": "feedback_unhelpful",
+                    "value": live_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔍 Re-investigate"},
+                    "action_id": "reinvestigate",
+                    "value": live_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "✅ Mark Resolved"},
+                    "action_id": "mark_resolved",
+                    "value": live_id,
+                },
+            ],
+        }
+    )
 
     return blocks
 
@@ -149,7 +162,10 @@ def build_resolve_modal(live_id: str) -> dict[str, Any]:
                     "type": "plain_text_input",
                     "action_id": "root_cause_input",
                     "multiline": True,
-                    "placeholder": {"type": "plain_text", "text": "Describe the verified root cause..."},
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Describe the verified root cause...",
+                    },
                 },
                 "label": {"type": "plain_text", "text": "Root Cause"},
             },
@@ -160,7 +176,10 @@ def build_resolve_modal(live_id: str) -> dict[str, Any]:
                     "type": "plain_text_input",
                     "action_id": "steps_input",
                     "multiline": True,
-                    "placeholder": {"type": "plain_text", "text": "List the steps taken to restore service (one per line)..."},
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "List the steps taken to restore service (one per line)...",
+                    },
                 },
                 "label": {"type": "plain_text", "text": "Resolution Steps"},
             },
@@ -183,7 +202,10 @@ def build_resolve_modal(live_id: str) -> dict[str, Any]:
                     "action_id": "worked_input",
                     "options": [
                         {
-                            "text": {"type": "plain_text", "text": "Yes, resolution worked completely"},
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Yes, resolution worked completely",
+                            },
                             "value": "yes",
                         },
                         {
@@ -298,16 +320,31 @@ def create_slack_app() -> App:
         ack()
         live_id = body["actions"][0]["value"]
         logger.info("slack_feedback_helpful", live_id=live_id)
-        record_feedback(suggestion_id=None, runbook_id=None, helpful=True, user_ref=body.get("user", {}).get("id"))
-        respond(text="🙏 Thank you for the feedback! Reinforced procedural runbook memory.", replace_original=False)
+        record_feedback(
+            suggestion_id=None,
+            runbook_id=None,
+            helpful=True,
+            user_ref=body.get("user", {}).get("id"),
+        )
+        respond(
+            text="🙏 Thank you for the feedback! Reinforced procedural runbook memory.",
+            replace_original=False,
+        )
 
     @app.action("feedback_unhelpful")
     def handle_unhelpful(ack: Any, body: dict[str, Any], respond: Any) -> None:
         ack()
         live_id = body["actions"][0]["value"]
         logger.info("slack_feedback_unhelpful", live_id=live_id)
-        record_feedback(suggestion_id=None, runbook_id=None, helpful=False, user_ref=body.get("user", {}).get("id"))
-        respond(text="📝 Noted. Down-weighted associated runbook precedence.", replace_original=False)
+        record_feedback(
+            suggestion_id=None,
+            runbook_id=None,
+            helpful=False,
+            user_ref=body.get("user", {}).get("id"),
+        )
+        respond(
+            text="📝 Noted. Down-weighted associated runbook precedence.", replace_original=False
+        )
 
     @app.action("reinvestigate")
     def handle_reinvestigate_button(ack: Any, body: dict[str, Any], say: Any) -> None:
@@ -392,7 +429,9 @@ def create_slack_app() -> App:
         try:
             with get_db() as conn:
                 with conn.cursor() as cur:
-                    cur.execute("SELECT postmortem_draft FROM live_incidents WHERE id = %s", (live_id,))
+                    cur.execute(
+                        "SELECT postmortem_draft FROM live_incidents WHERE id = %s", (live_id,)
+                    )
                     row = cur.fetchone()
                     if row and row.get("postmortem_draft"):
                         pm_draft = row["postmortem_draft"]

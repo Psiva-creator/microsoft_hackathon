@@ -50,12 +50,16 @@ def generate_html_dashboard(
             if r3 >= 75
             else '<span class="px-2 py-1 text-xs font-semibold rounded bg-slate-700 text-slate-300">BASELINE</span>'
         )
-        row_bg = "bg-emerald-950/20 border-l-4 border-emerald-500" if is_hybrid else "hover:bg-slate-800/40"
+        row_bg = (
+            "bg-emerald-950/20 border-l-4 border-emerald-500"
+            if is_hybrid
+            else "hover:bg-slate-800/40"
+        )
         benchmark_rows_html += f"""
         <tr class="border-b border-slate-800 {row_bg}">
             <td class="py-3 px-4 font-medium text-slate-200">{label}</td>
             <td class="py-3 px-4 text-right font-mono text-slate-300">{r1:.1f}%</td>
-            <td class="py-3 px-4 text-right font-mono font-bold {'text-emerald-400' if is_hybrid else 'text-slate-200'}">{r3:.1f}%</td>
+            <td class="py-3 px-4 text-right font-mono font-bold {"text-emerald-400" if is_hybrid else "text-slate-200"}">{r3:.1f}%</td>
             <td class="py-3 px-4 text-right font-mono text-slate-300">{r5:.1f}%</td>
             <td class="py-3 px-4 text-right font-mono text-amber-400">{mrr:.3f}</td>
             <td class="py-3 px-4 text-right font-mono text-cyan-400">{p50:.2f} ms</td>
@@ -72,10 +76,10 @@ def generate_html_dashboard(
         pattern_cards_html += f"""
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-5 hover:border-cyan-500/50 transition duration-200 shadow-lg">
             <div class="flex items-start justify-between mb-3">
-                <h4 class="font-bold text-slate-100 text-sm">{p.get('title')}</h4>
-                <span class="px-2 py-0.5 text-xs font-mono rounded bg-cyan-950 text-cyan-400 border border-cyan-800">Cluster: {len(p.get('member_incident_ids', []))}</span>
+                <h4 class="font-bold text-slate-100 text-sm">{p.get("title")}</h4>
+                <span class="px-2 py-0.5 text-xs font-mono rounded bg-cyan-950 text-cyan-400 border border-cyan-800">Cluster: {len(p.get("member_incident_ids", []))}</span>
             </div>
-            <p class="text-xs text-slate-400 mb-3 leading-relaxed">{p.get('rule_text')}</p>
+            <p class="text-xs text-slate-400 mb-3 leading-relaxed">{p.get("rule_text")}</p>
             <div class="space-y-1.5 text-xs">
                 <div><span class="text-amber-400 font-semibold">Signals:</span> <span class="text-slate-300 font-mono text-[11px]">{signals_str}</span></div>
                 <div><span class="text-indigo-400 font-semibold">Checks:</span> <span class="text-slate-300">{checks_str}</span></div>

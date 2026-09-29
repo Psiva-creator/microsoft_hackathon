@@ -88,9 +88,7 @@ _STATUS_CODE_CONTEXT_RE = re.compile(
 )
 
 # HTTP status codes followed by standard HTTP reason phrase (e.g. 502 Bad Gateway)
-_STATUS_CODE_PHRASE_RE = re.compile(
-    rf"(?i)\b([1-5]\d\d)(?=\s+(?:{_HTTP_REASON_PHRASES})\b)"
-)
+_STATUS_CODE_PHRASE_RE = re.compile(rf"(?i)\b([1-5]\d\d)(?=\s+(?:{_HTTP_REASON_PHRASES})\b)")
 
 # HTTP protocol versions (e.g. HTTP/1.0, HTTP/1.1, HTTP/2, HTTP/2.0, HTTP/3)
 _HTTP_VERSION_RE = re.compile(r"(?i)\bHTTP/(?:[123](?:\.\d+)?)\b")

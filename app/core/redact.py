@@ -27,9 +27,7 @@ _PRIVATE_KEY_RE = re.compile(
 _PGP_PRIVATE_KEY_RE = re.compile(
     r"-----BEGIN PGP PRIVATE KEY BLOCK-----[\s\S]*?-----END PGP PRIVATE KEY BLOCK-----"
 )
-_CERTIFICATE_BLOCK_RE = re.compile(
-    r"-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----"
-)
+_CERTIFICATE_BLOCK_RE = re.compile(r"-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----")
 
 # 2. Cloud & API Credential Patterns
 # AWS Access Key IDs: AKIA (IAM), ASIA (STS temp), ABIA (STS), ACCA (Context)
@@ -52,9 +50,7 @@ _SLACK_WEBHOOK_RE = re.compile(
 
 # 3. Authentication & Bearer Tokens
 # Standard JWT (header.payload.signature)
-_JWT_RE = re.compile(
-    r"\beyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\b"
-)
+_JWT_RE = re.compile(r"\beyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\b")
 # Bearer tokens in headers or logs
 _BEARER_RE = re.compile(r"\bBearer\s+(?!<redacted>)[a-zA-Z0-9_\-\.+=/]{12,}\b", re.IGNORECASE)
 # Generic Authorization headers (Basic, Digest, Token)
@@ -65,9 +61,7 @@ _AUTH_HEADER_RE = re.compile(
 # 4. Connection Strings / URIs containing credentials
 # e.g., postgresql://user:password@host:5432/db -> postgresql://user:<redacted>@host:5432/db
 # e.g., redis://:password@host:6379/0 -> redis://:<redacted>@host:6379/0
-_URI_CREDENTIAL_RE = re.compile(
-    r"\b([a-zA-Z0-9+.-]+://[^:/\s]*):(?!<redacted>)([^@\s/]+)@"
-)
+_URI_CREDENTIAL_RE = re.compile(r"\b([a-zA-Z0-9+.-]+://[^:/\s]*):(?!<redacted>)([^@\s/]+)@")
 
 # 5. Generic Key-Value Secrets (e.g. password=..., secret: ..., token: ...)
 _KEY_VALUE_SECRET_RE = re.compile(

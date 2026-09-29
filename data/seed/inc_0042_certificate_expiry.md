@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0042
 ## Summary
-Service outage affecting orders-service, notification-worker, web-frontend for 17 minutes.
+Service outage affecting inventory-service, checkout-api for 28 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.2.59:5432 with status 503.
+- TLS handshake failures
+- external webhook delivery failure
+- Error logs: x509: certificate has expired for domain api.payments.internal
 ## Root Cause
-Identified issue in certificate_expiry affecting subsystem stability.
+Identified issue in certificate_expiry affecting subsystem stability: TLS handshake failures.
 ## Resolution Steps
-1. Investigated logs from orders-service.
-2. Restarted failed components.
+1. Followed runbook RB-cert-expiry.
+2. Investigated logs from inventory-service and applied fix.
 3. Validated health check.

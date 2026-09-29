@@ -1,0 +1,17 @@
+{
+  "key": "OPS-1016",
+  "summary": "Critical outage in auth-service caused by cache_issue (INC-0016)",
+  "description": "Service auth-service incident INC-0016. Symptoms: cache hit ratio dropped from 95% to 40%. Error: redis.exceptions.ConnectionError: Error 111 connecting to 10.0.1.20:6379. Connection refused. Root cause was cache_issue. Followed runbook RB-cache-stampede.",
+  "status": "Resolved",
+  "resolution": "Fixed",
+  "comments": [
+    {
+      "author": "devops1",
+      "body": "Restarted service pods for auth-service and applied RB-cache-stampede."
+    },
+    {
+      "author": "sre_lead",
+      "body": "Confirmed cache_issue resolved."
+    }
+  ]
+}

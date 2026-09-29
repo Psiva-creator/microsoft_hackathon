@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0054
 ## Summary
-Service outage affecting auth-service, web-frontend, postgres-primary for 47 minutes.
+Service outage affecting postgres-primary, checkout-api, inventory-service for 42 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.2.150:9092 with status 503.
+- CoreDNS lookup failures
+- service discovery timeouts
+- Error logs: dial tcp: lookup postgres-primary on 10.96.0.10:53: no such host
 ## Root Cause
-Identified issue in network_dns affecting subsystem stability.
+Identified issue in network_dns affecting subsystem stability: CoreDNS lookup failures.
 ## Resolution Steps
-1. Investigated logs from auth-service.
-2. Restarted failed components.
+1. Followed runbook RB-dns-resolution-failure.
+2. Investigated logs from postgres-primary and applied fix.
 3. Validated health check.

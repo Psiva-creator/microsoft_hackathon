@@ -13,75 +13,143 @@ from app.logging import get_logger
 
 logger = get_logger(__name__)
 
+
+def compute_decay_weight(
+    age_days: float, half_life_days: float = 90.0, min_weight: float = 0.3
+) -> float:
+    """Calculates exponential half-life decay weight for historical memories."""
+    if half_life_days <= 0 or age_days <= 0:
+        return 1.0
+    decay = 0.5 ** (age_days / half_life_days)
+    return max(min_weight, float(decay))
+
+
 CATEGORY_RULES = {
     "connection_pool": {
         "rule": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
         "exception": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
         "signals": ["HikariPool connection timeout", "503 Service Unavailable latency spike"],
-        "checks": ["Inspect HikariCP active/idle pool metrics", "Check for long-running uncommitted DB transactions", "Verify pool max-size configuration"],
+        "checks": [
+            "Inspect HikariCP active/idle pool metrics",
+            "Check for long-running uncommitted DB transactions",
+            "Verify pool max-size configuration",
+        ],
         "runbooks": ["RB-db-pool-exhaustion"],
     },
     "certificate_expiry": {
         "rule": "When TLS handshake failures or x509 certificate errors occur, verify certificate expiration dates on ingress routes and automated renewal cron jobs.",
         "exception": "Rule does not hold if the client TLS version is incompatible with server cipher suites.",
         "signals": ["x509: certificate has expired or is not yet valid", "SSL handshake failed"],
-        "checks": ["Check cert-manager pod status", "Inspect ingress TLS secret expiration with openssl", "Verify automated ACME renewal job"],
+        "checks": [
+            "Check cert-manager pod status",
+            "Inspect ingress TLS secret expiration with openssl",
+            "Verify automated ACME renewal job",
+        ],
         "runbooks": ["RB-cert-expiry"],
     },
     "network_dns": {
         "rule": "When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.",
         "exception": "Rule does not hold if single-service egress security group rules were modified.",
         "signals": ["dial tcp: lookup failed: i/o timeout", "Temporary failure in name resolution"],
-        "checks": ["Inspect CoreDNS logs and pod restarts", "Verify kube-dns ClusterIP reachability from nodes", "Check upstream cloud DNS quotas"],
+        "checks": [
+            "Inspect CoreDNS logs and pod restarts",
+            "Verify kube-dns ClusterIP reachability from nodes",
+            "Check upstream cloud DNS quotas",
+        ],
         "runbooks": ["RB-dns-resolution-failure"],
     },
     "cache_issue": {
         "rule": "When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.",
         "exception": "Rule does not hold if Redis memory is exhausted due to missing TTL keys.",
-        "signals": ["Redis latency spike", "Cache miss storm on restart", "Downstream DB load spike"],
-        "checks": ["Inspect Redis CPU and command latency", "Check hot-key access patterns", "Verify cache single-flight mutex"],
+        "signals": [
+            "Redis latency spike",
+            "Cache miss storm on restart",
+            "Downstream DB load spike",
+        ],
+        "checks": [
+            "Inspect Redis CPU and command latency",
+            "Check hot-key access patterns",
+            "Verify cache single-flight mutex",
+        ],
         "runbooks": ["RB-cache-stampede"],
     },
     "memory_leak": {
         "rule": "When container OOMKilled restarts or GC pause spikes occur, inspect recent commit diffs for unclosed streams or unbounded in-memory caches.",
         "exception": "Rule does not hold if traffic volume grew by more than 300% without autoscaling.",
-        "signals": ["Container terminated with exit code 137 (OOMKilled)", "Heap usage monotonically increasing"],
-        "checks": ["Inspect container memory cgroup metrics", "Review recent heap dumps and gc pause times", "Check unclosed HTTP/DB response bodies"],
+        "signals": [
+            "Container terminated with exit code 137 (OOMKilled)",
+            "Heap usage monotonically increasing",
+        ],
+        "checks": [
+            "Inspect container memory cgroup metrics",
+            "Review recent heap dumps and gc pause times",
+            "Check unclosed HTTP/DB response bodies",
+        ],
         "runbooks": ["RB-memory-leak-restart"],
     },
     "disk_full": {
         "rule": "When disk write errors or log rotation stalls occur, inspect log directories and container ephemeral storage volumes.",
         "exception": "Rule does not hold if inode exhaustion occurred with available disk space.",
         "signals": ["No space left on device", "DiskWriteQuotaExceeded"],
-        "checks": ["Check df -h and df -i on affected nodes", "Verify systemd journald retention limits", "Purge unrotated /var/log debug archives"],
+        "checks": [
+            "Check df -h and df -i on affected nodes",
+            "Verify systemd journald retention limits",
+            "Purge unrotated /var/log debug archives",
+        ],
         "runbooks": ["RB-disk-full"],
     },
     "capacity_traffic": {
         "rule": "When global request latency degrades with 429/503 errors during traffic spikes, enable rate limiting and scale out stateless replicas.",
         "exception": "Rule does not hold if downstream third-party APIs are rate-limiting inbound calls.",
-        "signals": ["HTTP 503 Service Unavailable", "P99 latency > 5s across ingress", "CPU throttle percentage spike"],
-        "checks": ["Inspect HPA replica limits", "Check ingress rate limit drop counters", "Verify edge CDN cache offload ratio"],
+        "signals": [
+            "HTTP 503 Service Unavailable",
+            "P99 latency > 5s across ingress",
+            "CPU throttle percentage spike",
+        ],
+        "checks": [
+            "Inspect HPA replica limits",
+            "Check ingress rate limit drop counters",
+            "Verify edge CDN cache offload ratio",
+        ],
         "runbooks": ["RB-bad-deploy-rollback"],
     },
     "bad_deploy": {
         "rule": "When error rates immediately surge within 5 minutes of a deployment, initiate automated rollback to previous known-good image tag.",
         "exception": "Rule does not hold if schema migrations were applied that are backwards-incompatible.",
-        "signals": ["Deployment canary error rate > 5%", "Pod CrashLoopBackOff following image rollout"],
-        "checks": ["Inspect git diff of latest deployment commit", "Verify environment variable configurations", "Initiate instant rollback via Helm/ArgoCD"],
+        "signals": [
+            "Deployment canary error rate > 5%",
+            "Pod CrashLoopBackOff following image rollout",
+        ],
+        "checks": [
+            "Inspect git diff of latest deployment commit",
+            "Verify environment variable configurations",
+            "Initiate instant rollback via Helm/ArgoCD",
+        ],
         "runbooks": ["RB-bad-deploy-rollback"],
     },
     "queue_backlog": {
         "rule": "When message consumer lag surges and message processing age exceeds SLA, scale consumer worker pools and inspect dead-letter queues.",
         "exception": "Rule does not hold if consumer crashes on poison pill payloads.",
-        "signals": ["Kafka/RabbitMQ consumer lag > 10,000", "End-to-end task completion latency degraded"],
-        "checks": ["Inspect DLQ error logs for poison payloads", "Check consumer thread pool utilization", "Scale horizontal consumer pods"],
+        "signals": [
+            "Kafka/RabbitMQ consumer lag > 10,000",
+            "End-to-end task completion latency degraded",
+        ],
+        "checks": [
+            "Inspect DLQ error logs for poison payloads",
+            "Check consumer thread pool utilization",
+            "Scale horizontal consumer pods",
+        ],
         "runbooks": ["RB-queue-backlog"],
     },
     "dependency_failure": {
         "rule": "When an external upstream dependency fails or degrades, enable circuit breakers and fallback cached responses.",
         "exception": "Rule does not hold if the upstream failure is localized to a single tenant.",
         "signals": ["Upstream 502/504 Bad Gateway", "Circuit breaker OPEN state"],
-        "checks": ["Check third-party status dashboard", "Verify client-side timeout settings", "Confirm circuit breaker fallback behavior"],
+        "checks": [
+            "Check third-party status dashboard",
+            "Verify client-side timeout settings",
+            "Confirm circuit breaker fallback behavior",
+        ],
         "runbooks": ["RB-bad-deploy-rollback"],
     },
 }
@@ -132,24 +200,33 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
 
         offline = _get_offline_incidents()
         for inc in offline:
-            incidents_data.append({
-                "id": inc["id"],
-                "title": inc["title"],
-                "services": inc["services"],
-                "root_cause": inc["root_cause"],
-                "root_cause_category": inc.get("category", "unknown"),
-                "emb_full": inc["emb"],
-                "started_at": datetime.now(timezone.utc),
-                "architecture_epoch": "v1",
-            })
+            incidents_data.append(
+                {
+                    "id": inc["id"],
+                    "title": inc["title"],
+                    "services": inc["services"],
+                    "root_cause": inc["root_cause"],
+                    "root_cause_category": inc.get("category", "unknown"),
+                    "emb_full": inc["emb"],
+                    "started_at": datetime.now(timezone.utc),
+                    "architecture_epoch": "v1",
+                }
+            )
 
     if len(incidents_data) < 2:
-        report_lines.append(f"Insufficient incidents ({len(incidents_data)}) to cluster into patterns.")
+        report_lines.append(
+            f"Insufficient incidents ({len(incidents_data)}) to cluster into patterns."
+        )
         reports_dir = Path("reports")
         reports_dir.mkdir(parents=True, exist_ok=True)
         report_file = reports_dir / f"consolidation_{today_str}.md"
         report_file.write_text("\n".join(report_lines), encoding="utf-8")
-        return {"status": "success", "patterns_created": 0, "incidents_decayed": 0, "report_path": str(report_file)}
+        return {
+            "status": "success",
+            "patterns_created": 0,
+            "incidents_decayed": 0,
+            "report_path": str(report_file),
+        }
 
     # 3. Category-informed Agglomerative Clustering
     by_cat: dict[str, list[dict[str, Any]]] = {}
@@ -180,13 +257,16 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
         for idx, lab in enumerate(labels):
             sub_clusters.setdefault(lab, []).append(members[idx])
 
-        cat_meta = CATEGORY_RULES.get(cat, {
-            "rule": f"Recurring failure pattern in {cat.replace('_', ' ')} across services.",
-            "exception": "Rule does not hold if caused by independent external outage.",
-            "signals": [f"{cat} alerts", "Service latency spikes"],
-            "checks": ["Inspect telemetry metrics", "Review deployment history"],
-            "runbooks": ["RB-bad-deploy-rollback"],
-        })
+        cat_meta = CATEGORY_RULES.get(
+            cat,
+            {
+                "rule": f"Recurring failure pattern in {cat.replace('_', ' ')} across services.",
+                "exception": "Rule does not hold if caused by independent external outage.",
+                "signals": [f"{cat} alerts", "Service latency spikes"],
+                "checks": ["Inspect telemetry metrics", "Review deployment history"],
+                "runbooks": ["RB-bad-deploy-rollback"],
+            },
+        )
 
         for c_label, submembers in sub_clusters.items():
             if len(submembers) < 2:
@@ -220,7 +300,9 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
             new_patterns_count += 1
 
             report_lines.append(f"### 📌 {pattern_title}")
-            report_lines.append(f"- **Cluster Size:** {len(submembers)} incidents ({', '.join(member_ids)})")
+            report_lines.append(
+                f"- **Cluster Size:** {len(submembers)} incidents ({', '.join(member_ids)})"
+            )
             report_lines.append(f"- **Synthesized Rule:** {rule_text}")
             report_lines.append(f"- **Mismatch Boundary (Exceptions):** {exceptions_text}")
             report_lines.append(f"- **Trigger Signals:** {', '.join(signals)}")
@@ -257,7 +339,9 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
 
     # 4. Memory Decay Calculation
     report_lines.append("## ⏳ Temporal Memory Decay")
-    report_lines.append(f"Half-life parameter: **{settings.DECAY_HALF_LIFE_DAYS} days** ($w = \\max(0.3, 0.5^{{t / T_{{1/2}}}})$)")
+    report_lines.append(
+        f"Half-life parameter: **{settings.DECAY_HALF_LIFE_DAYS} days** ($w = \\max(0.3, 0.5^{{t / T_{{1/2}}}})$)"
+    )
     report_lines.append("")
 
     now = datetime.now(timezone.utc)
@@ -281,7 +365,9 @@ def run_consolidation(dry_run: bool = False) -> dict[str, Any]:
             except Exception as e:
                 logger.debug("consolidation_db_decay_update_failed", error=str(e))
 
-    report_lines.append(f"- Total episodes evaluated and recalibrated for decay: **{decayed_count}**")
+    report_lines.append(
+        f"- Total episodes evaluated and recalibrated for decay: **{decayed_count}**"
+    )
     report_lines.append(f"- Total generalized patterns discovered: **{new_patterns_count}**")
 
     # 5. Persist discovered patterns to local JSON store for offline retrieval

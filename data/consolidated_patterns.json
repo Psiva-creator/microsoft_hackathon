@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "title": "Generalized Pattern: Connection Pool Failures (checkout-api, postgres-primary)",
+    "title": "Generalized Pattern: Connection Pool Failures (auth-service, checkout-api)",
     "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
     "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
     "trigger_signals": [
@@ -18,73 +18,28 @@
     ],
     "member_incident_ids": [
       "INC-0007",
-      "INC-0061"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "checkout-api",
-      "postgres-primary"
-    ]
-  },
-  {
-    "id": 2,
-    "title": "Generalized Pattern: Connection Pool Failures (payments-gateway, postgres-primary)",
-    "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
-    "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
-    "trigger_signals": [
-      "HikariPool connection timeout",
-      "503 Service Unavailable latency spike"
-    ],
-    "recommended_checks": [
-      "Inspect HikariCP active/idle pool metrics",
-      "Check for long-running uncommitted DB transactions",
-      "Verify pool max-size configuration"
-    ],
-    "recommended_runbooks": [
-      "RB-db-pool-exhaustion"
-    ],
-    "member_incident_ids": [
+      "INC-0008",
       "INC-0020",
-      "INC-0050"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "payments-gateway",
-      "postgres-primary"
-    ]
-  },
-  {
-    "id": 3,
-    "title": "Generalized Pattern: Connection Pool Failures (auth-service, inventory-service)",
-    "rule_text": "When observing recurring connection_pool symptoms, the root cause is typically unreleased connections or slow downstream transactions saturating the pool. Inspect active checkout count and connection leak logs.",
-    "exceptions_text": "Rule does not hold if the database instance itself is unreachable or returning TCP connection refused.",
-    "trigger_signals": [
-      "HikariPool connection timeout",
-      "503 Service Unavailable latency spike"
-    ],
-    "recommended_checks": [
-      "Inspect HikariCP active/idle pool metrics",
-      "Check for long-running uncommitted DB transactions",
-      "Verify pool max-size configuration"
-    ],
-    "recommended_runbooks": [
-      "RB-db-pool-exhaustion"
-    ],
-    "member_incident_ids": [
       "INC-0030",
+      "INC-0040",
+      "INC-0050",
       "INC-0060"
     ],
     "confidence": 0.88,
     "services": [
       "auth-service",
+      "checkout-api",
       "inventory-service",
+      "notification-worker",
       "orders-service",
+      "postgres-primary",
+      "redis-cache",
       "web-frontend"
     ]
   },
   {
-    "id": 4,
-    "title": "Generalized Pattern: Certificate Expiry Failures (payments-gateway)",
+    "id": 2,
+    "title": "Generalized Pattern: Certificate Expiry Failures (auth-service, checkout-api)",
     "rule_text": "When TLS handshake failures or x509 certificate errors occur, verify certificate expiration dates on ingress routes and automated renewal cron jobs.",
     "exceptions_text": "Rule does not hold if the client TLS version is incompatible with server cipher suites.",
     "trigger_signals": [
@@ -101,49 +56,24 @@
     ],
     "member_incident_ids": [
       "INC-0012",
-      "INC-0062"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "payments-gateway"
-    ]
-  },
-  {
-    "id": 5,
-    "title": "Generalized Pattern: Certificate Expiry Failures (auth-service, inventory-service)",
-    "rule_text": "When TLS handshake failures or x509 certificate errors occur, verify certificate expiration dates on ingress routes and automated renewal cron jobs.",
-    "exceptions_text": "Rule does not hold if the client TLS version is incompatible with server cipher suites.",
-    "trigger_signals": [
-      "x509: certificate has expired or is not yet valid",
-      "SSL handshake failed"
-    ],
-    "recommended_checks": [
-      "Check cert-manager pod status",
-      "Inspect ingress TLS secret expiration with openssl",
-      "Verify automated ACME renewal job"
-    ],
-    "recommended_runbooks": [
-      "RB-cert-expiry"
-    ],
-    "member_incident_ids": [
       "INC-0022",
       "INC-0032",
+      "INC-0042",
       "INC-0052"
     ],
     "confidence": 0.88,
     "services": [
       "auth-service",
+      "checkout-api",
       "inventory-service",
-      "notification-worker",
       "orders-service",
-      "postgres-primary",
-      "redis-cache",
+      "payments-gateway",
       "web-frontend"
     ]
   },
   {
-    "id": 6,
-    "title": "Generalized Pattern: Network Dns Failures (checkout-api, postgres-primary)",
+    "id": 3,
+    "title": "Generalized Pattern: Network Dns Failures (checkout-api, inventory-service)",
     "rule_text": "When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.",
     "exceptions_text": "Rule does not hold if single-service egress security group rules were modified.",
     "trigger_signals": [
@@ -160,37 +90,16 @@
     ],
     "member_incident_ids": [
       "INC-0019",
-      "INC-0063"
+      "INC-0009",
+      "INC-0014",
+      "INC-0034",
+      "INC-0044",
+      "INC-0054"
     ],
     "confidence": 0.88,
     "services": [
       "checkout-api",
-      "postgres-primary"
-    ]
-  },
-  {
-    "id": 7,
-    "title": "Generalized Pattern: Network Dns Failures (kafka-orders, orders-service)",
-    "rule_text": "When dial tcp or DNS lookup timeouts occur across multiple microservices, inspect CoreDNS pod health, node kube-dns endpoints, and upstream resolver latency.",
-    "exceptions_text": "Rule does not hold if single-service egress security group rules were modified.",
-    "trigger_signals": [
-      "dial tcp: lookup failed: i/o timeout",
-      "Temporary failure in name resolution"
-    ],
-    "recommended_checks": [
-      "Inspect CoreDNS logs and pod restarts",
-      "Verify kube-dns ClusterIP reachability from nodes",
-      "Check upstream cloud DNS quotas"
-    ],
-    "recommended_runbooks": [
-      "RB-dns-resolution-failure"
-    ],
-    "member_incident_ids": [
-      "INC-0024",
-      "INC-0044"
-    ],
-    "confidence": 0.88,
-    "services": [
+      "inventory-service",
       "kafka-orders",
       "orders-service",
       "payments-gateway",
@@ -198,35 +107,7 @@
     ]
   },
   {
-    "id": 8,
-    "title": "Generalized Pattern: Cache Issue Failures (inventory-service, redis-cache)",
-    "rule_text": "When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.",
-    "exceptions_text": "Rule does not hold if Redis memory is exhausted due to missing TTL keys.",
-    "trigger_signals": [
-      "Redis latency spike",
-      "Cache miss storm on restart",
-      "Downstream DB load spike"
-    ],
-    "recommended_checks": [
-      "Inspect Redis CPU and command latency",
-      "Check hot-key access patterns",
-      "Verify cache single-flight mutex"
-    ],
-    "recommended_runbooks": [
-      "RB-cache-stampede"
-    ],
-    "member_incident_ids": [
-      "INC-0024",
-      "INC-0064"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "inventory-service",
-      "redis-cache"
-    ]
-  },
-  {
-    "id": 9,
+    "id": 4,
     "title": "Generalized Pattern: Cache Issue Failures (auth-service, checkout-api)",
     "rule_text": "When observing cache stampede or Redis saturation, inspect hot key eviction rates and ensure cache warming or single-flight request coalescing is active.",
     "exceptions_text": "Rule does not hold if Redis memory is exhausted due to missing TTL keys.",
@@ -244,24 +125,27 @@
       "RB-cache-stampede"
     ],
     "member_incident_ids": [
+      "INC-0024",
+      "INC-0010",
       "INC-0016",
       "INC-0026",
       "INC-0036",
+      "INC-0046",
       "INC-0056"
     ],
     "confidence": 0.88,
     "services": [
       "auth-service",
       "checkout-api",
-      "kafka-orders",
+      "inventory-service",
+      "notification-worker",
       "orders-service",
-      "postgres-primary",
       "redis-cache",
       "web-frontend"
     ]
   },
   {
-    "id": 10,
+    "id": 5,
     "title": "Generalized Pattern: Disk Full Failures (auth-service, checkout-api)",
     "rule_text": "When disk write errors or log rotation stalls occur, inspect log directories and container ephemeral storage volumes.",
     "exceptions_text": "Rule does not hold if inode exhaustion occurred with available disk space.",
@@ -278,48 +162,28 @@
       "RB-disk-full"
     ],
     "member_incident_ids": [
+      "INC-0001",
+      "INC-0013",
       "INC-0023",
-      "INC-0043"
+      "INC-0033",
+      "INC-0043",
+      "INC-0053"
     ],
     "confidence": 0.88,
     "services": [
       "auth-service",
       "checkout-api",
-      "orders-service"
-    ]
-  },
-  {
-    "id": 11,
-    "title": "Generalized Pattern: Disk Full Failures (checkout-api, inventory-service)",
-    "rule_text": "When disk write errors or log rotation stalls occur, inspect log directories and container ephemeral storage volumes.",
-    "exceptions_text": "Rule does not hold if inode exhaustion occurred with available disk space.",
-    "trigger_signals": [
-      "No space left on device",
-      "DiskWriteQuotaExceeded"
-    ],
-    "recommended_checks": [
-      "Check df -h and df -i on affected nodes",
-      "Verify systemd journald retention limits",
-      "Purge unrotated /var/log debug archives"
-    ],
-    "recommended_runbooks": [
-      "RB-disk-full"
-    ],
-    "member_incident_ids": [
-      "INC-0033",
-      "INC-0053"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "checkout-api",
       "inventory-service",
+      "kafka-orders",
       "orders-service",
-      "postgres-primary"
+      "postgres-primary",
+      "redis-cache",
+      "web-frontend"
     ]
   },
   {
-    "id": 12,
-    "title": "Generalized Pattern: Capacity Traffic Failures (auth-service, inventory-service)",
+    "id": 6,
+    "title": "Generalized Pattern: Capacity Traffic Failures (auth-service, checkout-api)",
     "rule_text": "When global request latency degrades with 429/503 errors during traffic spikes, enable rate limiting and scale out stateless replicas.",
     "exceptions_text": "Rule does not hold if downstream third-party APIs are rate-limiting inbound calls.",
     "trigger_signals": [
@@ -336,25 +200,29 @@
       "RB-bad-deploy-rollback"
     ],
     "member_incident_ids": [
+      "INC-0002",
+      "INC-0011",
       "INC-0018",
       "INC-0028",
       "INC-0038",
+      "INC-0048",
       "INC-0058"
     ],
     "confidence": 0.88,
     "services": [
       "auth-service",
+      "checkout-api",
       "inventory-service",
       "kafka-orders",
-      "notification-worker",
       "orders-service",
       "postgres-primary",
-      "redis-cache"
+      "redis-cache",
+      "web-frontend"
     ]
   },
   {
-    "id": 13,
-    "title": "Generalized Pattern: Bad Deploy Failures (auth-service, checkout-api)",
+    "id": 7,
+    "title": "Generalized Pattern: Bad Deploy Failures (auth-service, kafka-orders)",
     "rule_text": "When error rates immediately surge within 5 minutes of a deployment, initiate automated rollback to previous known-good image tag.",
     "exceptions_text": "Rule does not hold if schema migrations were applied that are backwards-incompatible.",
     "trigger_signals": [
@@ -370,6 +238,7 @@
       "RB-bad-deploy-rollback"
     ],
     "member_incident_ids": [
+      "INC-0003",
       "INC-0021",
       "INC-0031",
       "INC-0051"
@@ -377,45 +246,16 @@
     "confidence": 0.88,
     "services": [
       "auth-service",
-      "checkout-api",
       "kafka-orders",
       "notification-worker",
+      "orders-service",
       "payments-gateway",
+      "redis-cache",
       "web-frontend"
     ]
   },
   {
-    "id": 14,
-    "title": "Generalized Pattern: Dependency Failure Failures (auth-service, inventory-service)",
-    "rule_text": "When an external upstream dependency fails or degrades, enable circuit breakers and fallback cached responses.",
-    "exceptions_text": "Rule does not hold if the upstream failure is localized to a single tenant.",
-    "trigger_signals": [
-      "Upstream 502/504 Bad Gateway",
-      "Circuit breaker OPEN state"
-    ],
-    "recommended_checks": [
-      "Check third-party status dashboard",
-      "Verify client-side timeout settings",
-      "Confirm circuit breaker fallback behavior"
-    ],
-    "recommended_runbooks": [
-      "RB-bad-deploy-rollback"
-    ],
-    "member_incident_ids": [
-      "INC-0019",
-      "INC-0029"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "auth-service",
-      "inventory-service",
-      "orders-service",
-      "payments-gateway",
-      "redis-cache"
-    ]
-  },
-  {
-    "id": 15,
+    "id": 8,
     "title": "Generalized Pattern: Dependency Failure Failures (auth-service, checkout-api)",
     "rule_text": "When an external upstream dependency fails or degrades, enable circuit breakers and fallback cached responses.",
     "exceptions_text": "Rule does not hold if the upstream failure is localized to a single tenant.",
@@ -432,6 +272,9 @@
       "RB-bad-deploy-rollback"
     ],
     "member_incident_ids": [
+      "INC-0004",
+      "INC-0029",
+      "INC-0039",
       "INC-0049",
       "INC-0059"
     ],
@@ -440,13 +283,15 @@
       "auth-service",
       "checkout-api",
       "inventory-service",
-      "kafka-orders",
-      "postgres-primary"
+      "notification-worker",
+      "payments-gateway",
+      "postgres-primary",
+      "redis-cache"
     ]
   },
   {
-    "id": 16,
-    "title": "Generalized Pattern: Memory Leak Failures (checkout-api, inventory-service)",
+    "id": 9,
+    "title": "Generalized Pattern: Memory Leak Failures (checkout-api, kafka-orders)",
     "rule_text": "When container OOMKilled restarts or GC pause spikes occur, inspect recent commit diffs for unclosed streams or unbounded in-memory caches.",
     "exceptions_text": "Rule does not hold if traffic volume grew by more than 300% without autoscaling.",
     "trigger_signals": [
@@ -462,51 +307,26 @@
       "RB-memory-leak-restart"
     ],
     "member_incident_ids": [
+      "INC-0005",
       "INC-0015",
       "INC-0025",
+      "INC-0035",
+      "INC-0045",
       "INC-0055"
     ],
     "confidence": 0.88,
     "services": [
       "checkout-api",
-      "inventory-service",
+      "kafka-orders",
+      "notification-worker",
       "orders-service",
       "payments-gateway",
-      "web-frontend"
+      "postgres-primary"
     ]
   },
   {
-    "id": 17,
-    "title": "Generalized Pattern: Memory Leak Failures (auth-service, orders-service)",
-    "rule_text": "When container OOMKilled restarts or GC pause spikes occur, inspect recent commit diffs for unclosed streams or unbounded in-memory caches.",
-    "exceptions_text": "Rule does not hold if traffic volume grew by more than 300% without autoscaling.",
-    "trigger_signals": [
-      "Container terminated with exit code 137 (OOMKilled)",
-      "Heap usage monotonically increasing"
-    ],
-    "recommended_checks": [
-      "Inspect container memory cgroup metrics",
-      "Review recent heap dumps and gc pause times",
-      "Check unclosed HTTP/DB response bodies"
-    ],
-    "recommended_runbooks": [
-      "RB-memory-leak-restart"
-    ],
-    "member_incident_ids": [
-      "INC-0035",
-      "INC-0045"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "auth-service",
-      "orders-service",
-      "payments-gateway",
-      "redis-cache"
-    ]
-  },
-  {
-    "id": 18,
-    "title": "Generalized Pattern: Queue Backlog Failures (notification-worker, orders-service)",
+    "id": 10,
+    "title": "Generalized Pattern: Queue Backlog Failures (auth-service, checkout-api)",
     "rule_text": "When message consumer lag surges and message processing age exceeds SLA, scale consumer worker pools and inspect dead-letter queues.",
     "exceptions_text": "Rule does not hold if consumer crashes on poison pill payloads.",
     "trigger_signals": [
@@ -522,44 +342,23 @@
       "RB-queue-backlog"
     ],
     "member_incident_ids": [
+      "INC-0006",
       "INC-0017",
+      "INC-0027",
       "INC-0037",
+      "INC-0047",
       "INC-0057"
     ],
     "confidence": 0.88,
     "services": [
+      "auth-service",
+      "checkout-api",
+      "kafka-orders",
       "notification-worker",
       "orders-service",
-      "redis-cache",
+      "payments-gateway",
+      "postgres-primary",
       "web-frontend"
-    ]
-  },
-  {
-    "id": 19,
-    "title": "Generalized Pattern: Queue Backlog Failures (checkout-api, inventory-service)",
-    "rule_text": "When message consumer lag surges and message processing age exceeds SLA, scale consumer worker pools and inspect dead-letter queues.",
-    "exceptions_text": "Rule does not hold if consumer crashes on poison pill payloads.",
-    "trigger_signals": [
-      "Kafka/RabbitMQ consumer lag > 10,000",
-      "End-to-end task completion latency degraded"
-    ],
-    "recommended_checks": [
-      "Inspect DLQ error logs for poison payloads",
-      "Check consumer thread pool utilization",
-      "Scale horizontal consumer pods"
-    ],
-    "recommended_runbooks": [
-      "RB-queue-backlog"
-    ],
-    "member_incident_ids": [
-      "INC-0027",
-      "INC-0047"
-    ],
-    "confidence": 0.88,
-    "services": [
-      "checkout-api",
-      "inventory-service",
-      "orders-service"
     ]
   }
 ]

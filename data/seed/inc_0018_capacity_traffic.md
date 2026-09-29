@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0018
 ## Summary
-Service outage affecting notification-worker, inventory-service for 36 minutes.
+Service outage affecting orders-service for 29 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.6.179:9092 with status 503.
+- HTTP 502 Bad Gateway under surge
+- rate limit exceeded
+- Error logs: upstream connect error or disconnect/reset before headers. reset reason: connection termination
 ## Root Cause
-Identified issue in capacity_traffic affecting subsystem stability.
+Identified issue in capacity_traffic affecting subsystem stability: HTTP 502 Bad Gateway under surge.
 ## Resolution Steps
-1. Investigated logs from notification-worker.
-2. Restarted failed components.
+1. Followed runbook RB-bad-deploy-rollback.
+2. Investigated logs from orders-service and applied fix.
 3. Validated health check.

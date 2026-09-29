@@ -18,10 +18,38 @@ from app.models import Cue, Pattern, RetrievalResult, Runbook, ScoredIncident
 logger = get_logger(__name__)
 
 STOP_WORDS = {
-    "the", "a", "an", "and", "or", "in", "on", "at", "to", "for", "of",
-    "with", "by", "from", "up", "about", "into", "over", "after", "is",
-    "are", "was", "were", "be", "been", "being", "have", "has", "had",
-    "do", "does", "did",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "up",
+    "about",
+    "into",
+    "over",
+    "after",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
 }
 
 
@@ -49,6 +77,97 @@ def _cosine_similarity(v1: list[float], v2: list[float]) -> float:
     return float(np.dot(a, b) / (na * nb))
 
 
+_OFFLINE_RUNBOOKS_CACHE: list[dict[str, Any]] | None = None
+
+
+def _get_offline_runbooks() -> list[dict[str, Any]]:
+    global _OFFLINE_RUNBOOKS_CACHE
+    if _OFFLINE_RUNBOOKS_CACHE is not None:
+        return _OFFLINE_RUNBOOKS_CACHE
+
+    rb_dir = Path("data/runbooks")
+    if not rb_dir.exists():
+        return []
+
+    embedder = get_embedder()
+    res = []
+    texts_to_embed = []
+    for f in sorted(rb_dir.glob("RB-*.md")):
+        content = f.read_text(encoding="utf-8")
+        m = re.match(r"^---\s*\n(.*?)\n---\s*\n(.*)$", content, re.DOTALL)
+        body = m.group(2).strip() if m else content
+        rb_id = f.stem
+        title = rb_id.replace("RB-", "").replace("-", " ").title()
+        services: list[str] = []
+        if m:
+            fm = m.group(1)
+            for line in fm.splitlines():
+                if line.startswith("title:"):
+                    title = line.split(":", 1)[1].strip().strip('"').strip("'")
+                elif line.startswith("services:"):
+                    svcs_raw = line.split(":", 1)[1].strip()
+                    services = [s.strip("[] '\"") for s in svcs_raw.split(",") if s.strip("[] '\"")]
+        embed_text = f"{title}\n{body}"
+        res.append(
+            {
+                "id": rb_id,
+                "title": title,
+                "body_md": body,
+                "services": services,
+                "embed_text": embed_text,
+            }
+        )
+        texts_to_embed.append(embed_text)
+
+    if texts_to_embed:
+        embs = embedder.embed_documents(texts_to_embed)
+        for r, emb in zip(res, embs):
+            r["emb"] = emb
+
+    _OFFLINE_RUNBOOKS_CACHE = res
+    return _OFFLINE_RUNBOOKS_CACHE
+
+
+def _find_top_runbooks_by_emb(q_vec: list[float], top_n: int = 2) -> list[Runbook]:
+    try:
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, title, body_md, services, success_count, failure_count, updated_at,
+                           1 - (emb <=> %s::vector) AS sim
+                    FROM runbooks
+                    WHERE emb IS NOT NULL
+                    ORDER BY sim DESC
+                    LIMIT %s;
+                    """,
+                    (q_vec, top_n),
+                )
+                rows = cur.fetchall()
+                if rows:
+                    return [Runbook(**r) for r in rows]
+    except Exception:
+        pass
+
+    rbs = _get_offline_runbooks()
+    if not rbs:
+        return []
+    scored = []
+    for r in rbs:
+        sim = _cosine_similarity(q_vec, r.get("emb", []))
+        scored.append((sim, r))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [
+        Runbook(
+            id=r["id"],
+            title=r["title"],
+            body_md=r["body_md"],
+            services=r.get("services", []),
+        )
+        for _, r in scored[:top_n]
+    ]
+
+
 _OFFLINE_INCIDENTS_CACHE: list[dict[str, Any]] | None = None
 
 
@@ -69,6 +188,9 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
     incidents: list[dict[str, Any]] = []
 
     for fn, meta in labels.items():
+        if meta.get("is_duplicate_of"):
+            continue
+
         m = re.search(r"inc_(\d+)", fn)
         inc_id = f"INC-{int(m.group(1)):04d}" if m else fn
         file_path = seed_dir / fn
@@ -82,8 +204,21 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
         # Error fingerprints & errors
         fps = fingerprints(content)
         error_lines = [
-            line for line in lines
-            if any(k in line.lower() for k in ["error", "exception", "failed", "panic", "timeout", "hikaripool", "x509", "dial tcp"])
+            line
+            for line in lines
+            if any(
+                k in line.lower()
+                for k in [
+                    "error",
+                    "exception",
+                    "failed",
+                    "panic",
+                    "timeout",
+                    "hikaripool",
+                    "x509",
+                    "dial tcp",
+                ]
+            )
         ]
 
         # Symptoms & Root Cause
@@ -95,7 +230,9 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             if re.match(r"^\d+\.\s+", line):
                 res_steps.append(re.sub(r"^\d+\.\s+", "", line))
 
-        symptoms = [line[2:] for line in lines if line.startswith("- ") or line.startswith("* ")][:4]
+        symptoms = [line[2:] for line in lines if line.startswith("- ") or line.startswith("* ")][
+            :4
+        ]
         runbooks = re.findall(r"\b(RB-[a-zA-Z0-9_\-]+)\b", content)
 
         symptom_text = (
@@ -103,26 +240,50 @@ def _get_offline_incidents() -> list[dict[str, Any]]:
             f"Errors: {' '.join(error_lines[:2])}. "
             f"Services: {' '.join(meta.get('services', []))}."
         )
-        emb = embedder.embed_query(normalize_text(symptom_text))
 
-        incidents.append({
-            "id": inc_id,
-            "title": title,
-            "category": meta.get("category", "unknown"),
-            "services": meta.get("services", []),
-            "lookalike_partner": meta.get("lookalike_partner"),
-            "symptoms": symptoms,
-            "error_fingerprints": fps,
-            "error_text": " ".join(error_lines).lower(),
-            "content": content.lower(),
-            "root_cause": root_cause,
-            "resolution_steps": res_steps or ["Restart service and apply runbook"],
-            "runbook_ids": list(set(runbooks)),
-            "fix_worked": True,
-            "weight": 1.0,
-            "trigger_type": "deploy" if "deploy" in content.lower() else "unknown",
-            "emb": emb,
-        })
+        trigger = "unknown"
+        if "deploy" in content.lower() or "version" in content.lower():
+            trigger = "deploy"
+        elif (
+            "cron" in content.lower()
+            or "scheduled" in content.lower()
+            or "nightly" in content.lower()
+        ):
+            trigger = "cron"
+        elif (
+            "traffic" in content.lower() or "load" in content.lower() or "surge" in content.lower()
+        ):
+            trigger = "traffic"
+        elif "config" in content.lower():
+            trigger = "config"
+
+        incidents.append(
+            {
+                "id": inc_id,
+                "title": title,
+                "category": meta.get("category", "unknown"),
+                "services": meta.get("services", []),
+                "lookalike_partner": meta.get("lookalike_partner"),
+                "symptoms": symptoms,
+                "error_fingerprints": fps,
+                "error_text": " ".join(error_lines).lower(),
+                "content": content.lower(),
+                "root_cause": root_cause,
+                "resolution_steps": res_steps or ["Restart service and apply runbook"],
+                "runbook_ids": list(set(runbooks)),
+                "fix_worked": meta.get("fix_worked", True),
+                "weight": float(meta.get("weight", 1.0)),
+                "architecture_epoch": int(meta.get("architecture_epoch", 1)),
+                "trigger_type": trigger,
+                "symptom_text": symptom_text,
+            }
+        )
+
+    if incidents:
+        texts = [normalize_text(inc["symptom_text"]) for inc in incidents]
+        embs = embedder.embed_documents(texts)
+        for inc, emb in zip(incidents, embs):
+            inc["emb"] = emb
 
     _OFFLINE_INCIDENTS_CACHE = incidents
     return incidents
@@ -144,7 +305,10 @@ def _offline_recall(
         return RetrievalResult(incidents=[], patterns=[], runbooks=[])
 
     exclude_ids = set(cue.exclude_ids or [])
-    norm_cue_text = normalize_text(cue.text)
+    full_cue_text = cue.text
+    if cue.error_messages:
+        full_cue_text = f"{cue.text} {' '.join(cue.error_messages)}"
+    norm_cue_text = normalize_text(full_cue_text)
     combined_errors = "\n".join(cue.error_messages + cue.stack_traces)
     cue_fps = set(fingerprints(combined_errors)) if combined_errors else set()
 
@@ -191,21 +355,34 @@ def _offline_recall(
         if w_code > 0 and cue.files:
             c = 1.0 if any(f.lower() in inc["content"] for f in cue.files) else 0.0
 
-        base = (
-            w_vec * v
-            + w_fts * f
-            + w_fp * fp
-            + w_svc * s
-            + w_code * c
-        )
+        base = w_vec * v + w_fts * f + w_fp * fp + w_svc * s + w_code * c
 
         rb_probs = [get_runbook_success_probability(rb_id) for rb_id in inc["runbook_ids"]]
         best_rb_p = max(rb_probs) if rb_probs else 0.5
         final = base * float(inc["weight"]) * (0.85 + 0.30 * best_rb_p)
 
         flags: list[str] = []
+        if inc.get("fix_worked") is False:
+            final *= 0.7
+            flags.append("fix_did_not_work")
+
         if cue.services and not (cue_services & set(inc["services"])):
             flags.append("service_mismatch")
+
+        if (
+            cue.trigger_type
+            and inc.get("trigger_type")
+            and cue.trigger_type != "unknown"
+            and inc.get("trigger_type") != "unknown"
+            and cue.trigger_type != inc.get("trigger_type")
+        ):
+            flags.append("trigger_mismatch")
+
+        if inc.get("architecture_epoch", 1) < 1:
+            flags.append("stale_architecture")
+
+        if float(inc.get("weight", 1.0)) < 0.6:
+            flags.append("old")
 
         matched_on: list[str] = []
         if v >= 0.4:
@@ -255,6 +432,14 @@ def _offline_recall(
         if rb:
             result_runbooks.append(rb)
 
+    # Top 2 runbooks by direct embedding similarity
+    existing_ids = {rb.id for rb in result_runbooks}
+    direct_rbs = _find_top_runbooks_by_emb(q_vec, top_n=2)
+    for drb in direct_rbs:
+        if drb.id not in existing_ids:
+            result_runbooks.append(drb)
+            existing_ids.add(drb.id)
+
     matched_patterns: list[Pattern] = []
     patterns_file = Path("data/consolidated_patterns.json")
     if patterns_file.exists():
@@ -265,9 +450,9 @@ def _offline_recall(
             for p_dict in all_patterns:
                 title_lower = p_dict.get("title", "").lower()
                 p_services = [s.lower() for s in p_dict.get("services", [])]
-                if any(s.lower() in p_services or s.lower() in title_lower for s in cue.services) or any(
-                    tok in cue_text for tok in title_lower.split() if len(tok) > 4
-                ):
+                if any(
+                    s.lower() in p_services or s.lower() in title_lower for s in cue.services
+                ) or any(tok in cue_text for tok in title_lower.split() if len(tok) > 4):
                     matched_patterns.append(Pattern(**p_dict))
                     if len(matched_patterns) >= 2:
                         break
@@ -320,7 +505,10 @@ def recall(
         w_code = weights_override.get("W_CODE", w_code)
 
     # 1. Normalize cue text & generate fingerprints
-    norm_cue_text = normalize_text(cue.text)
+    full_cue_text = cue.text
+    if cue.error_messages:
+        full_cue_text = f"{cue.text} {' '.join(cue.error_messages)}"
+    norm_cue_text = normalize_text(full_cue_text)
     combined_errors = "\n".join(cue.error_messages + cue.stack_traces)
     cue_fps = fingerprints(combined_errors) if combined_errors else []
 
@@ -374,7 +562,9 @@ def recall(
                         raw_fts = cur.fetchall()
                         max_rank = max([r["rank"] for r in raw_fts], default=0.0)
                         for r in raw_fts:
-                            fts_scores[r["id"]] = float(r["rank"]) / max_rank if max_rank > 0 else 0.0
+                            fts_scores[r["id"]] = (
+                                float(r["rank"]) / max_rank if max_rank > 0 else 0.0
+                            )
 
                 # 2c. Fingerprint Candidates
                 if w_fp > 0 and cue_fps:
@@ -472,13 +662,7 @@ def recall(
         s = svc_scores.get(inc_id, 0.0)
         c = code_scores.get(inc_id, 0.0)
 
-        base = (
-            w_vec * v
-            + w_fts * f
-            + w_fp * fp
-            + w_svc * s
-            + w_code * c
-        )
+        base = w_vec * v + w_fts * f + w_fp * fp + w_svc * s + w_code * c
 
         rb_probs = [get_runbook_success_probability(rb_id) for rb_id in rec["runbook_ids"]]
         best_rb_p = max(rb_probs) if rb_probs else 0.5
@@ -578,13 +762,41 @@ def recall(
         target_rb_ids.update(pat.recommended_runbooks)
 
     result_runbooks = []
+    existing_ids = set()
     for rb_id in target_rb_ids:
         rb = get_runbook(rb_id)
         if rb:
             result_runbooks.append(rb)
+            existing_ids.add(rb.id)
+
+    # Top 2 runbooks by direct embedding similarity
+    direct_rbs = _find_top_runbooks_by_emb(q_vec, top_n=2)
+    for drb in direct_rbs:
+        if drb.id not in existing_ids:
+            result_runbooks.append(drb)
+            existing_ids.add(drb.id)
 
     return RetrievalResult(
         incidents=top_incidents,
         patterns=matched_patterns,
         runbooks=result_runbooks,
     )
+
+
+def compute_relevance_breakdown(incident: ScoredIncident) -> dict[str, float]:
+    """Computes percentage contribution of each signal component to the final hybrid score."""
+    total = incident.final
+    if total <= 0:
+        return {"vec": 0.0, "fts": 0.0, "fp": 0.0, "svc": 0.0, "code": 0.0}
+    vec = incident.scores.get("vec", 0.0)
+    fts = incident.scores.get("fts", 0.0)
+    fp = incident.scores.get("fp", 0.0)
+    svc = incident.scores.get("svc", 0.0)
+    code = incident.scores.get("code", 0.0)
+    return {
+        "vec": round((vec * 0.45 / total) * 100, 1),
+        "fts": round((fts * 0.20 / total) * 100, 1),
+        "fp": round((fp * 0.20 / total) * 100, 1),
+        "svc": round((svc * 0.10 / total) * 100, 1),
+        "code": round((code * 0.05 / total) * 100, 1),
+    }

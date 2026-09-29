@@ -1,12 +1,13 @@
 # Post-Mortem: Incident INC-0027
 ## Summary
-Service outage affecting inventory-service, checkout-api for 28 minutes.
+Service outage affecting checkout-api, postgres-primary for 37 minutes.
 ## Symptoms
-- HTTP 500 and 503 errors on endpoints.
-- Error logs: Connection failed to 10.0.19.225:8000 with status 503.
+- Kafka consumer lag exceeding 500k messages
+- event ingestion delay
+- Error logs: CommitFailedException: Commit cannot be completed since the group has already rebalanced
 ## Root Cause
-Identified issue in queue_backlog affecting subsystem stability.
+Identified issue in queue_backlog affecting subsystem stability: Kafka consumer lag exceeding 500k messages.
 ## Resolution Steps
-1. Investigated logs from inventory-service.
-2. Restarted failed components.
+1. Followed runbook RB-queue-backlog.
+2. Investigated logs from checkout-api and applied fix.
 3. Validated health check.

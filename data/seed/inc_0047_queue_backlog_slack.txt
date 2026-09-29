@@ -1,0 +1,5 @@
+[14:02:11] @channel Alert: orders-service Kafka consumer lag exceeding 500k messages INC-0047
+[14:03:00] @alice: Seeing errors: ConsumerLagAlert: Partition 3 consumer lag exceeded 200000 messages
+[14:05:30] @bob: Root cause is queue_backlog. Following runbook RB-queue-backlog.
+[14:12:00] @bob: Applying mitigation steps for queue_backlog.
+[14:18:22] @alice: Error rate back down to 0.1%. Outage resolved.
