@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, List, Optional
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from app.agent.investigate import investigate
@@ -23,6 +23,7 @@ from app.memory.working import (
 )
 from app.memory.working import create as create_working_memory
 from app.models import Cue, Hypothesis, LiveEvent
+from app.ui.portal import get_portal_html
 
 logger = get_logger(__name__)
 
@@ -97,18 +98,27 @@ class PRCheckRequest(BaseModel):
     diff: str | None = None
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root(request: Request):
     accept = request.headers.get("accept", "")
-    if "text/html" in accept:
-        return RedirectResponse(url="/docs")
-    return {
-        "status": "healthy",
-        "service": "Incident Response Agent",
-        "version": "0.1.0",
-        "docs": "/docs",
-        "health": "/healthz",
-    }
+    if "application/json" in accept and "text/html" not in accept:
+        return JSONResponse(
+            content={
+                "status": "healthy",
+                "service": "Incident Response Agent",
+                "version": "0.1.0",
+                "docs": "/docs",
+                "health": "/healthz",
+                "portal": "/",
+            }
+        )
+    return HTMLResponse(content=get_portal_html())
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/portal", response_class=HTMLResponse)
+def portal_view():
+    return HTMLResponse(content=get_portal_html())
 
 
 @app.get("/healthz")
